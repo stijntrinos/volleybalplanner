@@ -2,8 +2,10 @@
 
 namespace App\Planner;
 
+use App\Planner\Filament\NavigationGroups;
 use Closure;
 use Filament\Contracts\Plugin;
+use Filament\Navigation\NavigationGroup;
 use Filament\Panel;
 use Illuminate\Contracts\Support\Htmlable;
 
@@ -24,7 +26,11 @@ class PlannerPlugin implements Plugin
     public function register(Panel $panel): void
     {
         $panel
-            ->discoverClusters(in: app_path('Planner/Filament/Clusters'), for: 'App\\Planner\\Filament\\Clusters')
+            ->navigationGroups([
+                NavigationGroup::make(NavigationGroups::PLANNING)->label(__(NavigationGroups::PLANNING)),
+                NavigationGroup::make(NavigationGroups::INPUT)->label(__(NavigationGroups::INPUT)),
+                NavigationGroup::make(NavigationGroups::MASTER_DATA)->label(__(NavigationGroups::MASTER_DATA)),
+            ])
             ->discoverResources(in: app_path('Planner/Filament/Resources'), for: 'App\\Planner\\Filament\\Resources')
             ->discoverPages(in: app_path('Planner/Filament/Pages'), for: 'App\\Planner\\Filament\\Pages')
             ->discoverWidgets(in: app_path('Planner/Filament/Widgets'), for: 'App\\Planner\\Filament\\Widgets');
