@@ -10,9 +10,5 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         Artisan::call('planner:sync-roles');
-
-        if (app()->isLocal()) {
-            $this->call(DemoClubSeeder::class);
-        }
     }
 }
