@@ -80,7 +80,7 @@ trait MovesMatches
                 'source' => 'drag',
                 'match_id' => $matchId, 'venue_id' => $venueId, 'court_id' => $courtId, 'time' => $time,
                 'description' => trim($match->home_team_name.' – '.$match->away_team_name, ' –'),
-                'conflicts' => array_values($result['conflicts']),
+                'conflicts' => $result['conflicts'],
             ];
 
             return;

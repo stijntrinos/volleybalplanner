@@ -55,7 +55,7 @@ trait ManagesVolleystarsModal
         $this->modalVolleystarsTeams = collect($this->volleystarsRoles)
             ->mapWithKeys(function (string $label, string $role) use ($block): array {
                 $teams = $block->tasks
-                    ->filter(fn ($task): bool => $task->role?->value === $role)
+                    ->filter(fn ($task): bool => $task->role->value === $role)
                     ->sortBy('sort_order')
                     ->pluck('team_id')
                     ->filter()
@@ -79,7 +79,7 @@ trait ManagesVolleystarsModal
         $this->requireVolleystarsModule();
         abort_unless(
             auth()->user()?->can('Update:VolleystarsBlock')
-            && auth()->user()?->can('Update:VolleystarsTask'),
+            && auth()->user()->can('Update:VolleystarsTask'),
             403,
         );
 
@@ -149,7 +149,7 @@ trait ManagesVolleystarsModal
         Notification::make()->title(__('VolleyStars-taken opgeslagen'))->success()->send();
     }
 
-    /** @return Collection<int, string> */
+    /** @return Collection<int, non-falsy-string> */
     public function getVolleystarsTeamsProperty(): Collection
     {
         return Team::query()

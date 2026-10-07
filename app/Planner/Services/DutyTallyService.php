@@ -3,12 +3,9 @@
 namespace App\Planner\Services;
 
 use App\Planner\Features\PlannerFeature;
-use App\Planner\Models\FixtureMatch;
-use App\Planner\Models\HallDuty;
 use App\Planner\Models\PlannerSetting;
 use App\Planner\Models\ScheduleVersion;
 use App\Planner\Models\Team;
-use App\Planner\Models\VolleystarsTask;
 use App\Planner\Services\Duties\DutyPlanner;
 use App\Planner\Support\TeamCode;
 use App\Support\Tenancy\CurrentClub;
@@ -54,32 +51,36 @@ class DutyTallyService
             ], fn (mixed $value): bool => $value !== null)])->all();
         $points = $this->points($withPoints);
 
-        $count = function (?string $code, string $duty) use (&$result, $points): void {
-            $key = TeamCode::key($code);
-            if ($key === '' || !array_key_exists($key, $result)) {
-                return;
-            }
-
-            $result[$key][$duty] += $points[$duty];
-            $result[$key]['total'] += $points[$duty];
-        };
-
-        $version->matches()->tap($period)->get(['referee', 'scorer'])->each(function (FixtureMatch $match) use ($count): void {
+        // Every duty as [team code, duty column], tallied in one pass below.
+        $duties = [];
+        foreach ($version->matches()->tap($period)->get(['referee', 'scorer']) as $match) {
             foreach (['referee', 'scorer'] as $duty) {
                 $code = trim((string) $match->{$duty});
                 if ($code === '' || strcasecmp($code, DutyPlanner::NEVOBO) === 0) {
                     continue;
                 }
-                $count($code, $duty);
+                $duties[] = [$code, $duty];
             }
-        });
-        $version->hallDuties()->tap($period)->with('team')->get()->each(
-            fn (HallDuty $duty) => $duty->team ? $count($duty->team->code, 'hall_duty') : null,
-        );
+        }
+        foreach ($version->hallDuties()->tap($period)->with('team')->get() as $hallDuty) {
+            $duties[] = [$hallDuty->team->code, 'hall_duty'];
+        }
         if ($withVolleystars) {
-            $version->volleystarsBlocks()->tap($period)->with('tasks.team')->get()->flatMap->tasks->each(
-                fn (VolleystarsTask $task) => $task->team ? $count($task->team->code, 'volleystars') : null,
-            );
+            foreach ($version->volleystarsBlocks()->tap($period)->with('tasks.team')->get()->flatMap->tasks as $task) {
+                if ($task->team) {
+                    $duties[] = [$task->team->code, 'volleystars'];
+                }
+            }
+        }
+
+        foreach ($duties as [$code, $duty]) {
+            $key = TeamCode::key($code);
+            if ($key === '' || !array_key_exists($key, $result)) {
+                continue;
+            }
+
+            $result[$key][$duty] += $points[$duty];
+            $result[$key]['total'] += $points[$duty];
         }
 
         if ($withPoints) {

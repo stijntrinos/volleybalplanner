@@ -71,7 +71,7 @@ class PlannerService
         $check = $this->availability->check($match, $placement);
         $findings = $check['reasons'];
         $hardConflicts = collect($findings)->where('level', ConflictEngine::LEVEL_CONFLICT);
-        $policy = UserPreference::query()->where('user_id', $userId)->first()?->overlap_policy ?? OverlapPolicy::Warn;
+        $policy = UserPreference::query()->where('user_id', $userId)->first()->overlap_policy ?? OverlapPolicy::Warn;
         if ($hardConflicts->isNotEmpty() && $policy === OverlapPolicy::Deny) {
             throw new DomainException(__('Deze plaatsing veroorzaakt een conflict en is niet toegestaan.'));
         }
@@ -195,7 +195,7 @@ class PlannerService
         $match->update([
             'date' => $match->nevobo_new_date ?? $match->date,
             'time' => $match->nevobo_new_time ?? $match->time,
-            'venue_id' => $venue?->id ?? $match->venue_id,
+            'venue_id' => $venue->id ?? $match->venue_id,
             'original_date' => $match->nevobo_new_date ?? $match->date,
             'original_time' => $match->nevobo_new_time ?? $match->time,
             'original_venue' => $match->nevobo_new_venue ?? $match->original_venue,

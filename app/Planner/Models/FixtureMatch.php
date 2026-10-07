@@ -2,6 +2,7 @@
 
 namespace App\Planner\Models;
 
+use App\Models\Club;
 use App\Planner\Enums\AwayChangeStatus;
 use App\Planner\Enums\ChangeStatus;
 use App\Planner\Enums\MatchType;
@@ -12,10 +13,144 @@ use Database\Factories\Planner\FixtureMatchFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * A match in a schedule version. Named FixtureMatch because "Match" is a
  * reserved word in PHP.
+ *
+ * @property int $id
+ * @property int $club_id
+ * @property int $version_id
+ * @property Carbon|null $date
+ * @property string|null $time
+ * @property int $duration_minutes
+ * @property string $home_team_name
+ * @property string $away_team_name
+ * @property int|null $home_team_id
+ * @property int|null $away_team_id
+ * @property string|null $pool
+ * @property string $match_code
+ * @property string|null $region
+ * @property MatchType $match_type
+ * @property int|null $venue_id
+ * @property int|null $court_id
+ * @property int|null $second_court_id
+ * @property Carbon|null $provisional_date
+ * @property string|null $provisional_time
+ * @property int|null $provisional_duration_minutes
+ * @property int|null $provisional_venue_id
+ * @property int|null $provisional_court_id
+ * @property int|null $provisional_second_court_id
+ * @property string|null $referee
+ * @property bool $referee_auto
+ * @property bool $nevobo_referee
+ * @property NevoboStatus $nevobo_status
+ * @property NevoboChangeStatus $nevobo_change_status
+ * @property Carbon|null $nevobo_changed_at
+ * @property Carbon|null $nevobo_previous_date
+ * @property string|null $nevobo_previous_time
+ * @property string|null $nevobo_previous_venue
+ * @property Carbon|null $nevobo_new_date
+ * @property string|null $nevobo_new_time
+ * @property string|null $nevobo_new_venue
+ * @property string|null $scorer
+ * @property bool $scorer_auto
+ * @property string|null $notes
+ * @property Carbon|null $original_date
+ * @property string|null $original_time
+ * @property string|null $original_venue
+ * @property string|null $original_court
+ * @property ChangeStatus|null $change_status
+ * @property bool $change_requested
+ * @property Carbon|null $change_requested_at
+ * @property int|null $change_requested_by
+ * @property AwayChangeStatus $away_change_status
+ * @property Carbon|null $away_new_date
+ * @property string|null $away_new_time
+ * @property string|null $away_new_venue
+ * @property string|null $away_notes
+ * @property bool $is_sitting_volleyball
+ * @property int|null $suggested_court_id
+ * @property int|null $suggested_duration_minutes
+ * @property int|null $created_by
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Team|null $awayTeam
+ * @property-read Club $club
+ * @property-read Court|null $court
+ * @property-read Team|null $homeTeam
+ * @property-read Court|null $provisionalCourt
+ * @property-read Court|null $provisionalSecondCourt
+ * @property-read Venue|null $provisionalVenue
+ * @property-read Court|null $secondCourt
+ * @property-read Court|null $suggestedCourt
+ * @property-read Venue|null $venue
+ * @property-read ScheduleVersion $version
+ *
+ * @method static \Database\Factories\Planner\FixtureMatchFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereAwayChangeStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereAwayNewDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereAwayNewTime($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereAwayNewVenue($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereAwayNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereAwayTeamId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereAwayTeamName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereChangeRequested($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereChangeRequestedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereChangeRequestedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereChangeStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereClubId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereCourtId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereCreatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereDurationMinutes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereHomeTeamId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereHomeTeamName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereIsSittingVolleyball($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereMatchCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereMatchType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereNevoboChangeStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereNevoboChangedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereNevoboNewDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereNevoboNewTime($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereNevoboNewVenue($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereNevoboPreviousDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereNevoboPreviousTime($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereNevoboPreviousVenue($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereNevoboReferee($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereNevoboStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereOriginalCourt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereOriginalDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereOriginalTime($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereOriginalVenue($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch wherePool($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereProvisionalCourtId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereProvisionalDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereProvisionalDurationMinutes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereProvisionalSecondCourtId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereProvisionalTime($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereProvisionalVenueId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereReferee($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereRefereeAuto($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereRegion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereScorer($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereScorerAuto($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereSecondCourtId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereSuggestedCourtId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereSuggestedDurationMinutes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereTime($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereVenueId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FixtureMatch whereVersionId($value)
+ *
+ * @mixin \Eloquent
  */
 class FixtureMatch extends Model
 {

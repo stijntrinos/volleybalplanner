@@ -163,7 +163,7 @@ trait ManagesPlanningAssistant
         }
         // Without confirmation the planner writes nothing on a conflict; then
         // there should be no message that it worked either.
-        if ($result['confirmation_required'] ?? false) {
+        if ($result['confirmation_required']) {
             $this->showError(__('Voorstel niet toegepast'), __('Dit moment geeft een conflict. Controleer het opnieuw.'));
 
             return;

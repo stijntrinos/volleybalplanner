@@ -104,10 +104,10 @@ trait ManagesDutyBlocks
         );
 
         $this->draft['matches'] = $this->replaceRows(
-            $this->draft['matches'] ?? [], $fresh['matches'] ?? [], $date, $venueId,
+            $this->draft['matches'] ?? [], $fresh['matches'], $date, $venueId,
         );
         $this->draft['hall_duties'] = $this->replaceRows(
-            $this->draft['hall_duties'] ?? [], $fresh['hall_duties'] ?? [], $date, $venueId,
+            $this->draft['hall_duties'] ?? [], $fresh['hall_duties'], $date, $venueId,
         );
         $this->validation = [];
         $this->checkedAt = null;

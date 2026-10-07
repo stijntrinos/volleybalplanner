@@ -142,7 +142,7 @@ class VolleystarsBlockResource extends Resource
                 ->formatStateUsing(fn (int $state): string => $state === 1 ? __('1 taak') : __(':count taken', ['count' => $state]))
                 ->description(fn (VolleystarsBlock $record): string => __(':count toegewezen', ['count' => $record->assigned_tasks_count ?? 0])),
             TextColumn::make('version.name')->label(__('Planningversie'))->badge()
-                ->color(fn (VolleystarsBlock $record): string => VersionDefaults::statusColor($record->version?->status)),
+                ->color(fn (VolleystarsBlock $record): string => VersionDefaults::statusColor($record->version->status)),
         ])
             ->modifyQueryUsing(fn ($query) => $query->withCount(['tasks as assigned_tasks_count' => fn ($query) => $query->whereNotNull('team_id')]))
             ->filters([

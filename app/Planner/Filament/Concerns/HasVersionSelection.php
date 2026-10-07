@@ -13,7 +13,7 @@ use Illuminate\Support\Collection;
  */
 trait HasVersionSelection
 {
-    /** @return Collection<int, string> */
+    /** @return Collection<int, non-falsy-string> */
     public function getVersionsProperty(): Collection
     {
         return ScheduleVersion::query()->latest()->get()->mapWithKeys(fn (ScheduleVersion $version): array => [

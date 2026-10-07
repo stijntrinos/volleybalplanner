@@ -362,7 +362,7 @@ class ConflictEngine
                 $findings[] = [
                     'level' => self::LEVEL_CONFLICT, 'type' => self::TYPE_TRAINING,
                     'message' => __(':team heeft training van :start tot :end.', [
-                        'team' => $training->team?->code ?? __('Het team'),
+                        'team' => $training->team->code ?? __('Het team'),
                         'start' => substr((string) $training->start_time, 0, 5),
                         'end' => substr((string) $training->end_time, 0, 5),
                     ]),
@@ -444,7 +444,6 @@ class ConflictEngine
             AvailabilityScope::Weekday => $rule->weekday === Weekday::number($day),
             AvailabilityScope::Period => $rule->period_start && $rule->period_end
                 && $day->betweenIncluded($rule->period_start, $rule->period_end),
-            default => false,
         };
     }
 
@@ -454,7 +453,6 @@ class ConflictEngine
             AvailabilityScope::Date => 30,
             AvailabilityScope::Period => 20,
             AvailabilityScope::Weekday => 10,
-            default => 0,
         };
     }
 

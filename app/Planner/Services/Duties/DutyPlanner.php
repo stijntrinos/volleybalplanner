@@ -313,6 +313,7 @@ class DutyPlanner
     }
 
     /**
+     * @param  Collection<int, Team>  $teams
      * @param  array<int, array{referee: int, scorer: int, hall_duty: int, total: int, used: int}>  $tallies
      * @param  array<string, int>  $points
      * @param  array<string, int>  $taken
@@ -343,12 +344,15 @@ class DutyPlanner
             return null;
         }
 
-        $tallies[$team->id][$key]++;
-        $tallies[$team->id]['total'] += $points[$key];
+        $tally = $tallies[$team->id];
+        $tally[$key]++;
+        $tally['total'] += $points[$key];
+        $tallies[$team->id] = $tally;
 
         return $team->code;
     }
 
+    /** @return 'referee'|'scorer'|'hall_duty' */
     private function tallyKey(DutyType $duty): string
     {
         return match ($duty) {

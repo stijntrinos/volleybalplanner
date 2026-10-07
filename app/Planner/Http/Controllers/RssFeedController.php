@@ -40,7 +40,7 @@ class RssFeedController
     public function venue(mixed $club, string $name): Response
     {
         $matches = $this->feeds->matches()
-            ->filter(fn (FixtureMatch $match): bool => mb_strtolower($match->venue?->name ?? '') === mb_strtolower($name));
+            ->filter(fn (FixtureMatch $match): bool => mb_strtolower($match->venue->name ?? '') === mb_strtolower($name));
 
         return $this->response(
             __(':club wedstrijden in :venue', ['club' => $this->clubName(), 'venue' => $name]),

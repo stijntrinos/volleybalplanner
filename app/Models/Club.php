@@ -5,10 +5,37 @@ namespace App\Models;
 use App\Planner\Features\PlannerFeature;
 use Database\Factories\ClubFactory;
 use Filament\Models\Contracts\HasName;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $slug
+ * @property bool $is_active
+ * @property array<array-key, mixed>|null $features
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, User> $users
+ * @property-read int|null $users_count
+ *
+ * @method static \Database\Factories\ClubFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Club newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Club newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Club query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Club whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Club whereFeatures($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Club whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Club whereIsActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Club whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Club whereSlug($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Club whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class Club extends Model implements HasName
 {
     /** @use HasFactory<ClubFactory> */

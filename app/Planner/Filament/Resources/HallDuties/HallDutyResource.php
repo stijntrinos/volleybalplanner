@@ -113,11 +113,11 @@ class HallDutyResource extends Resource
                 ->description(fn (HallDuty $record): string => substr((string) $record->start_time, 0, 5).' – '.substr((string) $record->end_time, 0, 5)),
             TextColumn::make('team.code')
                 ->label(__('Verantwoordelijk team'))->searchable()->weight('semibold')
-                ->description(fn (HallDuty $record): ?string => $record->team?->name),
+                ->description(fn (HallDuty $record): string => $record->team->name),
             TextColumn::make('venue.name')->label(__('Sporthal'))->searchable()->sortable(),
             TextColumn::make('version.name')
                 ->label(__('Planningversie'))->badge()
-                ->color(fn (HallDuty $record): string => VersionDefaults::statusColor($record->version?->status)),
+                ->color(fn (HallDuty $record): string => VersionDefaults::statusColor($record->version->status)),
             TextColumn::make('notes')->label(__('Opmerking'))->limit(45)->tooltip(fn (HallDuty $record): ?string => $record->notes)->toggleable(isToggledHiddenByDefault: true),
         ])->filters([
             SelectFilter::make('version_id')

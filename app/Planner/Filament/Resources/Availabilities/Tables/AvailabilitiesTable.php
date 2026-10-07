@@ -37,13 +37,11 @@ class AvailabilitiesTable
                         AvailabilityScope::Date => __('Eenmalig'),
                         AvailabilityScope::Weekday => __('Wekelijks'),
                         AvailabilityScope::Period => __('Periode'),
-                        default => '',
                     })
                     ->icon(fn (Availability $record): string => match ($record->scope) {
                         AvailabilityScope::Date => 'heroicon-o-calendar',
                         AvailabilityScope::Weekday => 'heroicon-o-arrow-path',
                         AvailabilityScope::Period => 'heroicon-o-calendar-days',
-                        default => 'heroicon-o-clock',
                     }),
                 TextColumn::make('window')
                     ->label(__('Tijd'))
@@ -117,7 +115,6 @@ class AvailabilitiesTable
                 'from' => $record->period_start?->format('d-m-Y') ?? '—',
                 'until' => $record->period_end?->format('d-m-Y') ?? '—',
             ]),
-            default => '—',
         };
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Planner\Models;
 
+use App\Models\Club;
 use App\Models\User;
 use App\Planner\Enums\ChangeReason;
 use App\Planner\Enums\ChangeRequestKind;
@@ -14,12 +15,80 @@ use Database\Factories\Planner\ChangeRequestFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * A request from a team contact to change a match or a duty, submitted via a
  * shared link. It records what was asked and what the planning committee
  * decided; the actual change happens in the planner, so there are never two
  * places that manage the planning.
+ *
+ * @property int $id
+ * @property int $club_id
+ * @property int|null $match_id
+ * @property int|null $hall_duty_id
+ * @property string|null $match_code
+ * @property int|null $team_id
+ * @property ChangeRequestKind $kind
+ * @property DutyType|null $duty_type
+ * @property Carbon|null $duty_date
+ * @property string|null $duty_time
+ * @property string|null $duty_location
+ * @property string|null $duty_description
+ * @property string $name
+ * @property string $email
+ * @property string|null $phone
+ * @property ContactPreference $contact_preference
+ * @property string $reason
+ * @property string|null $reason_other
+ * @property string $explanation
+ * @property Carbon|null $proposed_date
+ * @property string|null $proposed_time
+ * @property ChangeRequestStatus $status
+ * @property string|null $note
+ * @property Carbon|null $handled_at
+ * @property int|null $handled_by
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Club $club
+ * @property-read HallDuty|null $hallDuty
+ * @property-read User|null $handledBy
+ * @property-read FixtureMatch|null $match
+ * @property-read Team|null $team
+ *
+ * @method static \Database\Factories\Planner\ChangeRequestFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereClubId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereContactPreference($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereDutyDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereDutyDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereDutyLocation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereDutyTime($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereDutyType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereExplanation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereHallDutyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereHandledAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereHandledBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereKind($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereMatchCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereMatchId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereNote($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest wherePhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereProposedDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereProposedTime($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereReason($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereReasonOther($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereTeamId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ChangeRequest whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
  */
 class ChangeRequest extends Model
 {

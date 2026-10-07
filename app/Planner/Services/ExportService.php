@@ -59,7 +59,7 @@ class ExportService
         $rows = collect($this->conflicts->scanVersion($version))
             ->map(fn (array $finding): array => [
                 $finding['level'], $finding['type'], $finding['message'],
-                $finding['subject_match_id'] ?? '', $finding['match_id'] ?? '',
+                $finding['subject_match_id'], $finding['match_id'] ?? '',
             ])
             ->all();
 
@@ -96,7 +96,7 @@ class ExportService
                 $match->date->toDateString(), $start, $end, $match->venue?->name,
                 $match->court?->name, $match->home_team_name, $match->away_team_name,
                 $match->match_code, $match->referee ?: '—', $match->scorer ?: '—',
-                $duties->map(fn (HallDuty $duty): ?string => $duty->team?->code
+                $duties->map(fn (HallDuty $duty): ?string => $duty->team->code
                     ? $duty->team->code.' ('.substr((string) $duty->start_time, 0, 5).'–'.substr((string) $duty->end_time, 0, 5).')'
                     : null)->filter()->unique()->implode(', ') ?: '—',
                 $match->notes ?: '',
@@ -271,7 +271,7 @@ class ExportService
      * elsewhere would occupy rooms that venue does not have.
      *
      * @param  Collection<int, FixtureMatch>  $matches
-     * @return Collection<int, array<string, mixed>>
+     * @return Collection<int, array{id: int, start: string, end: string, home: string, away: string, home_category: ?string}>
      */
     private function lockerRoomInput(Collection $matches): Collection
     {

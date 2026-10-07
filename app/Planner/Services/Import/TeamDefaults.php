@@ -50,7 +50,7 @@ class TeamDefaults
                 $updates['second_court_id'] = Court::query()->where('venue_id', $venueId)
                     ->where('is_training_court', false)
                     ->whereKeyNot($firstCourtId)
-                    ->orderByRaw('ABS(sort_order - ?)', [$firstCourt?->sort_order ?? 1])
+                    ->orderByRaw('ABS(sort_order - ?)', [$firstCourt->sort_order ?? 1])
                     ->orderBy('sort_order')
                     ->value('id');
             }

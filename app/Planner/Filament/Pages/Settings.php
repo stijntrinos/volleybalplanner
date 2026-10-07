@@ -2,7 +2,6 @@
 
 namespace App\Planner\Filament\Pages;
 
-use App\Planner\Enums\OverlapPolicy;
 use App\Planner\Filament\Concerns\HasPlannerPage;
 use App\Planner\Filament\NavigationGroups;
 use App\Planner\Filament\Pages\Concerns\BuildsSettingsTabs;
@@ -85,7 +84,7 @@ class Settings extends Page implements HasForms
                 ->all(),
         ] + $settings->only(self::SETTING_FIELDS) + [
             'default_venue_id' => $preference->default_venue_id,
-            'overlap_policy' => $preference->overlap_policy?->value ?? OverlapPolicy::Warn->value,
+            'overlap_policy' => $preference->overlap_policy->value,
             'publish_with_conflicts' => (bool) $preference->publish_with_conflicts,
             'show_trainings' => (bool) ($preference->show_trainings ?? true),
         ]);

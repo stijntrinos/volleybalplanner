@@ -31,11 +31,6 @@ class NewChangeRequests extends TableWidget
         return [PlannerFeature::ChangeRequests];
     }
 
-    public function getHeading(): string
-    {
-        return __('Nieuwe wijzigingsverzoeken');
-    }
-
     public function table(Table $table): Table
     {
         return $table
@@ -43,6 +38,7 @@ class NewChangeRequests extends TableWidget
                 ->where('status', ChangeRequestStatus::Open)
                 ->with(['team', 'match', 'hallDuty'])
                 ->latest('created_at'))
+            ->heading(__('Nieuwe wijzigingsverzoeken'))
             ->emptyStateHeading(__('Geen openstaande verzoeken'))
             ->emptyStateDescription(__('Aanvragen voor wedstrijden en FTZ-diensten komen hier binnen.'))
             ->paginated([5, 10, 25])

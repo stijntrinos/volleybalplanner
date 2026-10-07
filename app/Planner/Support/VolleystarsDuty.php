@@ -28,8 +28,7 @@ final class VolleystarsDuty
 
     public static function fromBlock(VolleystarsBlock $block, VolleystarsTask $task): self
     {
-        $role = $task->role instanceof VolleystarsRole ? $task->role : VolleystarsRole::tryFrom((string) $task->role);
-        $role ??= VolleystarsRole::Setup;
+        $role = $task->role;
 
         [$start, $end] = match ($role) {
             VolleystarsRole::Scoring => [$block->scoring_start, $block->scoring_end],
@@ -44,7 +43,7 @@ final class VolleystarsDuty
             teamName: $task->team?->name,
             start: $start,
             end: $end,
-            venue: $block->venue?->name,
+            venue: $block->venue->name,
             venueId: $block->venue_id,
             court: $task->court?->name,
             notes: $block->notes,

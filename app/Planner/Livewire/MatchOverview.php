@@ -31,6 +31,7 @@ use Livewire\Component;
  * only with the volleystars module.
  *
  * @phpstan-type Planning array{matches: Collection<int, FixtureMatch>, hall_duties: Collection<int, HallDuty>, volleystars: Collection<int, VolleystarsDuty>}
+ * @phpstan-type VenueGroup array{name: ?string, city: ?string, matches: Collection<int, FixtureMatch>, hall_duties: Collection<int, HallDuty>, volleystars_tasks: Collection<int, VolleystarsDuty>}
  */
 class MatchOverview extends Component
 {
@@ -246,7 +247,7 @@ class MatchOverview extends Component
                     || ($showDuties && SearchFilter::isSameTeam($this->team, $match->scorer)),
             )->values();
             $hallDuties = $hallDuties->filter(
-                fn (HallDuty $duty): bool => SearchFilter::isSameTeam($this->team, $duty->team?->code),
+                fn (HallDuty $duty): bool => SearchFilter::isSameTeam($this->team, $duty->team->code),
             )->values();
             $volleystars = $volleystars->filter(
                 fn (VolleystarsDuty $duty): bool => SearchFilter::isSameTeam($this->team, $duty->team),
@@ -259,10 +260,10 @@ class MatchOverview extends Component
             )->values();
             $hallDuties = $hallDuties->filter(
                 fn (HallDuty $duty): bool => SearchFilter::contains(collect([
-                    $duty->team?->code,
-                    $duty->team?->name,
-                    $duty->venue?->name,
-                    $duty->venue?->city,
+                    $duty->team->code,
+                    $duty->team->name,
+                    $duty->venue->name,
+                    $duty->venue->city,
                     $duty->notes,
                 ])->filter()->implode(' '), $this->search),
             )->values();
@@ -309,7 +310,7 @@ class MatchOverview extends Component
      * is shown once above the group instead of on every line.
      *
      * @param  Planning  $filtered
-     * @return Collection<int, array{date: string, venues: Collection<int, array<string, mixed>>, match_count: int}>
+     * @return Collection<int, array{date: string, venues: Collection<int, VenueGroup>, match_count: int}>
      */
     private function daysOfMonth(array $filtered): Collection
     {
@@ -357,37 +358,32 @@ class MatchOverview extends Component
      * @param  Collection<int, FixtureMatch>  $matches
      * @param  Collection<int, HallDuty>  $hallDuties
      * @param  Collection<int, VolleystarsDuty>  $volleystars
-     * @return Collection<int, array{name: ?string, city: ?string, matches: Collection<int, FixtureMatch>, hall_duties: Collection<int, HallDuty>, volleystars_tasks: Collection<int, VolleystarsDuty>}>
+     * @return Collection<int, VenueGroup>
      */
     private function venuesOfDay(Collection $matches, Collection $hallDuties, Collection $volleystars): Collection
     {
         $venues = [];
-        $group = function (?int $id, ?string $name, ?string $city) use (&$venues): string {
-            $key = (string) $id;
-            $venues[$key] ??= [
-                'name' => $name,
-                'city' => $city,
-                'matches' => collect(),
-                'hall_duties' => collect(),
-                'volleystars_tasks' => collect(),
-            ];
-
-            return $key;
-        };
-
         foreach ($matches as $match) {
-            $venues[$group($match->venue_id, $match->venue?->name, $match->venue?->city)]['matches']->push($match);
+            $venues[(string) $match->venue_id] ??= ['name' => $match->venue?->name, 'city' => $match->venue?->city];
         }
 
         foreach ($hallDuties as $duty) {
-            $venues[$group($duty->venue_id, $duty->venue?->name, $duty->venue?->city)]['hall_duties']->push($duty);
+            $venues[(string) $duty->venue_id] ??= ['name' => $duty->venue->name, 'city' => $duty->venue->city];
         }
 
         foreach ($volleystars as $task) {
-            $venues[$group($task->venueId, $task->venue, null)]['volleystars_tasks']->push($task);
+            $venues[(string) $task->venueId] ??= ['name' => $task->venue, 'city' => null];
         }
 
-        return collect(array_values($venues));
+        return collect($venues)
+            ->map(fn (array $venue, int|string $key): array => [
+                'name' => $venue['name'],
+                'city' => $venue['city'],
+                'matches' => $matches->filter(fn (FixtureMatch $match): bool => (string) $match->venue_id === (string) $key)->values(),
+                'hall_duties' => $hallDuties->filter(fn (HallDuty $duty): bool => (string) $duty->venue_id === (string) $key)->values(),
+                'volleystars_tasks' => $volleystars->filter(fn (VolleystarsDuty $task): bool => (string) $task->venueId === (string) $key)->values(),
+            ])
+            ->values();
     }
 
     /** @return Collection<int, string> */

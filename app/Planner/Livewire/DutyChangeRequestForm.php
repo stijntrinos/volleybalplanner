@@ -68,7 +68,13 @@ class DutyChangeRequestForm extends Component
         return app(ChangeRequestService::class)->dutyTeams();
     }
 
-    /** @return Collection<int, array<string, mixed>> */
+    /**
+     * @return Collection<int, array{
+     *     key: string, type: string, label: string, description: string,
+     *     date: string, time: string, location: ?string, match_id: ?int,
+     *     match_code: ?string, hall_duty_id: ?int
+     * }>
+     */
     public function getDutiesProperty(): Collection
     {
         return app(ChangeRequestService::class)->duties($this->teamId ?? 0);

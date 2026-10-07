@@ -2,6 +2,7 @@
 
 namespace App\Planner\Models;
 
+use App\Models\Club;
 use App\Planner\Enums\ChangeReason;
 use App\Planner\Support\ClubTeamMatcher;
 use App\Planner\Support\TeamCode;
@@ -11,10 +12,81 @@ use Database\Factories\Planner\PlannerSettingFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * The planner settings of a club: one row per club, created on demand by
  * current().
+ *
+ * @property int $id
+ * @property int $club_id
+ * @property int|null $main_venue_id
+ * @property bool $requests_open
+ * @property array<array-key, mixed>|null $request_reasons
+ * @property array<array-key, mixed>|null $duty_request_reasons
+ * @property Carbon|null $season_start
+ * @property Carbon|null $season_end
+ * @property Carbon|null $competition_start
+ * @property Carbon|null $competition_end
+ * @property Carbon|null $training_period_start
+ * @property Carbon|null $training_period_end
+ * @property int $buffer_minutes
+ * @property int $cache_ttl_minutes
+ * @property int $points_referee_duty
+ * @property int $points_scorer_duty
+ * @property int $points_hall_duty
+ * @property int $points_volleystars
+ * @property array<array-key, mixed>|null $hall_duty_weekdays
+ * @property array<array-key, mixed>|null $hall_duty_exceptions
+ * @property array<array-key, mixed>|null $team_group_order
+ * @property string $schedule_footer
+ * @property array<array-key, mixed>|null $duty_rules
+ * @property bool $admin_override_external_error
+ * @property array<array-key, mixed>|null $team_name_patterns
+ * @property string|null $logo_path
+ * @property string|null $primary_color
+ * @property string|null $schedule_tagline
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Club $club
+ * @property-read Venue|null $mainVenue
+ *
+ * @method static \Database\Factories\Planner\PlannerSettingFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereAdminOverrideExternalError($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereBufferMinutes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereCacheTtlMinutes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereClubId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereCompetitionEnd($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereCompetitionStart($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereDutyRequestReasons($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereDutyRules($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereHallDutyExceptions($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereHallDutyWeekdays($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereLogoPath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereMainVenueId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting wherePointsHallDuty($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting wherePointsRefereeDuty($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting wherePointsScorerDuty($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting wherePointsVolleystars($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting wherePrimaryColor($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereRequestReasons($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereRequestsOpen($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereScheduleFooter($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereScheduleTagline($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereSeasonEnd($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereSeasonStart($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereTeamGroupOrder($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereTeamNamePatterns($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereTrainingPeriodEnd($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereTrainingPeriodStart($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlannerSetting whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
  */
 class PlannerSetting extends Model
 {

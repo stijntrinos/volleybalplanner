@@ -193,7 +193,7 @@ class DutyImportService
         }
         if ($duty && !$overwrite) {
             return ['status' => 'skipped', 'reason' => __('Zaaldienst :date :start :venue staat al op ":current", bestand zegt :team', [
-                'date' => $date, 'start' => $start, 'venue' => $venue->name, 'current' => $duty->team?->code, 'team' => $team->code,
+                'date' => $date, 'start' => $start, 'venue' => $venue->name, 'current' => $duty->team->code, 'team' => $team->code,
             ])];
         }
 

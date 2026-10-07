@@ -137,8 +137,8 @@ class ActivityResource extends Resource
             TextColumn::make('version.name')
                 ->label(__('Planningversie'))
                 ->badge()
-                ->color(fn (Activity $record): string => VersionDefaults::statusColor($record->version?->status))
-                ->description(fn (Activity $record): string => VersionDefaults::statusDescription($record->version?->status)),
+                ->color(fn (Activity $record): string => VersionDefaults::statusColor($record->version->status))
+                ->description(fn (Activity $record): string => VersionDefaults::statusDescription($record->version->status)),
         ])->filters([
             SelectFilter::make('version_id')
                 ->label(__('Planningversie'))

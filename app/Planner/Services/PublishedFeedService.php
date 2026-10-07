@@ -91,12 +91,12 @@ class PublishedFeedService
             foreach ($version->hallDuties()->whereDate('date', '>=', $from)->with(['venue', 'team'])->get() as $duty) {
                 $items->push([
                     'type' => 'hall_duty', 'id' => $duty->id, 'date' => $duty->date->toDateString(),
-                    'time' => substr((string) $duty->start_time, 0, 5), 'venue' => $duty->venue?->name,
-                    'court' => null, 'title' => __('Zaaldienst').' '.$duty->team?->code,
+                    'time' => substr((string) $duty->start_time, 0, 5), 'venue' => $duty->venue->name,
+                    'court' => null, 'title' => __('Zaaldienst').' '.$duty->team->code,
                     'fields' => [
                         'start_time' => substr((string) $duty->start_time, 0, 5),
                         'end_time' => substr((string) $duty->end_time, 0, 5),
-                        'team' => $duty->team?->code,
+                        'team' => $duty->team->code,
                     ],
                 ]);
             }
@@ -110,10 +110,10 @@ class PublishedFeedService
                         VolleystarsRole::Teardown => [$block->teardown_start, $block->teardown_end],
                         default => [$block->setup_start, $block->setup_end],
                     };
-                    $role = $task->role?->getLabel() ?? '';
+                    $role = $task->role->getLabel();
                     $items->push([
                         'type' => 'volleystars', 'id' => $task->id, 'date' => $block->date->toDateString(),
-                        'time' => substr((string) $start, 0, 5), 'venue' => $block->venue?->name,
+                        'time' => substr((string) $start, 0, 5), 'venue' => $block->venue->name,
                         'court' => $task->court?->name, 'title' => 'VolleyStars · '.$role,
                         'fields' => [
                             'start_time' => substr((string) $start, 0, 5), 'end_time' => substr((string) $end, 0, 5),
@@ -163,7 +163,7 @@ class PublishedFeedService
         $metadata = $version
             ? "<{$prefix}:scheduleVersion>".$this->escape($version->name)."</{$prefix}:scheduleVersion>"
                 ."<{$prefix}:scheduleVersionId>{$version->id}</{$prefix}:scheduleVersionId>"
-                ."<{$prefix}:scheduleStatus>".$this->escape($version->status?->value)."</{$prefix}:scheduleStatus>"
+                ."<{$prefix}:scheduleStatus>".$this->escape($version->status->value)."</{$prefix}:scheduleStatus>"
                 ."<{$prefix}:publishedAt>".$this->escape($version->published_at?->toIso8601String())."</{$prefix}:publishedAt>"
             : '';
 

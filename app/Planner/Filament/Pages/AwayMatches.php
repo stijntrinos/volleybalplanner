@@ -148,7 +148,7 @@ class AwayMatches extends Page
         $match = $this->matchInVersion($matchId);
         $this->editMatchId = $match->id;
         $this->editing = [
-            'status' => $match->away_change_status?->value,
+            'status' => $match->away_change_status->value,
             'date' => $match->away_new_date?->format('d-m-Y'),
             'time' => substr((string) $match->away_new_time, 0, 5) ?: null,
             'venue' => $match->away_new_venue,

@@ -269,12 +269,12 @@ class RssPlanningImportService
             'nevobo_change_status' => NevoboChangeStatus::Applied,
             'date' => $item['date'],
             'time' => $item['time'],
-            'venue_id' => $venue?->id ?? $match->venue_id,
-            'court_id' => $court?->id ?? $match->court_id,
+            'venue_id' => $venue->id ?? $match->venue_id,
+            'court_id' => $court->id ?? $match->court_id,
             'original_date' => $item['date'],
             'original_time' => $item['time'],
             'original_venue' => $item['location'],
-            'original_court' => $court?->name ?? $match->court?->name,
+            'original_court' => $court->name ?? $match->court?->name,
         ]);
 
         return NevoboChangeStatus::Applied;

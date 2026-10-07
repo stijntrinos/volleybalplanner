@@ -116,18 +116,23 @@ final class DayScheduleGrid
      */
     public function cards(): Collection
     {
-        return $this->matches->filter(fn ($match): bool => $this->columnOf($match->court_id) !== null)
-            ->map(function ($match, int|string $key): array {
-                $column = $this->columnOf($match->court_id);
-                $second = $this->columnOf($match->second_court_id);
+        $cards = [];
+        foreach ($this->matches as $key => $match) {
+            $column = $this->columnOf($match->court_id);
+            if ($column === null) {
+                continue;
+            }
+            $second = $this->columnOf($match->second_court_id);
 
-                return [
-                    'match' => $match,
-                    'column' => $second === null ? $column : min($column, $second),
-                    'column_span' => $second === null ? 1 : abs($second - $column) + 1,
-                    'row' => ($this->rowPerMatch[$key] ?? 0) + 2,
-                ];
-            })->values();
+            $cards[] = [
+                'match' => $match,
+                'column' => $second === null ? $column : min($column, $second),
+                'column_span' => $second === null ? 1 : abs($second - $column) + 1,
+                'row' => ($this->rowPerMatch[$key] ?? 0) + 2,
+            ];
+        }
+
+        return collect($cards);
     }
 
     /**

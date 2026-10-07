@@ -107,7 +107,7 @@ class CalendarEventsTable
 
     public static function momentLabel(CalendarEvent $record): string
     {
-        return match (static::moment($record)) {
+        return match (self::moment($record)) {
             self::MOMENT_PAST => __('Afgelopen'),
             self::MOMENT_ONGOING => __('Bezig'),
             default => ($days = (int) today()->diffInDays($record->start_date)) <= 14
@@ -118,7 +118,7 @@ class CalendarEventsTable
 
     public static function momentColor(CalendarEvent $record): string
     {
-        return match (static::moment($record)) {
+        return match (self::moment($record)) {
             self::MOMENT_ONGOING => 'success',
             self::MOMENT_PAST => 'gray',
             default => 'info',
@@ -127,7 +127,7 @@ class CalendarEventsTable
 
     public static function momentIcon(CalendarEvent $record): string
     {
-        return match (static::moment($record)) {
+        return match (self::moment($record)) {
             self::MOMENT_ONGOING => 'heroicon-o-play-circle',
             self::MOMENT_PAST => 'heroicon-o-check-circle',
             default => 'heroicon-o-clock',

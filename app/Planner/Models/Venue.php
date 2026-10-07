@@ -2,15 +2,65 @@
 
 namespace App\Planner\Models;
 
+use App\Models\Club;
 use App\Planner\Enums\Source;
 use App\Support\Tenancy\BelongsToClub;
 use Database\Factories\Planner\VenueFactory;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int $club_id
+ * @property string|null $venue_code
+ * @property string $name
+ * @property string|null $city
+ * @property string|null $address
+ * @property bool $is_managed
+ * @property bool $has_duties
+ * @property bool $show_locker_rooms_on_schedule
+ * @property bool $for_matches
+ * @property bool $for_trainings
+ * @property Source $source
+ * @property bool $is_active
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, VenueAlias> $aliases
+ * @property-read int|null $aliases_count
+ * @property-read Club $club
+ * @property-read Collection<int, Court> $courts
+ * @property-read int|null $courts_count
+ * @property-read Collection<int, Training> $trainings
+ * @property-read int|null $trainings_count
+ *
+ * @method static \Database\Factories\Planner\VenueFactory factory($count = null, $state = [])
+ * @method static Builder<static>|Venue inPlanningOrder(?int $clubId = null)
+ * @method static Builder<static>|Venue newModelQuery()
+ * @method static Builder<static>|Venue newQuery()
+ * @method static Builder<static>|Venue query()
+ * @method static Builder<static>|Venue whereAddress($value)
+ * @method static Builder<static>|Venue whereCity($value)
+ * @method static Builder<static>|Venue whereClubId($value)
+ * @method static Builder<static>|Venue whereCreatedAt($value)
+ * @method static Builder<static>|Venue whereForMatches($value)
+ * @method static Builder<static>|Venue whereForTrainings($value)
+ * @method static Builder<static>|Venue whereHasDuties($value)
+ * @method static Builder<static>|Venue whereId($value)
+ * @method static Builder<static>|Venue whereIsActive($value)
+ * @method static Builder<static>|Venue whereIsManaged($value)
+ * @method static Builder<static>|Venue whereName($value)
+ * @method static Builder<static>|Venue whereShowLockerRoomsOnSchedule($value)
+ * @method static Builder<static>|Venue whereSource($value)
+ * @method static Builder<static>|Venue whereUpdatedAt($value)
+ * @method static Builder<static>|Venue whereVenueCode($value)
+ *
+ * @mixin \Eloquent
+ */
 class Venue extends Model
 {
     use BelongsToClub;

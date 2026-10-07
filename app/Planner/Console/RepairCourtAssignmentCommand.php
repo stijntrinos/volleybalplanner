@@ -115,17 +115,22 @@ class RepairCourtAssignmentCommand extends Command
             ->get(['id', 'match_code', 'court_id', 'second_court_id'])
             ->keyBy('match_code');
 
-        return FixtureMatch::query()
+        $matches = FixtureMatch::query()
             ->where('version_id', $to->id)
-            ->get(['id', 'version_id', 'match_code', 'date', 'time', 'court_id', 'second_court_id'])
-            ->filter(fn (FixtureMatch $match): bool => $source->has((string) $match->match_code))
-            ->map(fn (FixtureMatch $match): array => [
-                'match' => $match,
-                'source' => $source->get((string) $match->match_code),
-            ])
-            ->filter(fn (array $row): bool => $row['match']->court_id !== $row['source']->court_id
-                || $row['match']->second_court_id !== $row['source']->second_court_id)
-            ->values();
+            ->get(['id', 'version_id', 'match_code', 'date', 'time', 'court_id', 'second_court_id']);
+
+        $rows = [];
+        foreach ($matches as $match) {
+            $original = $source->get((string) $match->match_code);
+            if ($original === null) {
+                continue;
+            }
+            if ($match->court_id !== $original->court_id || $match->second_court_id !== $original->second_court_id) {
+                $rows[] = ['match' => $match, 'source' => $original];
+            }
+        }
+
+        return collect($rows);
     }
 
     /**

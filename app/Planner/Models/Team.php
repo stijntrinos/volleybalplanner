@@ -2,16 +2,82 @@
 
 namespace App\Planner\Models;
 
+use App\Models\Club;
 use App\Planner\Enums\Source;
 use App\Planner\Support\TeamCode;
 use App\Planner\Support\Weekday;
 use App\Support\Tenancy\BelongsToClub;
 use Database\Factories\Planner\TeamFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int $club_id
+ * @property string $code
+ * @property string $name
+ * @property Source $source
+ * @property string|null $default_weekday
+ * @property string|null $default_time
+ * @property int|null $default_venue_id
+ * @property int|null $default_court
+ * @property int|null $default_match_duration
+ * @property bool $plays_on_two_courts
+ * @property bool $scores_own_match
+ * @property bool $provides_referee
+ * @property bool $nevobo_referee
+ * @property bool $has_duties
+ * @property bool $include_in_duties
+ * @property bool $volunteers
+ * @property bool $include_volunteers
+ * @property int $volunteer_points_used
+ * @property int $volunteer_points_earned
+ * @property int|null $volunteer_points_percentage
+ * @property string|null $locker_room_category
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Club $club
+ * @property-read Venue|null $defaultVenue
+ * @property-read Collection<int, TeamSource> $sources
+ * @property-read int|null $sources_count
+ * @property-read Collection<int, Training> $trainings
+ * @property-read int|null $trainings_count
+ *
+ * @method static \Database\Factories\Planner\TeamFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereClubId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereDefaultCourt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereDefaultMatchDuration($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereDefaultTime($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereDefaultVenueId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereDefaultWeekday($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereHasDuties($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereIncludeInDuties($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereIncludeVolunteers($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereLockerRoomCategory($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereNevoboReferee($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team wherePlaysOnTwoCourts($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereProvidesReferee($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereScoresOwnMatch($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereSource($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereVolunteerPointsEarned($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereVolunteerPointsPercentage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereVolunteerPointsUsed($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereVolunteers($value)
+ *
+ * @mixin \Eloquent
+ */
 class Team extends Model
 {
     use BelongsToClub;

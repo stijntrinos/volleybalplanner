@@ -119,8 +119,8 @@ class DutyPlanner extends Page
             ? $this->mode
             : DutyPlannerService::MODE_FILL;
         $fresh = app(DutyPlannerService::class)->generate(ScheduleVersion::findOrFail($this->versionId), $mode, $from, $to);
-        $fresh['matches'] = $this->keepLockedRows($this->draft['matches'] ?? [], $fresh['matches'] ?? []);
-        $fresh['hall_duties'] = $this->keepLockedRows($this->draft['hall_duties'] ?? [], $fresh['hall_duties'] ?? []);
+        $fresh['matches'] = $this->keepLockedRows($this->draft['matches'] ?? [], $fresh['matches']);
+        $fresh['hall_duties'] = $this->keepLockedRows($this->draft['hall_duties'] ?? [], $fresh['hall_duties']);
         $this->draft = $fresh;
         $this->draftVersionId = $this->versionId;
         $this->validation = [];

@@ -120,11 +120,11 @@ class ProvisionalMove
         }
 
         $venue = $this->venueForName($match->original_venue);
-        $venueId = $venue?->id ?? $match->venue_id;
+        $venueId = $venue->id ?? $match->venue_id;
         $court = $venue && $match->original_court
             ? $venue->courts()->where('name', $match->original_court)->first()
             : null;
-        $courtId = $court?->id ?? ($venueId === $match->venue_id ? $match->court_id : null);
+        $courtId = $court->id ?? ($venueId === $match->venue_id ? $match->court_id : null);
 
         $match->update($this->columns($match->only(self::FIELDS)) + [
             'date' => $match->original_date,

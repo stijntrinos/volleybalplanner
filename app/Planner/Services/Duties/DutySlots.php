@@ -39,6 +39,7 @@ final class DutySlots
      * Matches grouped by playing date. The rules only look at the slot's
      * day; without this index every candidate scanned the whole season again.
      *
+     * @param  Collection<int, FixtureMatch>  $matches
      * @return Collection<string, Collection<int, FixtureMatch>>
      */
     public static function byDate(Collection $matches): Collection

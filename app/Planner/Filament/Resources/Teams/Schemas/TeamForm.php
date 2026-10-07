@@ -51,7 +51,7 @@ class TeamForm
                                     ->label(__('Naam'))
                                     ->required()
                                     ->maxLength(255)
-                                    ->placeholder(fn (): string => trim((app(CurrentClub::class)->get()?->name ?? '').' HS 1')),
+                                    ->placeholder(fn (): string => trim((app(CurrentClub::class)->get()->name ?? '').' HS 1')),
 
                                 Select::make('locker_room_category')
                                     ->label(__('Kleedkamercategorie'))

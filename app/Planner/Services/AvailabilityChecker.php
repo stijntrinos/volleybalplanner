@@ -27,7 +27,7 @@ class AvailabilityChecker
 
     /**
      * @param  array<string, mixed>  $placement  date, time, duration_minutes, venue_id, court_id, second_court_id
-     * @param  Collection<int, array<string, mixed>>|null  $externalMatches  as returned by externalMatches()
+     * @param  Collection<int, non-empty-array<string, mixed>>|null  $externalMatches  as returned by externalMatches()
      * @return array{result: string, reasons: list<array<string, mixed>>, can_proceed: bool}
      */
     public function check(FixtureMatch $match, array $placement, ?Collection $externalMatches = null, bool $log = true): array
@@ -94,8 +94,8 @@ class AvailabilityChecker
      * The matches in the active Nevobo sources of both teams. A source that
      * could not be read gives one entry with error => true.
      *
-     * @return Collection<int, array<string, mixed>> NevoboRssService::parse() items plus team_id and source_id,
-     *                                               or ['error' => true, 'team_id' => int, 'message' => string]
+     * @return Collection<int, non-empty-array<string, mixed>> NevoboRssService::parse() items plus team_id and source_id,
+     *                                                         or ['error' => true, 'team_id' => int, 'message' => string]
      */
     public function externalMatches(FixtureMatch $match): Collection
     {

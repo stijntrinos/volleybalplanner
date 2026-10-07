@@ -51,7 +51,7 @@ class PlannerDayData
             ? $version->volleystarsBlocks()->whereDate('date', $date)->with(['venue', 'tasks.team', 'tasks.court'])->get()
             : collect();
         $preference = UserPreference::query()->where('user_id', auth()->id())->first();
-        $showTrainings = $club->hasFeature(PlannerFeature::Trainings) && ($preference?->show_trainings ?? true);
+        $showTrainings = $club->hasFeature(PlannerFeature::Trainings) && ($preference->show_trainings ?? true);
         $settings = PlannerSetting::current();
         $inTrainingPeriod = (!$settings->training_period_start || $date >= $settings->training_period_start->toDateString())
             && (!$settings->training_period_end || $date <= $settings->training_period_end->toDateString());
@@ -108,7 +108,7 @@ class PlannerDayData
                 'referee' => $match->referee, 'scorer' => $match->scorer,
                 'change_status' => $match->change_status?->value,
                 'change_requested' => (bool) $match->change_requested,
-                'nevobo_status' => $match->nevobo_status?->value,
+                'nevobo_status' => $match->nevobo_status->value,
                 'has_change_request' => in_array($match->match_code, $requestCodes, true),
                 'provisional' => $match->hasProvisionalPlacement() ? self::planningLabel(
                     $match->provisional_date->toDateString(), $match->provisional_time,

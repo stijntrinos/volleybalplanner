@@ -19,7 +19,7 @@ class ClubsOverview extends Widget
 
     protected static bool $isLazy = false;
 
-    /** @return Collection<int, array{name: string, slug: string, active: bool, users: int, modules: int, created: string, url: string}> */
+    /** @return Collection<int, array{name: string, slug: string, active: bool, users: ?int, modules: non-negative-int, created: string, url: ?string}> */
     public function getClubs(): Collection
     {
         $panel = Filament::getPanel('club');

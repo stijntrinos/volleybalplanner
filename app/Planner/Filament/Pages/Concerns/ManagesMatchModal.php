@@ -228,7 +228,7 @@ trait ManagesMatchModal
             return null;
         }
 
-        $policy = UserPreference::query()->where('user_id', auth()->id())->first()?->overlap_policy ?? OverlapPolicy::Warn;
+        $policy = UserPreference::query()->where('user_id', auth()->id())->first()->overlap_policy ?? OverlapPolicy::Warn;
         if ($policy === OverlapPolicy::Deny) {
             throw new DomainException($hard->first()['message'] ?? __('Deze plaatsing veroorzaakt een conflict.'));
         }

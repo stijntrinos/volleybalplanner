@@ -82,7 +82,7 @@ class NevoboChanges extends Page
      * published schedule is what the club sees now; you change it via a new
      * draft.
      *
-     * @return Collection<int, string>
+     * @return Collection<int, non-falsy-string>
      */
     public function getVersionsProperty(): Collection
     {
