@@ -1,3 +1,11 @@
+# Volleybalplanner
+
+- Standalone multi-tenant match planner for volleyball clubs (ported from the Aetos site). Design: `docs/superpowers/specs/2026-10-07-standalone-planner-design.md`.
+- Use `php85` (the default `php` on this machine is 8.3): `php85 artisan test`, `php85 vendor/bin/pint`, `php85 "$(which composer)"`.
+- All planner code lives in `app/Planner` and may only use `App\Planner\*`, `App\Models\Club`, `App\Models\User` and `App\Support\Tenancy\*` (`tests/Unit/ArchitectureTest`).
+- Planner models use `BelongsToClub`; the active club comes from `App\Support\Tenancy\CurrentClub` (Filament tenant, `/{club}` route, or `CurrentClub::run()` in jobs/commands). Querying without a club throws.
+- Code and database in English; user-facing text Dutch via `__()`. Optional modules: `App\Planner\Features\PlannerFeature` + `$club->hasFeature()`.
+
 <laravel-boost-guidelines>
 === foundation rules ===
 
