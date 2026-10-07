@@ -43,21 +43,38 @@ class User extends Authenticatable implements FilamentUser, HasDefaultTenant, Ha
     public function canAccessPanel(Panel $panel): bool
     {
         return match ($panel->getId()) {
-            'platform' => (bool) $this->is_platform_admin,
-            'club' => $this->clubs()->where('is_active', true)->exists(),
+            'platform' => $this->isPlatformAdmin(),
+            'club' => $this->isPlatformAdmin() || $this->clubs()->where('is_active', true)->exists(),
             default => false,
         };
     }
 
+    /**
+     * Platform admins see every club, including inactive ones, so they can
+     * always step in; everyone else only sees the active clubs they belong to.
+     */
     public function getTenants(Panel $panel): Collection
     {
+        if ($this->isPlatformAdmin()) {
+            return Club::query()->orderBy('name')->get();
+        }
+
         return $this->clubs()->where('is_active', true)->orderBy('name')->get();
     }
 
     public function canAccessTenant(Model $tenant): bool
     {
-        return $tenant instanceof Club
-            && $this->clubs()->whereKey($tenant->getKey())->where('is_active', true)->exists();
+        if (!$tenant instanceof Club) {
+            return false;
+        }
+
+        return $this->isPlatformAdmin()
+            || $this->clubs()->whereKey($tenant->getKey())->where('is_active', true)->exists();
+    }
+
+    public function isPlatformAdmin(): bool
+    {
+        return (bool) $this->is_platform_admin;
     }
 
     public function getDefaultTenant(Panel $panel): ?Model

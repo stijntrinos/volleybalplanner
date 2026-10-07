@@ -47,7 +47,9 @@ class ClubUserResource extends Resource
         $club = Filament::getTenant();
         $user = auth()->user();
 
-        return $club instanceof Club && $user instanceof User && $user->hasClubRole($club, ClubRole::ClubAdmin);
+        return $club instanceof Club
+            && $user instanceof User
+            && ($user->isPlatformAdmin() || $user->hasClubRole($club, ClubRole::ClubAdmin));
     }
 
     public static function getEloquentQuery(): Builder

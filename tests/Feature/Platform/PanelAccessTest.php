@@ -45,4 +45,16 @@ class PanelAccessTest extends TestCase
 
         $this->get("/app/{$club->slug}")->assertRedirect('/app/login');
     }
+
+    public function test_platform_admin_reaches_every_club_without_membership(): void
+    {
+        $active = Club::factory()->create();
+        $inactive = Club::factory()->inactive()->create();
+        $admin = User::factory()->platformAdmin()->create();
+
+        $this->actingAs($admin)->get("/app/{$active->slug}")->assertOk();
+        $this->actingAs($admin)->get("/app/{$inactive->slug}")->assertOk();
+        $this->actingAs($admin)->get("/app/{$active->slug}/club-users")->assertOk();
+        $this->assertTrue($admin->can('Update:FixtureMatch'));
+    }
 }
