@@ -80,7 +80,6 @@ class PublishedFeedServiceTest extends TestCase
         $this->assertStringNotContainsString('hall_duty', app(PublishedFeedService::class)->centralXml());
     }
 
-    /** @param  array<string, mixed>  $extra */
     public function test_only_moved_matches_are_marked_as_changed_and_links_point_to_the_club(): void
     {
         $this->match($this->published, 'NEVER1');

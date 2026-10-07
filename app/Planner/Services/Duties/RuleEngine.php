@@ -234,7 +234,7 @@ class RuleEngine
     /**
      * Only a name of our own club yields a team code. Opponents often carry
      * the same code -- "D.V.C. Rebelle MC 1" contains "MC 1" -- and the code
-     * must come after the club name ("Rebelle HS 2 - AETOS HS 3").
+     * must come after the club name ("Rebelle HS 2 - DYNAMO HS 3").
      */
     private function teamCodeFromName(string $name): string
     {

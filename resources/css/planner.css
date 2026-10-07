@@ -1,0 +1,432 @@
+/*
+ * Club panel theme. Imports Filament's theme so Tailwind utilities used in
+ * the planner views are compiled too, then adds the planner's own styles.
+ * Registered with ->viteTheme() in App\Planner\PlannerPlugin.
+ */
+@import '../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../app/Filament/**/*.php';
+@source '../../app/Planner/**/*.php';
+@source '../views/filament/**/*.blade.php';
+@source '../views/planner/**/*.blade.php';
+
+:root{--planner-primary:#0ea5e9}
+
+/*
+ * Day planner (HomeMatches).
+ *
+ * Bundled and cached by Vite together with resources/js/planner.js instead
+ * of being sent inline with every page load.
+ */
+
+.planner-shell{--slot:18px;color:#172033}
+.planner-toolbar{display:flex;justify-content:space-between;gap:1rem;align-items:center;padding:.85rem 1rem;border:1px solid #e4e9f0;border-radius:14px;background:#fff;box-shadow:0 1px 2px #0f172a0a;position:sticky;top:.5rem;z-index:30}
+.dark .planner-toolbar{background:#111827;border-color:#374151;color:#f8fafc}
+.planner-toolbar-primary,.planner-toolbar-secondary{display:flex;align-items:center;gap:.65rem}
+.planner-date-navigation{height:44px;display:flex;align-items:stretch;border:1px solid #d8e0ea;border-radius:10px;overflow:hidden;background:#fff}
+.planner-date-navigation>button{width:38px;color:#526174;font-size:1.5rem;line-height:1;background:#f8fafc}
+.planner-date-navigation>button:hover{background:#eaf4fb;color:#0079b8}
+.planner-current-date{position:relative;min-width:174px;display:grid;grid-template-columns:1fr auto;align-items:center;padding:0 .55rem 0 .8rem;border-inline:1px solid #e4e9f0}
+.planner-current-date span{grid-column:1}
+.planner-current-date input[type=text]{grid-column:1}
+.planner-date-picker{grid-column:2;grid-row:1/3;display:grid;place-items:center;width:30px;height:30px;border-radius:8px;color:#64748b}
+.planner-date-picker:hover{background:#eaf4fb;color:#0079b8}
+.planner-date-native{position:absolute;right:.55rem;bottom:0;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0}
+.planner-current-date span{font-size:.68rem;line-height:1;text-transform:uppercase;letter-spacing:.08em;color:#718096}
+.planner-current-date input{font-weight:700;font-size:.84rem;background:transparent;border:0;padding:0;color:inherit}
+.planner-today,.planner-unplanned-toggle{height:44px;border:1px solid #d8e0ea;border-radius:10px;padding:0 .85rem;font-weight:650;background:#fff;color:#334155}
+.planner-today:hover,.planner-unplanned-toggle:hover{border-color:#38a9d7;background:#f0faff}
+.planner-input{height:44px;border:1px solid #d8e0ea;border-radius:10px;padding:.45rem .75rem;background:#fff;color:inherit}
+.planner-version{min-width:190px;font-weight:650}
+.planner-search{height:44px;min-width:280px;display:flex;align-items:center;gap:.55rem;border:1px solid #d8e0ea;border-radius:10px;padding:0 .7rem;background:#f8fafc}
+.planner-search>span{font-size:1.2rem;color:#64748b}
+.planner-search input{width:100%;border:0;background:transparent;outline:0;font-size:.84rem}
+.planner-search kbd{font-size:.65rem;padding:.15rem .35rem;border:1px solid #d8e0ea;border-radius:4px;background:#fff;color:#64748b}
+.planner-count{display:inline-grid;place-items:center;min-width:22px;height:22px;margin-right:.35rem;border-radius:999px;background:#e7f5fc;color:#0079b8;font-size:.72rem}
+.dark .planner-input,.dark .planner-date-navigation,.dark .planner-today,.dark .planner-unplanned-toggle,.dark .planner-search,.dark .planner-date-navigation>button{background:#1f2937;border-color:#475569}
+.dark .planner-current-date{border-color:#475569}
+.planner-chips,.planner-hall-filter{display:flex;gap:.5rem;flex-wrap:wrap;margin:.75rem 0}
+.planner-chips span{padding:.35rem .7rem;border-radius:999px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;font-size:.75rem;font-weight:600}
+.planner-hall-filter button{padding:.38rem .75rem;border-radius:8px;background:#fff;border:1px solid #d8e0ea;color:#475569;font-size:.76rem;font-weight:650}
+.planner-hall-filter button:before{content:"";display:inline-block;width:7px;height:7px;margin-right:.4rem;border-radius:999px;background:#21a2dc}
+.planner-hall-filter button.is-hidden{opacity:.45}
+.planner-hall-filter .planner-hall-count{display:inline-block;margin-left:.4rem;padding:0 .35rem;border-radius:999px;background:#eef4f9;color:#475569;font-size:.68rem;font-style:normal;font-weight:750}
+.planner-layout{display:flex;gap:12px;min-height:900px}
+.planner-unplanned{width:274px;flex:0 0 274px;padding:12px;border:1px solid #e4e9f0;border-radius:14px;background:#f7f9fc}
+.planner-panel-title{display:flex;justify-content:space-between;align-items:flex-start;margin:2px 2px 12px}
+.planner-panel-title h3{font-size:.9rem;font-weight:750;color:#253449}
+.planner-panel-title p{font-size:.7rem;color:#7c8a9b;margin-top:2px}
+.planner-panel-title>span{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#dff2fb;color:#0079b8;font-size:.75rem;font-weight:800}
+.planner-unplanned-card{display:flex;flex-direction:column;gap:2px;padding:10px 11px;border:1px solid #e0e6ed;border-left:3px solid #8a9bac;border-radius:9px;background:#fff;box-shadow:0 1px 2px #0f172a08;cursor:grab}
+.planner-unplanned-card:hover{border-color:#69bddd;box-shadow:0 4px 12px #0f172a12}
+.planner-unplanned-card>div{display:flex;justify-content:space-between;gap:.5rem}
+.planner-unplanned-card strong{font-size:.7rem;color:#64748b}
+.planner-unplanned-card span{font-size:.8rem;font-weight:750}
+.planner-unplanned-card small{font-size:.72rem;color:#64748b}
+.planner-unplanned-card em{padding:2px 5px;border-radius:4px;background:#ffedd5;color:#c2410c;font-size:.62rem;font-style:normal;font-weight:700}
+.dark .planner-unplanned{background:#111827;border-color:#374151}
+.dark .planner-unplanned-card{background:#1f2937;border-color:#475569}
+.dark .planner-panel-title h3{color:#f1f5f9}
+.planner-scroll{overflow:auto;flex:1;border:1px solid #e4e9f0;border-radius:14px;background:#fff}
+.planner-grid{min-width:calc(76px + var(--planner-columns) * 220px);display:grid;grid-template-columns:76px 1fr;grid-template-rows:68px 1116px}
+.planner-time-header{grid-area:1/1;position:sticky;left:0;top:0;z-index:25;background:#f8fafc;border-right:1px solid #e4e9f0;border-bottom:1px solid #e4e9f0}
+.planner-headings{grid-area:1/2;display:grid;grid-template-columns:repeat(var(--planner-columns),minmax(220px,1fr));position:sticky;top:0;z-index:20}
+.planner-heading{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:0 14px;color:#fff;border-right:1px solid #ffffff35;box-shadow:inset 0 -1px #00000014}
+.planner-heading strong{max-width:100%;font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.planner-heading span{margin-top:3px;font-size:.67rem;opacity:.8}
+.planner-heading-0{background:#168ec2}
+.planner-heading-1{background:#147d92}
+.planner-heading-2{background:#536ba3}
+.planner-heading-3{background:#657f70}
+.planner-time-axis{grid-area:2/1;position:sticky;left:0;z-index:12;background:#f8fafc;border-right:1px solid #e4e9f0}
+.dark .planner-time-axis,.dark .planner-time-header{background:#111827;border-color:#374151}
+.planner-time-axis span{position:absolute;right:.8rem;transform:translateY(-.5em);font-size:.69rem;font-weight:650;color:#718096}
+.planner-fields{grid-area:2/2;display:grid;grid-template-columns:repeat(var(--planner-columns),minmax(220px,1fr))}
+.planner-dropzone{height:1116px;position:relative;border-right:1px solid #e7ebf0;background:repeating-linear-gradient(to bottom,#fff 0,#fff 17px,#e9edf2 18px)}
+.dark .planner-scroll{background:#111827;border-color:#374151}
+.dark .planner-dropzone{border-color:#374151;background:repeating-linear-gradient(to bottom,#111827 0,#111827 17px,#293548 18px)}
+.planner-dropzone.is-drop-target{background-color:#eaf7fd;box-shadow:inset 0 0 0 2px #34a9d8}
+.planner-card{position:absolute;left:5px;right:5px;padding:7px 8px;border:1px solid #b9dfef;border-left:4px solid #168ec2;border-radius:8px;background:#eaf7fd;box-shadow:0 2px 5px #0f172a16;cursor:grab;overflow:hidden;touch-action:none;z-index:5;color:#193247}
+.planner-card:hover{box-shadow:0 5px 14px #0f172a24;z-index:8}
+.planner-card.is-overlapping{border-color:#f97316;border-left-color:#ea580c;background:#fff5ec;outline:2px solid #ea580c;outline-offset:-1px;z-index:6}
+.planner-card.is-overlapping:hover{z-index:9}
+/* A team asked to move this match; purple because red and orange are already taken. */
+.planner-card.has-request{border-color:#c4b5fd;border-left-color:#7c3aed;background:#f5f3ff}
+.planner-card-meta .planner-request-badge{border-color:#6d28d9;background:#7c3aed;color:#fff;font-weight:800}
+.planner-card.is-requested{background:#fff3e8;border-color:#fdba74;border-left-color:#f97316}
+.planner-card>div:first-child{display:flex;justify-content:space-between;gap:.4rem;font-size:.68rem}
+.planner-card>div:first-child strong{font-size:.78rem}
+.planner-card>div:first-child span{color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.planner-card b,.planner-card small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.planner-card b{margin-top:3px;font-size:.78rem}
+.planner-card small{font-size:.7rem;color:#526174}
+.planner-card-meta{display:flex;gap:.3rem;flex-wrap:wrap;font-size:.63rem;margin-top:5px}
+.planner-card-meta span{padding:2px 4px;border:1px solid #cfe8f2;border-radius:4px;background:#fff9}
+.planner-match.is-dragging{opacity:.72;z-index:100;box-shadow:0 14px 30px #0f172a36}
+.planner-undo-toast{position:fixed;right:1.5rem;bottom:1.5rem;z-index:9999;display:flex;gap:1rem;align-items:center;padding:.9rem 1rem;border-radius:10px;background:#172033;color:#fff;box-shadow:0 12px 32px #0004}
+.planner-undo-toast button{font-weight:700;color:#7dd3fc}
+@media(max-width:1150px){.planner-toolbar{align-items:stretch;flex-direction:column}
+.planner-toolbar-primary,.planner-toolbar-secondary{justify-content:space-between}
+.planner-search{flex:1}}
+@media(max-width:900px){.planner-unplanned{position:fixed;inset:auto 0 0 0;z-index:30;max-height:70vh;overflow-y:auto;border-radius:12px 12px 0 0;box-shadow:0 -8px 24px rgba(0,0,0,.18)}
+.planner-unplanned[hidden]{display:none}
+.planner-card{touch-action:pan-y}
+.planner-toolbar{position:static}
+.planner-grid{min-width:calc(68px + var(--planner-columns) * 200px);grid-template-columns:68px 1fr}
+.planner-headings,.planner-fields{grid-template-columns:repeat(var(--planner-columns),minmax(200px,1fr))}}
+.planner-card.spans-two-fields{right:auto;width:calc(200% - 10px);z-index:7}
+.planner-activity-card{background:#fef3c7;border-color:#fcd34d;border-left-color:#f59e0b;cursor:default}
+/* A training gives way to a match, so it belongs behind it; with the same
+   z-index the training drawn later covered the match. */
+.planner-training-card{background:#e5e7eb;border-color:#cbd5e1;border-left-color:#64748b;cursor:default;z-index:2}
+.planner-training-card:hover{z-index:4}
+.planner-activity-card{z-index:3}
+.planner-activity-card:hover{z-index:4}
+.planner-volleystars-card{background:#eaf7fd;border-color:#9fc7da;border-left-color:#168ec2;cursor:default}
+.planner-volleystars-card.is-hall-wide{right:auto;z-index:4;opacity:.92;cursor:pointer;text-decoration:none}
+.planner-volleystars-card.is-hall-wide:hover{opacity:1;border-left-color:var(--planner-primary)}
+.planner-card-meta button{padding:2px 5px;border:1px solid #7dd3fc;border-radius:4px;background:#fff;color:#0369a1;font-size:.62rem;font-weight:700}
+.planner-assistant-backdrop{position:fixed;inset:0;z-index:100;background:#0f172a55;display:flex;justify-content:flex-end}
+.planner-assistant{width:min(480px,100%);height:100%;overflow:auto;padding:1.25rem;background:#fff;box-shadow:-16px 0 40px #0f172a2b}
+.dark .planner-assistant{background:#111827;color:#f8fafc}
+.planner-assistant-header{display:flex;justify-content:space-between;gap:1rem;margin-bottom:1.25rem}
+.planner-assistant-header h2{font-size:1.1rem;font-weight:800}
+.planner-assistant-header p{font-size:.75rem;color:#64748b}
+.planner-assistant-header button{font-size:1.75rem}
+.planner-assistant label{display:grid;gap:.3rem;font-size:.75rem;font-weight:700}
+.planner-assistant select{border:1px solid #cbd5e1;border-radius:8px;padding:.55rem;background:transparent}
+.planner-saved-proposal{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-top:1rem;padding:.75rem;border:1px solid #fde68a;border-radius:10px;background:#fffbeb;color:#92400e}
+.planner-saved-proposal div{display:grid;font-size:.76rem}
+.planner-saved-proposal button{font-size:.7rem;font-weight:700}
+.planner-assistant-results{display:grid;gap:.65rem;margin-top:1.25rem}
+.planner-assistant-results>article{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.85rem;border:1px solid #bbf7d0;border-radius:10px;background:#f0fdf4;color:#166534}
+.planner-assistant-results>article>div{display:grid}
+.planner-assistant-results>article>div:last-child{display:flex;gap:.4rem}
+.planner-assistant-results button{padding:.4rem .55rem;border:1px solid #86efac;border-radius:7px;background:#fff;font-size:.7rem;font-weight:700}
+.planner-assistant-results button:last-child{background:#16a34a;color:#fff}
+.planner-assistant-results p{color:#64748b;font-size:.8rem}
+.planner-match-modal{width:min(560px,calc(100% - 2rem));max-height:calc(100vh - 2rem);overflow:auto;margin:auto;padding:1.25rem;border-radius:16px;background:#fff;box-shadow:0 24px 70px #0f172a55}
+.dark .planner-match-modal{background:#111827;color:#f8fafc}
+.planner-match-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem;margin-bottom:.8rem}
+.planner-match-form-grid-three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.planner-match-modal label,.planner-match-modal legend{display:grid;gap:.3rem;color:#526174;font-size:.72rem;font-weight:750}
+.planner-match-modal input,.planner-match-modal select,.planner-match-modal textarea{width:100%;box-sizing:border-box;border:1px solid #b9dff0;border-radius:7px;padding:.55rem;background:#e6f6fd;color:#172033}
+.planner-match-modal input:not([type=checkbox]),.planner-match-modal select{height:2.5rem;line-height:1.25}
+.planner-match-modal select{appearance:none;padding-right:1.6rem;background-image:linear-gradient(45deg,transparent 50%,#526174 50%),linear-gradient(135deg,#526174 50%,transparent 50%);background-position:calc(100% - 15px) 55%,calc(100% - 10px) 55%;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+.planner-match-modal select:disabled{opacity:.55}
+.planner-match-modal input[readonly]{background:#f2f5f8}
+.planner-duration{display:grid;grid-template-columns:repeat(3,1fr);gap:.35rem;margin-bottom:.8rem}
+.planner-duration legend{grid-column:1/-1}
+.planner-duration button{height:2.5rem;padding:0 .55rem;border:1px solid #b9dff0;border-radius:6px;background:#e6f6fd;font-size:.75rem;font-weight:750}
+.planner-duration button.is-active{border-color:#711c1d;background:#711c1d;color:#fff}
+.planner-match-notes{margin-bottom:.8rem}
+.planner-two-fields{display:flex!important;align-items:center;gap:.6rem;min-height:2.5rem;padding:.65rem;border:1px solid #d8e0ea;border-radius:7px}
+.planner-two-fields input{width:auto;flex:none}
+.planner-two-fields span{display:grid;gap:.1rem}
+.planner-two-fields small{color:#8390a2;font-weight:600}
+.planner-form-errors{margin-top:.7rem;color:#dc2626;font-size:.75rem}
+.planner-match-modal-actions{display:grid;grid-template-columns:auto 1fr auto auto;gap:.5rem;margin-top:1rem}
+.planner-match-modal-actions button{padding:.6rem .9rem;border:1px solid #cbd5e1;border-radius:7px;font-size:.76rem;font-weight:750}
+.planner-match-modal-actions .is-primary{border-color:#711c1d;background:#711c1d;color:#fff}
+.planner-match-modal-actions .is-danger{border-color:#ef4444;color:#dc2626}
+@media(max-width:640px){.planner-match-form-grid,.planner-match-form-grid-three{grid-template-columns:1fr}
+.planner-match-modal-actions{grid-template-columns:1fr 1fr}
+.planner-match-modal-actions span{display:none}}
+.planner-history{margin-top:1.25rem;border-top:1px solid #e2e8f0;padding-top:.85rem}
+.planner-history summary{cursor:pointer;font-size:.78rem;font-weight:750}
+.planner-history article{display:flex;justify-content:space-between;gap:.5rem;padding:.55rem 0;border-bottom:1px solid #edf2f7;font-size:.7rem}
+.planner-history small{color:#64748b;white-space:nowrap}
+.planner-service-heading{background:#e8f2f7!important;color:#334155;border-left:2px solid #cbd5e1}
+.planner-service-column{background:repeating-linear-gradient(to bottom,#f2f8fb 0,#f2f8fb 17px,#dce8ee 18px);border-left:2px solid #cbd5e1}
+.planner-service-card{background:#dcecf5;border-color:#9fc7da;border-left-color:#168ec2;cursor:default}
+.planner-service-card small{margin-top:3px}
+.planner-dropzone{background-color:#fff;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 17px,#edf1f5 17px,#edf1f5 18px),repeating-linear-gradient(to bottom,transparent 0,transparent 71px,#cbd5df 71px,#cbd5df 72px)}
+.planner-service-column{background-color:#f2f8fb;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 17px,#e1ebf0 17px,#e1ebf0 18px),repeating-linear-gradient(to bottom,transparent 0,transparent 71px,#b8ccd6 71px,#b8ccd6 72px)}
+.dark .planner-dropzone{background-color:#111827;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 17px,#263244 17px,#263244 18px),repeating-linear-gradient(to bottom,transparent 0,transparent 71px,#475569 71px,#475569 72px)}
+.planner-settings,.planner-export{position:relative}
+.planner-settings-trigger{display:grid;place-items:center;width:44px;height:44px;border:1px solid #d8e0ea;border-radius:10px;background:#fff;color:#475569}
+.planner-settings-trigger:hover{border-color:#38a9d7;background:#f0faff;color:#0079b8}
+.planner-settings-menu{position:absolute;right:0;top:calc(100% + 8px);z-index:80;width:240px;padding:8px;border:1px solid #dce3eb;border-radius:12px;background:#fff;box-shadow:0 16px 38px #0f172a24}
+.planner-toolbar-primary .planner-export .planner-settings-menu{right:auto;left:0}
+.planner-settings-title{padding:7px 9px 9px;font-size:.82rem;font-weight:800;color:#1e293b}
+.planner-settings-group{padding:8px 9px 4px;border-top:1px solid #edf1f5;color:#94a3b8;font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.planner-settings-menu a,.planner-settings-menu>button{display:block;width:100%;padding:7px 9px;border-radius:7px;color:#334155;font-size:.76rem;font-weight:600;text-align:left}
+.planner-settings-menu a:hover,.planner-settings-menu>button:hover{background:#eaf7fd;color:#0079b8}
+.dark .planner-settings-trigger,.dark .planner-settings-menu{background:#1f2937;border-color:#475569;color:#e2e8f0}
+.dark .planner-settings-title,.dark .planner-settings-menu a,.dark .planner-settings-menu>button{color:#e2e8f0}
+.dark .planner-settings-group{border-color:#374151}
+.dark .planner-settings-menu a:hover,.dark .planner-settings-menu>button:hover{background:#0f3b53}
+.planner-readonly-notice{margin:.75rem 0;padding:.65rem .85rem;border:1px solid #fde68a;border-radius:10px;background:#fffbeb;color:#92400e;font-size:.76rem;font-weight:600}
+.planner-match.is-readonly{cursor:default}
+.planner-match.is-readonly:hover{box-shadow:0 2px 5px #0f172a16}
+.dark .planner-readonly-notice{border-color:#854d0e;background:#422006;color:#fde68a}
+.planner-search-trigger{position:relative;display:grid;place-items:center;width:44px;height:44px;border:1px solid #d8e0ea;border-radius:10px;background:#fff;color:#475569}
+.planner-search-trigger:hover{border-color:#38a9d7;background:#f0faff;color:#0079b8}
+.planner-search-active{position:absolute;right:7px;top:7px;width:7px;height:7px;border:2px solid #fff;border-radius:999px;background:#f97316}
+.planner-search-backdrop{position:fixed;inset:0;z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding:clamp(5rem,14vh,10rem) 1rem 1rem;background:#0f172a73;backdrop-filter:blur(2px)}
+.planner-search-modal{width:min(620px,100%);overflow:hidden;border:1px solid #dce3eb;border-radius:16px;background:#fff;box-shadow:0 24px 70px #0f172a40}
+.planner-search-modal-header{display:flex;align-items:flex-start;justify-content:space-between;padding:1.2rem 1.25rem .9rem}
+.planner-search-modal-header h2{font-size:1rem;font-weight:800;color:#1e293b}
+.planner-search-modal-header p{margin-top:.15rem;font-size:.75rem;color:#64748b}
+.planner-search-modal-header>button{font-size:1.6rem;line-height:1;color:#94a3b8}
+.planner-search-input{display:flex;align-items:center;gap:.65rem;margin:0 1.25rem 1rem;padding:0 .85rem;border:2px solid #38a9d7;border-radius:11px;background:#f8fafc;color:#64748b;box-shadow:0 0 0 3px #38a9d71f}
+.planner-search-input input{width:100%;height:48px;border:0;background:transparent;outline:0;font-size:.9rem;color:#172033}
+.planner-search-input button{font-size:.7rem;font-weight:700;color:#0079b8}
+.planner-search-results{max-height:min(480px,55vh);overflow-y:auto;border-top:1px solid #edf1f5}
+.planner-search-empty{padding:2rem 1.25rem;text-align:center;color:#64748b;font-size:.8rem}
+.planner-search-result{display:grid;width:100%;grid-template-columns:82px 1fr 20px;gap:.8rem;align-items:center;padding:.8rem 1.25rem;border-bottom:1px solid #edf1f5;text-align:left}
+.planner-search-result:hover{background:#f0faff}
+.planner-search-result-date,.planner-search-result-match{display:grid;min-width:0}
+.planner-search-result-date strong{color:#0079b8;font-size:.72rem;text-transform:capitalize}
+.planner-search-result-date small,.planner-search-result-match small{margin-top:.12rem;color:#64748b;font-size:.68rem}
+.planner-search-result-match strong{overflow:hidden;color:#1e293b;font-size:.8rem;text-overflow:ellipsis;white-space:nowrap}
+.planner-search-result>svg{color:#94a3b8}
+.planner-search-modal-footer{display:flex;min-height:46px;align-items:center;justify-content:space-between;padding:.65rem 1.25rem;background:#f8fafc}
+.planner-search-modal-footer span{font-size:.68rem;color:#94a3b8}
+.planner-search-modal-footer kbd{padding:.15rem .35rem;border:1px solid #d8e0ea;border-radius:4px;background:#fff}
+.dark .planner-search-trigger,.dark .planner-search-modal{border-color:#475569;background:#1f2937;color:#e2e8f0}
+.dark .planner-search-modal-header h2,.dark .planner-search-input input,.dark .planner-search-result-match strong{color:#f8fafc}
+.dark .planner-search-input,.dark .planner-search-modal-footer{border-color:#475569;background:#111827}
+.dark .planner-search-results,.dark .planner-search-result{border-color:#374151}
+.dark .planner-search-result:hover{background:#0f3b53}
+.dark .planner-search-modal-footer kbd{border-color:#475569;background:#1f2937}
+.planner-card.is-search-focus{outline:3px solid #f97316;outline-offset:2px;z-index:15;animation:planner-search-pulse 1.4s ease-in-out 2}
+@keyframes planner-search-pulse{50%{box-shadow:0 0 0 8px #f9731630}}
+.planner-change-route{display:grid;gap:.4rem;margin-top:.55rem;padding-top:.55rem;border-top:1px solid #e2e8f0}
+.planner-change-route>div{display:grid;gap:.12rem}
+.planner-change-route dt{color:#64748b;font-size:.62rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.planner-change-route dd{color:#334155;font-size:.68rem;line-height:1.3}
+.planner-change-date{margin-top:.35rem!important;color:#94a3b8!important;font-size:.62rem!important}
+.planner-change-actions{display:grid!important;grid-template-columns:1fr 1fr;gap:.4rem!important;margin-top:.55rem}
+.planner-change-actions button{padding:.42rem .5rem;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#475569;font-size:.66rem;font-weight:750}
+.planner-change-actions button:last-child{border-color:#86efac;background:#f0fdf4;color:#166534}
+.dark .planner-change-route{border-color:#475569}
+.dark .planner-change-route dd{color:#e2e8f0}
+.dark .planner-change-actions button{border-color:#475569;background:#1f2937;color:#e2e8f0}
+.dark .planner-change-actions button:last-child{border-color:#166534;background:#052e16;color:#86efac}
+.planner-volleystars-modal{width:min(780px,calc(100% - 2rem))}
+.planner-volleystars-intro{margin:-.45rem 0 1rem;color:#64748b;font-size:.76rem}
+.planner-volleystars-tasks{display:grid;gap:.75rem}
+.planner-volleystars-task{padding:.85rem;border:1px solid #b9dff0;border-radius:11px;background:#edf9fe}
+.planner-volleystars-task legend{display:block;padding:0 .35rem;color:#075985;font-size:.82rem;font-weight:800}
+.planner-volleystars-times{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:end;gap:.55rem;margin-bottom:.7rem}
+.planner-volleystars-times>span{padding-bottom:.65rem;color:#64748b}
+.planner-volleystars-team-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.55rem}
+.dark .planner-volleystars-task{border-color:#155e75;background:#0c4a5a55}
+.dark .planner-volleystars-task legend{color:#7dd3fc}
+@media(max-width:640px){.planner-volleystars-team-grid{grid-template-columns:1fr}}
+.planner-unplanned-trigger{position:relative;display:grid;place-items:center;width:44px;height:44px;border:1px solid #d8e0ea;border-radius:10px;background:#fff;color:#475569}
+.planner-unplanned-trigger:hover,.planner-unplanned-trigger.is-active{border-color:#38a9d7;background:#f0faff;color:#0079b8}
+.planner-unplanned-badge{position:absolute;right:-5px;top:-6px;display:grid;place-items:center;min-width:20px;height:20px;padding:0 5px;border:2px solid #fff;border-radius:999px;background:#f97316;color:#fff;font-size:.62rem;font-weight:800}
+.dark .planner-unplanned-trigger{border-color:#475569;background:#1f2937;color:#e2e8f0}
+.dark .planner-unplanned-trigger.is-active{background:#0f3b53;color:#7dd3fc}
+.dark .planner-unplanned-badge{border-color:#1f2937}
+@media(min-width:901px){.planner-layout{min-height:0;align-items:stretch}
+.planner-scroll,.planner-unplanned{height:clamp(680px,calc(100vh - 14rem),1050px)}
+.planner-unplanned{overflow:auto}
+.planner-toolbar-primary{min-width:0;flex:1}
+.planner-toolbar-secondary{flex:0 0 auto}
+.planner-version{min-width:150px;max-width:320px;flex:1}
+.planner-today,.planner-unplanned-toggle{white-space:nowrap}}
+.planner-unplanned{width:340px;flex-basis:340px}
+.planner-card-meta .planner-overlap-badge{border-color:#c2410c;background:#ea580c;color:#fff;font-weight:800}
+.dark .planner-card-meta .planner-overlap-badge{border-color:#fb923c;background:#9a3412;color:#ffedd5}
+
+/* Confirmation on a conflict; replaced window.confirm. */
+.planner-confirm-backdrop{align-items:center;justify-content:center}
+.planner-confirm{width:min(460px,calc(100% - 2rem))}
+.planner-confirm h2{font-size:1rem;font-weight:800;color:#1e293b}
+.dark .planner-confirm h2{color:#f8fafc}
+.planner-confirm-subject{margin-top:.15rem;color:#64748b;font-size:.78rem}
+.planner-confirm-list{display:grid;gap:.45rem;margin:1rem 0 0;padding:0;list-style:none}
+.planner-confirm-list li{display:grid;gap:.15rem;padding:.6rem .7rem;border:1px solid #fde68a;border-radius:9px;background:#fffbeb;color:#92400e;font-size:.78rem}
+.planner-confirm-list li.is-conflict{border-color:#fecaca;background:#fef2f2;color:#991b1b}
+.planner-confirm-list li span{font-size:.62rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;opacity:.8}
+.planner-confirm .planner-match-modal-actions{grid-template-columns:auto 1fr auto}
+.dark .planner-confirm-list li{border-color:#854d0e;background:#422006;color:#fde68a}
+.dark .planner-confirm-list li.is-conflict{border-color:#7f1d1d;background:#450a0a;color:#fecaca}
+
+/*
+ * Dark mode for the parts that still had fixed light colours: the cards in the
+ * timetable, the venue filters and the fields in the modals. The palette
+ * follows the rest of this file -- surfaces #111827 and #1f2937, borders
+ * #374151 and #475569, text #e2e8f0 -- so the planner stays one whole.
+ */
+.dark .planner-shell{color:#e2e8f0}
+.dark .planner-current-date span{color:#94a3b8}
+.dark .planner-date-picker{color:#cbd5e1}
+.dark .planner-date-picker:hover{background:#0f3b53;color:#7dd3fc}
+.dark .planner-date-navigation>button{color:#cbd5e1}
+.dark .planner-date-navigation>button:hover{background:#0f3b53;color:#7dd3fc}
+.dark .planner-today:hover,.dark .planner-unplanned-toggle:hover{border-color:#38a9d7;background:#0f3b53;color:#7dd3fc}
+.dark .planner-search>span,.dark .planner-search kbd{color:#94a3b8}
+.dark .planner-search kbd{border-color:#475569;background:#111827}
+.dark .planner-count{background:#0f3b53;color:#7dd3fc}
+
+/* Venue filters: they were bright white above the dark timetable. */
+.dark .planner-hall-filter button{background:#1f2937;border-color:#475569;color:#e2e8f0}
+.dark .planner-hall-filter .planner-hall-count{background:#334155;color:#e2e8f0}
+.dark .planner-chips span{background:#422006;border-color:#854d0e;color:#fde68a}
+
+/* Side panel with matches still to plan. */
+.dark .planner-panel-title p{color:#94a3b8}
+.dark .planner-panel-title>span{background:#0f3b53;color:#7dd3fc}
+.dark .planner-unplanned-card{border-left-color:#64748b;color:#e2e8f0}
+.dark .planner-unplanned-card:hover{border-color:#38a9d7}
+.dark .planner-unplanned-card strong,.dark .planner-unplanned-card small{color:#94a3b8}
+.dark .planner-unplanned-card em{background:#7c2d12;color:#fed7aa}
+
+/* The timetable itself. */
+.dark .planner-time-axis span{color:#94a3b8}
+.dark .planner-dropzone.is-drop-target{background-color:#0f3b53;box-shadow:inset 0 0 0 2px #38a9d7}
+
+/*
+ * The cards. Each kind keeps its own colour -- match blue, training grey,
+ * activity amber, VolleyStars cyan -- as a dark variant, so the distinction
+ * stays without them lighting up.
+ */
+.dark .planner-card{background:#123243;border-color:#1d4d66;border-left-color:#38a9d7;color:#e2e8f0;box-shadow:0 2px 5px #0006}
+.dark .planner-card:hover{box-shadow:0 5px 14px #0008}
+.dark .planner-card>div:first-child span{color:#94a3b8}
+.dark .planner-card small{color:#94a3b8}
+.dark .planner-card-meta span{border-color:#475569;background:#ffffff14}
+.dark .planner-card-meta button{border-color:#0369a1;background:#0f3b53;color:#7dd3fc}
+.dark .planner-card.has-request{border-color:#6d28d9;border-left-color:#a78bfa;background:#2e1065}
+.dark .planner-card-meta .planner-request-badge{border-color:#a78bfa;background:#5b21b6;color:#ede9fe}
+.dark .planner-card.is-overlapping{border-color:#c2410c;border-left-color:#fb923c;background:#431407;outline-color:#ea580c}
+.dark .planner-card.is-requested{background:#422006;border-color:#854d0e;border-left-color:#f59e0b}
+.dark .planner-training-card{background:#1f2937;border-color:#374151;border-left-color:#64748b;color:#cbd5e1}
+.dark .planner-activity-card{background:#422006;border-color:#854d0e;border-left-color:#f59e0b;color:#fde68a}
+.dark .planner-volleystars-card{background:#0c4a5a;border-color:#155e75;border-left-color:#38bdf8;color:#e0f2fe}
+
+/* Hall duty column and cards. */
+.dark .planner-service-heading{background:#0f3b53!important;color:#bae6fd;border-left-color:#475569}
+.dark .planner-service-column{background-color:#0f1f2b;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 17px,#22303f 17px,#22303f 18px);border-left-color:#475569}
+.dark .planner-service-card{background:#123243;border-color:#1d4d66;border-left-color:#38a9d7;color:#e2e8f0}
+
+/* Planning assistant. */
+.dark .planner-assistant-header p{color:#94a3b8}
+.dark .planner-assistant select{border-color:#475569;background:#1f2937;color:#e2e8f0}
+.dark .planner-saved-proposal{border-color:#854d0e;background:#422006;color:#fde68a}
+.dark .planner-assistant-results>article{border-color:#166534;background:#052e16;color:#bbf7d0}
+.dark .planner-assistant-results button{border-color:#166534;background:#1f2937;color:#bbf7d0}
+.dark .planner-assistant-results button:last-child{background:#16a34a;color:#fff}
+.dark .planner-assistant-results p{color:#94a3b8}
+
+/* Match modal: labels, inputs and the duration buttons. */
+.dark .planner-match-modal label,.dark .planner-match-modal legend{color:#cbd5e1}
+.dark .planner-match-modal input,.dark .planner-match-modal select,.dark .planner-match-modal textarea{border-color:#475569;background:#1f2937;color:#e2e8f0}
+.dark .planner-match-modal select{background-image:linear-gradient(45deg,transparent 50%,#cbd5e1 50%),linear-gradient(135deg,#cbd5e1 50%,transparent 50%)}
+.dark .planner-match-modal input[readonly]{background:#111827;color:#94a3b8}
+.dark .planner-match-modal input::placeholder,.dark .planner-match-modal textarea::placeholder{color:#64748b}
+.dark .planner-duration button{border-color:#475569;background:#1f2937;color:#e2e8f0}
+.dark .planner-duration button.is-active{border-color:#a11f21;background:#a11f21;color:#fff}
+.dark .planner-two-fields{border-color:#475569}
+.dark .planner-two-fields small{color:#94a3b8}
+.dark .planner-match-modal-actions button{border-color:#475569;color:#e2e8f0}
+.dark .planner-match-modal-actions .is-primary{border-color:#a11f21;background:#a11f21;color:#fff}
+.dark .planner-match-modal-actions .is-danger{border-color:#ef4444;color:#f87171}
+.dark .planner-form-errors{color:#f87171}
+.dark .planner-history{border-color:#374151}
+.dark .planner-history article{border-color:#374151}
+.dark .planner-history small{color:#94a3b8}
+
+/* Other loose texts. */
+.dark .planner-confirm-subject,.dark .planner-volleystars-intro,.dark .planner-volleystars-times>span{color:#94a3b8}
+.dark .planner-search-modal-header p,.dark .planner-search-empty,.dark .planner-search-result-date small,.dark .planner-search-result-match small{color:#94a3b8}
+
+/* The rental window of the venue, next to the venue name in the column heading. */
+.planner-rental{margin-left:.4rem;padding:1px 5px;border-radius:999px;background:#ffffff2e;font-size:.62rem;font-style:normal;font-weight:700;letter-spacing:.02em;white-space:nowrap}
+.planner-own-slot{display:grid;gap:.6rem;margin-top:1rem;padding:.85rem;border:1px solid #e2e8f0;border-radius:10px}
+.planner-own-slot>strong{font-size:.8rem}
+.planner-own-slot input{border:1px solid #cbd5e1;border-radius:8px;padding:.5rem;background:transparent}
+.planner-own-slot>div>button{padding:.55rem .8rem;border-radius:8px;background:#0f172a;color:#fff;font-size:.75rem;font-weight:700}
+.planner-own-slot-error{color:#dc2626;font-size:.72rem}
+.planner-own-slot-result{display:grid;gap:.5rem;padding:.75rem;border:1px solid;border-radius:10px;font-size:.78rem}
+.planner-own-slot-result>div:first-child{display:grid}
+.planner-own-slot-result ul{margin:0;padding-left:1rem;list-style:disc}
+.planner-own-slot-result.is-green{border-color:#bbf7d0;background:#f0fdf4;color:#166534}
+.planner-own-slot-result.is-warning{border-color:#fde68a;background:#fffbeb;color:#92400e}
+.planner-own-slot-result.is-red{border-color:#fecaca;background:#fef2f2;color:#991b1b}
+.planner-own-slot-actions{display:flex;gap:.4rem;justify-content:flex-end}
+.planner-own-slot-actions button{padding:.4rem .55rem;border:1px solid currentColor;border-radius:7px;background:#fff;font-size:.7rem;font-weight:700}
+.dark .planner-own-slot{border-color:#334155}
+.dark .planner-own-slot input{border-color:#475569;background:#1f2937;color:#e2e8f0}
+.dark .planner-own-slot>div>button{background:#e2e8f0;color:#0f172a}
+.dark .planner-own-slot-result.is-green{border-color:#166534;background:#052e16;color:#bbf7d0}
+.dark .planner-own-slot-result.is-warning{border-color:#854d0e;background:#422006;color:#fde68a}
+.dark .planner-own-slot-result.is-red{border-color:#7f1d1d;background:#450a0a;color:#fecaca}
+.dark .planner-own-slot-actions button{background:#1f2937}
+.planner-mark-move{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:1rem;padding:.65rem .75rem;border:1px dashed #cbd5e1;border-radius:10px;font-size:.75rem;color:#475569}
+.planner-mark-move button{padding:.4rem .6rem;border:1px solid #f59e0b;border-radius:7px;background:#fffbeb;color:#92400e;font-size:.7rem;font-weight:700}
+.dark .planner-mark-move{border-color:#475569;color:#cbd5e1}
+.dark .planner-mark-move button{border-color:#b45309;background:#422006;color:#fde68a}
+
+/* A proposal to this day: dashed and translucent, so it reads as a marker
+   and not as a match that already stands here. */
+.planner-card.is-provisional{background:repeating-linear-gradient(135deg,#eff6ff 0 8px,#fff 8px 16px);border-style:dashed;border-color:#60a5fa;border-left:4px dashed #2563eb;opacity:.92}
+.planner-card-meta .planner-provisional-badge{border-color:#1d4ed8;background:#2563eb;color:#fff;font-weight:800}
+.dark .planner-card.is-provisional{background:repeating-linear-gradient(135deg,#172554 0 8px,#0f172a 8px 16px);border-color:#3b82f6;border-left-color:#60a5fa}
+.dark .planner-card-meta .planner-provisional-badge{border-color:#93c5fd;background:#1e3a8a;color:#dbeafe}
+
+
+/* Small helpers that replaced Tailwind utilities in the day planner views. */
+.planner-icon{width:1.25rem;height:1.25rem}
+.planner-icon-sm{width:1rem;height:1rem}
+.planner-muted{font-size:.875rem;color:#6b7280}
+.planner-unplanned-list>*+*{margin-top:.5rem}
+.planner-assistant-selects{display:grid;gap:.75rem}
+.planner-own-slot-fields{display:grid;gap:.75rem}
+@media (min-width:640px){
+.planner-assistant-selects{grid-template-columns:repeat(2,minmax(0,1fr))}
+.planner-own-slot-fields{grid-template-columns:1fr auto auto;align-items:end}
+}
+
+/* Error modal details (planner::filament.error-details). */
+.planner-error-details{max-height:24rem;overflow-y:auto}
+.planner-error-details li{display:flex;align-items:flex-start;gap:.375rem;font-size:.875rem;color:#4b5563}
+.planner-error-details li+li{margin-top:.25rem}
+.dark .planner-error-details li{color:#9ca3af}
+.planner-error-details-icon{margin-top:.125rem;width:1rem;height:1rem;flex-shrink:0;color:#9ca3af}
+
+/* ===== End of day planner styles. Other pages: add sections below with a header naming the page. ===== */

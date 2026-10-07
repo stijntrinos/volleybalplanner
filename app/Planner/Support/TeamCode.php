@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
  * "hs-1". Comparing and grouping goes through this key so the duty overview
  * does not turn one team into three rows.
  *
- * Recognising the club itself in a match name ("AETOS HS 1") is the job of
+ * Recognising the club itself in a match name ("DYNAMO HS 1") is the job of
  * ClubTeamMatcher; isOwnTeam() and isOwnTeamWithCode() delegate to it.
  */
 final class TeamCode

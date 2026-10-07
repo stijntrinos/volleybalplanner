@@ -10,8 +10,8 @@ use WeakMap;
 
 /**
  * Recognises the club's own teams in free-form match names such as
- * "AETOS Plauti DS 1 - Orion DS 3". The club name prefixes come from
- * PlannerSetting::team_name_patterns (e.g. ["AETOS", "AET"]) and are matched
+ * "DYNAMO Plauti DS 1 - Orion DS 3". The club name prefixes come from
+ * PlannerSetting::team_name_patterns (e.g. ["DYNAMO", "DYN"]) and are matched
  * as whole words, case-insensitively. Without patterns no name is recognised.
  */
 final class ClubTeamMatcher
@@ -32,7 +32,7 @@ final class ClubTeamMatcher
             static fn (string $pattern): bool => $pattern !== '',
         )));
 
-        // Longest first, so "AETOS" wins over "AET" in an alternation.
+        // Longest first, so "DYNAMO" wins over "DYN" in an alternation.
         usort($clean, static fn (string $a, string $b): int => mb_strlen($b) <=> mb_strlen($a));
 
         $this->patterns = $clean;
@@ -78,7 +78,7 @@ final class ClubTeamMatcher
         return $this->patterns !== [];
     }
 
-    /** Whether the name contains the club name anywhere, i.e. it is one of our teams ("AETOS Plauti DS 1"). */
+    /** Whether the name contains the club name anywhere, i.e. it is one of our teams ("DYNAMO Plauti DS 1"). */
     public function isOwnTeam(?string $name): bool
     {
         return $this->clubRegex() !== null && preg_match($this->clubRegex(), (string) $name) === 1;
@@ -92,7 +92,7 @@ final class ClubTeamMatcher
         return $regex !== null && preg_match($regex, (string) $name) === 1;
     }
 
-    /** Removes a leading club name ("AETOS HS 1" -> "HS 1"); other names are returned trimmed but unchanged. */
+    /** Removes a leading club name ("DYNAMO HS 1" -> "HS 1"); other names are returned trimmed but unchanged. */
     public function stripClubPrefix(string $name): string
     {
         $regex = $this->clubRegex('^\s*', '\s*');
@@ -114,7 +114,7 @@ final class ClubTeamMatcher
 
     /**
      * Whether the name is our team with this code. Only the part after the
-     * club name counts, so the opponent's code ("Rebelle HS 2 - AETOS HS 3")
+     * club name counts, so the opponent's code ("Rebelle HS 2 - DYNAMO HS 3")
      * or a sibling team in the same pool feed never matches.
      */
     public function isOwnTeamWithCode(?string $name, ?string $code): bool
@@ -125,7 +125,7 @@ final class ClubTeamMatcher
         return $pattern !== null && $after !== null && preg_match($pattern, $after) === 1;
     }
 
-    /** Whether the name starts with the club name directly followed by this code ("AETOS XZ 1" for "XZ 1"). */
+    /** Whether the name starts with the club name directly followed by this code ("DYNAMO XZ 1" for "XZ 1"). */
     public function startsWithOwnTeam(?string $name, ?string $code): bool
     {
         $pattern = TeamCode::pattern($code);
