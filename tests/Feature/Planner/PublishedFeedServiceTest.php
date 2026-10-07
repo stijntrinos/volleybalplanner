@@ -81,6 +81,19 @@ class PublishedFeedServiceTest extends TestCase
     }
 
     /** @param  array<string, mixed>  $extra */
+    public function test_only_moved_matches_are_marked_as_changed_and_links_point_to_the_club(): void
+    {
+        $this->match($this->published, 'NEVER1');
+        $this->match($this->published, 'MOVED1', ['original_date' => '2026-09-05']);
+
+        $xml = app(PublishedFeedService::class)->xml('Feed', '', app(PublishedFeedService::class)->matches());
+        $club = app(CurrentClub::class)->require();
+
+        $this->assertStringNotContainsString('ABC', $xml);
+        $this->assertSame(1, substr_count($xml, '[GEWIJZIGD]'));
+        $this->assertStringContainsString(route('planner.public.matches', ['club' => $club->slug]), $xml);
+    }
+
     private function match(ScheduleVersion $version, string $code, array $extra = []): FixtureMatch
     {
         $court = Court::query()->firstOrCreate(['venue_id' => $this->venue->id, 'name' => '1']);

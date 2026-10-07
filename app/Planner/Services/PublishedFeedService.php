@@ -38,7 +38,9 @@ class PublishedFeedService
     {
         $items = $matches->map(function (FixtureMatch $match): string {
             $time = substr((string) $match->time, 0, 5);
-            $changed = $match->original_date?->toDateString() !== $match->date?->toDateString()
+            // Only a recorded original that differs counts as a change; a match
+            // that was never moved has no original_* values at all.
+            $changed = ($match->original_date && $match->original_date->toDateString() !== $match->date?->toDateString())
                 || ($match->original_time && substr($match->original_time, 0, 5) !== $time)
                 || ($match->original_venue && $match->original_venue !== $match->venue?->name)
                 || ($match->original_court && $match->original_court !== $match->court?->name);
@@ -52,7 +54,7 @@ class PublishedFeedService
         })->implode('');
 
         return $this->formatXml('<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>'.$this->escape($title).'</title><link>'
-            .$this->escape(url('/')).'</link><description>'.$this->escape($description).'</description><language>nl-NL</language>'.$items.'</channel></rss>');
+            .$this->escape($this->clubUrl()).'</link><description>'.$this->escape($description).'</description><language>nl-NL</language>'.$items.'</channel></rss>');
     }
 
     /**
@@ -150,7 +152,7 @@ class PublishedFeedService
             }
         }
 
-        return '<item><title>'.$this->escape($item['title']).'</title><link>'.$this->escape(url('/')).'</link><pubDate>'.$dateTime->utc()->toRfc2822String().'</pubDate>'
+        return '<item><title>'.$this->escape($item['title']).'</title><link>'.$this->escape($this->clubUrl()).'</link><pubDate>'.$dateTime->utc()->toRfc2822String().'</pubDate>'
             .'<guid isPermaLink="false">'.$this->escape($item['type'].'-'.$item['id'].'-'.$versionId).'</guid><category>'.$this->escape($item['type']).'</category>'
             .$element('type', $item['type']).$fields.'</item>';
     }
@@ -166,7 +168,7 @@ class PublishedFeedService
             : '';
 
         return $this->formatXml('<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:'.$prefix.'="'.$this->escape(self::namespaceUri()).'"><channel><title>'
-            .$this->escape($title).'</title><link>'.$this->escape(url('/')).'</link><language>nl-NL</language>'.$metadata.$items.'</channel></rss>');
+            .$this->escape($title).'</title><link>'.$this->escape($this->clubUrl()).'</link><language>nl-NL</language>'.$metadata.$items.'</channel></rss>');
     }
 
     private function publishedVersion(): ?ScheduleVersion
@@ -187,5 +189,13 @@ class PublishedFeedService
         $document->loadXML($xml);
 
         return (string) $document->saveXML();
+    }
+
+    /** The club's public matches page, used as the feed and item link. */
+    private function clubUrl(): string
+    {
+        $club = app(CurrentClub::class)->get();
+
+        return $club ? route('planner.public.matches', ['club' => $club->slug]) : url('/');
     }
 }

@@ -5,8 +5,11 @@ namespace App\Planner;
 use App\Models\Club;
 use App\Planner\Console\SyncRolesCommand;
 use App\Planner\Support\ClubDataPurger;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
@@ -44,6 +47,8 @@ class PlannerServiceProvider extends ServiceProvider
 
         $this->loadViewsFrom(resource_path('views/planner'), 'planner');
 
+        $this->registerPublicRateLimiters();
+
         // Registered after Filament's panel routes, so /admin and /app never
         // resolve as a club slug (ReservedSlugs keeps clubs from claiming them).
         $this->app->booted(function (): void {
@@ -69,5 +74,21 @@ class PlannerServiceProvider extends ServiceProvider
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
             $schedule->command('planner:sync-nevobo --all')->dailyAt('06:00')->withoutOverlapping();
         });
+    }
+
+    /**
+     * Throttling of the public club pages, keyed per club and IP so one busy
+     * club never blocks a visitor of another club.
+     */
+    private function registerPublicRateLimiters(): void
+    {
+        $key = function (Request $request): string {
+            $club = $request->route('club');
+
+            return ($club instanceof Club ? $club->slug : (string) $club).'|'.$request->ip();
+        };
+
+        RateLimiter::for('planner-public-forms', fn (Request $request): Limit => Limit::perHour(20)->by('forms|'.$key($request)));
+        RateLimiter::for('planner-public-feeds', fn (Request $request): Limit => Limit::perMinute(30)->by('feeds|'.$key($request)));
     }
 }
