@@ -1,0 +1,6 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><style>
+body{font-family:DejaVu Sans,sans-serif;font-size:9px;color:#1f2937}h1{font-size:18px}table{width:100%;border-collapse:collapse}th{background:{{ $primaryColor }};color:#fff;text-align:left}th,td{padding:6px;border:1px solid #dbe3ea}.open{color:#b45309;font-weight:bold}.done{color:#15803d}
+</style></head><body><h1>{{ __('Nevobo-wijzigingen') }}</h1><p>{{ __('Gegenereerd') }} {{ now()->format('d-m-Y H:i') }}</p>
+<table><thead><tr><th>{{ __('Code') }}</th><th>{{ __('Datum') }}</th><th>{{ __('Wedstrijd') }}</th><th>{{ __('Veld') }}</th><th>{{ __('Oud') }}</th><th>{{ __('Nieuw') }}</th><th>{{ __('Status') }}</th></tr></thead><tbody>
+@foreach ($changes as $match)@foreach ($match['fields'] as $field)<tr><td>{{ $match['code'] }}</td><td>{{ $match['date'] }}</td><td>{{ $match['home_team'] }} – {{ $match['away_team'] }}</td><td>{{ \App\Planner\Enums\NevoboChangeField::tryFrom((string) $field['field'])?->getLabel() ?? ucfirst((string) $field['field']) }}</td><td>{{ $field['old'] ?: '—' }}</td><td>{{ $field['new'] ?: '—' }}</td><td class="{{ $field['processed'] ? 'done' : 'open' }}">{{ $field['processed'] ? __('Verwerkt') : __('Openstaand') }}</td></tr>@endforeach @endforeach
+</tbody></table></body></html>

@@ -5,6 +5,7 @@ namespace App\Planner;
 use App\Models\Club;
 use App\Planner\Console\SyncRolesCommand;
 use App\Planner\Support\ClubDataPurger;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -55,7 +56,18 @@ class PlannerServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 SyncRolesCommand::class,
+                Console\SyncNevoboCommand::class,
+                Console\RepairMatchCodesCommand::class,
+                Console\RepairCourtAssignmentCommand::class,
+                Console\ImportDutiesCommand::class,
+                Console\CleanDuplicateMatchesCommand::class,
+                Console\CleanPoolMatchesCommand::class,
             ]);
         }
+
+        // The nightly Nevobo sync: one queued job per active club.
+        $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
+            $schedule->command('planner:sync-nevobo --all')->dailyAt('06:00')->withoutOverlapping();
+        });
     }
 }

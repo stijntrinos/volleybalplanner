@@ -11,7 +11,7 @@ return [
     | van een inlogshell, dus daar is node vaak onvindbaar terwijl hetzelfde
     | commando in de terminal werkt ("sh: node: command not found").
     |
-    | Deze mogen leeg blijven: Nodepaden zoekt dan zelf, eerst in de nvm-map van
+    | Deze mogen leeg blijven: NodePaths zoekt dan zelf, eerst in de nvm-map van
     | Herd en daarna in /usr/local/bin, /opt/homebrew/bin en /usr/bin. Vul ze
     | alleen als node ergens anders staat.
     |

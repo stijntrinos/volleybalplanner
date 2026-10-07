@@ -11,6 +11,7 @@ use App\Planner\Models\TeamSource;
 use App\Planner\Models\Venue;
 use App\Planner\Services\AvailabilityChecker;
 use App\Planner\Services\ConflictEngine;
+use App\Planner\Services\ProposalFinder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\Concerns\InteractsWithClubs;
@@ -121,6 +122,19 @@ class AvailabilityCheckerTest extends TestCase
         $this->assertSame('2026-09-12', $external[0]['date']);
         $this->assertSame($team->id, $external[0]['team_id']);
         $this->assertSame($source->id, $external[0]['source_id']);
+    }
+
+    public function test_the_proposal_finder_gives_validated_slots_within_the_competition_period(): void
+    {
+        $this->travelTo('2026-08-01');
+        [$match, $venue, $court] = $this->plannerData(['original_date' => '2026-09-12', 'original_time' => '12:00']);
+        PlannerSetting::current()->update(['competition_start' => '2026-09-01', 'competition_end' => '2026-12-31']);
+
+        $proposals = app(ProposalFinder::class)->find($match, $venue->id, $court->id, limit: 3);
+
+        $this->assertCount(3, $proposals);
+        $this->assertSame('12:00', $proposals[0]['time']);
+        $this->assertSame(AvailabilityChecker::RESULT_GREEN, $proposals[0]['check']['result']);
     }
 
     /** @param array<string, mixed> $matchData */
