@@ -13,6 +13,7 @@ class EditClub extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            ClubResource::openClubAction(),
             DeleteAction::make(),
         ];
     }

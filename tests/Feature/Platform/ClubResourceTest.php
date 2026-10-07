@@ -3,6 +3,8 @@
 namespace Tests\Feature\Platform;
 
 use App\Filament\Platform\Resources\Clubs\Pages\CreateClub;
+use App\Filament\Platform\Resources\Clubs\Pages\EditClub;
+use App\Filament\Platform\Resources\Clubs\Pages\ListClubs;
 use App\Models\Club;
 use App\Models\User;
 use Filament\Facades\Filament;
@@ -47,5 +49,28 @@ class ClubResourceTest extends TestCase
                 ->call('create')
                 ->assertHasFormErrors(['slug']);
         }
+    }
+
+    public function test_clubs_link_straight_to_their_workspace(): void
+    {
+        $club = Club::factory()->create(['slug' => 'vv-link']);
+
+        Livewire::test(ListClubs::class)
+            ->assertTableActionHasUrl('openClub', url('/app/vv-link'), $club);
+
+        Livewire::test(EditClub::class, ['record' => $club->getRouteKey()])
+            ->assertActionHasUrl('openClub', url('/app/vv-link'));
+    }
+
+    public function test_dashboard_shows_every_club_as_a_card_opening_in_a_new_tab(): void
+    {
+        Club::factory()->create(['name' => 'VV Actief', 'slug' => 'vv-actief']);
+        Club::factory()->inactive()->create(['name' => 'VV Slapend', 'slug' => 'vv-slapend']);
+
+        $this->get('/admin')
+            ->assertOk()
+            ->assertSee('VV Actief')
+            ->assertSee('VV Slapend')
+            ->assertSee('href="'.url('/app/vv-actief').'" target="_blank"', false);
     }
 }

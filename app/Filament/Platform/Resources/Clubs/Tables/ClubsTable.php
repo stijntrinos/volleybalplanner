@@ -2,6 +2,7 @@
 
 namespace App\Filament\Platform\Resources\Clubs\Tables;
 
+use App\Filament\Platform\Resources\Clubs\ClubResource;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -21,6 +22,7 @@ class ClubsTable
             ])
             ->defaultSort('name')
             ->recordActions([
+                ClubResource::openClubAction(),
                 EditAction::make(),
             ]);
     }

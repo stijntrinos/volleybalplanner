@@ -10,6 +10,8 @@ use App\Filament\Platform\Resources\Clubs\Schemas\ClubForm;
 use App\Filament\Platform\Resources\Clubs\Tables\ClubsTable;
 use App\Models\Club;
 use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -49,5 +51,17 @@ class ClubResource extends Resource
             'create' => CreateClub::route('/create'),
             'edit' => EditClub::route('/{record}/edit'),
         ];
+    }
+
+    /**
+     * Opens the club's workspace; platform admins can enter every club.
+     */
+    public static function openClubAction(): Action
+    {
+        return Action::make('openClub')
+            ->label('Naar club')
+            ->icon('heroicon-o-arrow-top-right-on-square')
+            ->url(fn (Club $record): string => Filament::getPanel('club')->getUrl($record))
+            ->openUrlInNewTab();
     }
 }
