@@ -11,13 +11,20 @@ final class PlannerPermissions
     public const ACTIONS = ['ViewAny', 'View', 'Create', 'Update', 'Delete', 'DeleteAny'];
 
     /** Shield model names. @var list<string> */
-    public const MODELS = [];
+    public const MODELS = [
+        'Team', 'Venue', 'Court', 'VenueAlias', 'TeamSource', 'ScheduleVersion', 'Availability', 'CalendarEvent',
+        'ActivityColor', 'Training', 'Activity', 'HallDuty', 'VolleystarsBlock', 'VolleystarsTask', 'FixtureMatch',
+        'PlannerSetting', 'NevoboChange', 'ChangeRequest',
+    ];
 
     /** @var list<string> */
-    public const PAGES = [];
+    public const PAGES = [
+        'HomeMatches', 'AwayMatches', 'DutyPlanner', 'ImportPlanning', 'NevoboChanges', 'Settings', 'VenueOccupancy',
+        'DutiesDashboard', 'Exports',
+    ];
 
     /** @var list<string> */
-    public const WIDGETS = [];
+    public const WIDGETS = ['PendingChanges', 'PendingAwayChanges', 'NewChangeRequests'];
 
     /** @return list<string> */
     public static function all(): array
