@@ -41,10 +41,12 @@ class DashboardAside extends Widget
 
     public function decide(int $requestId, string $status): void
     {
+        abort_unless($this->requestsEnabled(), 404);
+
         $decision = ChangeRequestStatus::tryFrom($status);
         $request = ChangeRequest::query()->find($requestId);
 
-        if (! $request || ! in_array($decision, [ChangeRequestStatus::Accepted, ChangeRequestStatus::Rejected, ChangeRequestStatus::Parked], true)) {
+        if (!$request || !in_array($decision, [ChangeRequestStatus::Accepted, ChangeRequestStatus::Rejected, ChangeRequestStatus::Parked], true)) {
             return;
         }
 
@@ -100,7 +102,7 @@ class DashboardAside extends Widget
     /** @return list<array{id: int, kind: string, when: string, title: string, reason: string, canDecide: bool}> */
     private function requests(): array
     {
-        if (! $this->requestsEnabled()) {
+        if (!$this->requestsEnabled()) {
             return [];
         }
 
@@ -134,7 +136,7 @@ class DashboardAside extends Widget
 
     private function relativeMoment(?Carbon $moment): string
     {
-        if (! $moment) {
+        if (!$moment) {
             return '';
         }
 
@@ -145,8 +147,10 @@ class DashboardAside extends Widget
         };
     }
 
+    /** Requests show (and can be decided) only with the module on and the right to list them. */
     private function requestsEnabled(): bool
     {
-        return (bool) app(CurrentClub::class)->get()?->hasFeature(PlannerFeature::ChangeRequests);
+        return (bool) app(CurrentClub::class)->get()?->hasFeature(PlannerFeature::ChangeRequests)
+            && auth()->user()?->can('viewAny', ChangeRequest::class);
     }
 }
