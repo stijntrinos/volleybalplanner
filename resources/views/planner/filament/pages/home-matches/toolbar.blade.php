@@ -29,9 +29,15 @@
             <button type="button" wire:click="navigate(1)" aria-label="{{ __('Volgende wedstrijddag') }}">›</button>
         </div>
         <button type="button" class="planner-today" wire:click="goToToday">{{ __('Vandaag') }}</button>
-        <select wire:model.live="versionId" class="planner-input planner-version" aria-label="{{ __('Planningversie') }}">
-            @foreach ($this->versions as $id => $name)<option value="{{ $id }}">{{ $name }}</option>@endforeach
-        </select>
+        <x-filament::input.wrapper class="planner-version">
+            <x-filament::input.select wire:model.live="versionId" class="h-11" aria-label="{{ __('Planningversie') }}" :disabled="$this->versions->isEmpty()">
+                @forelse ($this->versions as $id => $name)
+                    <option value="{{ $id }}">{{ $name }}</option>
+                @empty
+                    <option value="">{{ __('Nog geen planningversies') }}</option>
+                @endforelse
+            </x-filament::input.select>
+        </x-filament::input.wrapper>
     </div>
     <div class="planner-toolbar-secondary">
         <button

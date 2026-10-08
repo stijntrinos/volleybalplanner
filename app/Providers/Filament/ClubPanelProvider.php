@@ -30,6 +30,7 @@ class ClubPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('club')
+            ->topbar(false)
             ->path('app')
             ->login()
             ->passwordReset()

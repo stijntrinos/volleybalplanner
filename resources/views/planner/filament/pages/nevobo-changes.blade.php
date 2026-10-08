@@ -34,16 +34,20 @@
         icon="heroicon-o-funnel"
     >
         <div class="grid gap-5 xl:grid-cols-[minmax(16rem,1fr)_minmax(20rem,1.4fr)_auto] xl:items-end">
-            <label class="grid gap-1.5 text-sm font-medium text-gray-950 dark:text-white">
-                {{ __('Planningversie') }}
-                <select wire:model.live="versionId" class="fi-select-input rounded-lg border-gray-300 dark:bg-gray-800">
-                    @foreach ($this->versions as $id => $name)
-                        <option value="{{ $id }}">{{ $name }}</option>
-                    @endforeach
-                </select>
+            <label class="grid gap-2">
+                <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Planningversie') }}</span>
+                <x-filament::input.wrapper>
+                    <x-filament::input.select wire:model.live="versionId" :disabled="$this->versions->isEmpty()">
+                        @forelse ($this->versions as $id => $name)
+                            <option value="{{ $id }}">{{ $name }}</option>
+                        @empty
+                            <option value="">{{ __('Nog geen planningversies') }}</option>
+                        @endforelse
+                    </x-filament::input.select>
+                </x-filament::input.wrapper>
             </label>
 
-            <div class="grid gap-1.5">
+            <div class="grid gap-2">
                 <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Status') }}</span>
                 <div class="inline-flex w-full rounded-lg bg-gray-100 p-1 dark:bg-white/5">
                     @foreach ([

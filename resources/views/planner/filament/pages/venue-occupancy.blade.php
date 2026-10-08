@@ -19,31 +19,41 @@
         :description="__('Kies de planningversie en de periode; de tabellen en downloads volgen deze selectie.')"
         icon="heroicon-o-adjustments-horizontal"
     >
-        <div class="grid gap-4 lg:grid-cols-4">
-            <label class="grid gap-1.5 text-sm font-medium text-gray-950 dark:text-white">
-                {{ __('Planningversie') }}
-                <select wire:model.live="versionId" class="fi-select-input rounded-lg border-gray-300 dark:bg-gray-800">
-                    @foreach ($this->versions as $id => $name)
-                        <option value="{{ $id }}">{{ $name }}</option>
-                    @endforeach
-                </select>
+        <div class="grid gap-4 lg:grid-cols-4 lg:items-end">
+            <label class="grid gap-2">
+                <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Planningversie') }}</span>
+                <x-filament::input.wrapper>
+                    <x-filament::input.select wire:model.live="versionId" :disabled="$this->versions->isEmpty()">
+                        @forelse ($this->versions as $id => $name)
+                            <option value="{{ $id }}">{{ $name }}</option>
+                        @empty
+                            <option value="">{{ __('Nog geen planningversies') }}</option>
+                        @endforelse
+                    </x-filament::input.select>
+                </x-filament::input.wrapper>
             </label>
-            <label class="grid gap-1.5 text-sm font-medium text-gray-950 dark:text-white">
-                {{ __('Van') }}
-                <input type="text" wire:model.live.debounce.500ms="fromDate" inputmode="numeric" placeholder="dd-MM-jjjj" pattern="\d{2}-\d{2}-\d{4}" autocomplete="off" class="rounded-lg border-gray-300 dark:bg-gray-800">
+            <label class="grid gap-2">
+                <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Van') }}</span>
+                <x-filament::input.wrapper>
+                    <x-filament::input type="text" wire:model.live.debounce.500ms="fromDate" inputmode="numeric" placeholder="dd-MM-jjjj" pattern="\d{2}-\d{2}-\d{4}" autocomplete="off" />
+                </x-filament::input.wrapper>
             </label>
-            <label class="grid gap-1.5 text-sm font-medium text-gray-950 dark:text-white">
-                {{ __('Tot en met') }}
-                <input type="text" wire:model.live.debounce.500ms="toDate" inputmode="numeric" placeholder="dd-MM-jjjj" pattern="\d{2}-\d{2}-\d{4}" autocomplete="off" class="rounded-lg border-gray-300 dark:bg-gray-800">
+            <label class="grid gap-2">
+                <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Tot en met') }}</span>
+                <x-filament::input.wrapper>
+                    <x-filament::input type="text" wire:model.live.debounce.500ms="toDate" inputmode="numeric" placeholder="dd-MM-jjjj" pattern="\d{2}-\d{2}-\d{4}" autocomplete="off" />
+                </x-filament::input.wrapper>
             </label>
-            <label class="grid gap-1.5 text-sm font-medium text-gray-950 dark:text-white">
-                {{ __('Sporthal') }}
-                <select wire:model.live="venueId" class="fi-select-input rounded-lg border-gray-300 dark:bg-gray-800">
-                    <option value="">{{ __('Alle sporthallen') }}</option>
-                    @foreach ($this->venues as $id => $name)
-                        <option value="{{ $id }}">{{ $name }}</option>
-                    @endforeach
-                </select>
+            <label class="grid gap-2">
+                <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Sporthal') }}</span>
+                <x-filament::input.wrapper>
+                    <x-filament::input.select wire:model.live="venueId">
+                        <option value="">{{ __('Alle sporthallen') }}</option>
+                        @foreach ($this->venues as $id => $name)
+                            <option value="{{ $id }}">{{ $name }}</option>
+                        @endforeach
+                    </x-filament::input.select>
+                </x-filament::input.wrapper>
             </label>
         </div>
 
@@ -72,8 +82,8 @@
                 <p class="mb-2 text-sm font-medium text-gray-950 dark:text-white">{{ __('Statussen') }}</p>
                 <div class="flex flex-wrap gap-x-5 gap-y-2">
                     @foreach (VenueOccupancyService::statusLabels() as $status => $label)
-                        <label class="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                            <input type="checkbox" value="{{ $status }}" wire:model.live="statuses" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800">
+                        <label class="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-950 dark:text-white">
+                            <x-filament::input.checkbox value="{{ $status }}" wire:model.live="statuses" />
                             {{ $label }}
                         </label>
                     @endforeach
@@ -85,11 +95,11 @@
         <div class="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-gray-200 pt-5 dark:border-white/10">
             <div class="flex flex-wrap items-center gap-5">
                 <label class="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-950 dark:text-white">
-                    <input type="checkbox" wire:model.live="matchDaysOnly" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800">
+                    <x-filament::input.checkbox wire:model.live="matchDaysOnly" />
                     {{ __('Alleen dagen met wedstrijden') }}
                 </label>
                 <label class="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-950 dark:text-white">
-                    <input type="checkbox" wire:model.live="withDetails" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800">
+                    <x-filament::input.checkbox wire:model.live="withDetails" />
                     {{ __('Wedstrijddetails meenemen in de download') }}
                 </label>
             </div>

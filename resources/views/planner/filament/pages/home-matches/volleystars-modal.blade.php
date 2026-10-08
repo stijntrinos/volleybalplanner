@@ -14,20 +14,32 @@
                     <fieldset class="planner-volleystars-task" wire:key="volleystars-{{ $role }}">
                         <legend>{{ $label }}</legend>
                         <div class="planner-volleystars-times">
-                            <label>{{ __('Van') }}<input type="time" step="900" wire:model="modalVolleystarsTimes.{{ $role }}.start" autocomplete="off"></label>
+                            <label>
+                                <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Van') }}</span>
+                                <x-filament::input.wrapper>
+                                    <x-filament::input type="time" step="900" wire:model="modalVolleystarsTimes.{{ $role }}.start" autocomplete="off" />
+                                </x-filament::input.wrapper>
+                            </label>
                             <span>–</span>
-                            <label>{{ __('Tot') }}<input type="time" step="900" wire:model="modalVolleystarsTimes.{{ $role }}.end" autocomplete="off"></label>
+                            <label>
+                                <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Tot') }}</span>
+                                <x-filament::input.wrapper>
+                                    <x-filament::input type="time" step="900" wire:model="modalVolleystarsTimes.{{ $role }}.end" autocomplete="off" />
+                                </x-filament::input.wrapper>
+                            </label>
                         </div>
                         <div class="planner-volleystars-team-grid">
                             @for ($position = 0; $position < 3; $position++)
                                 <label>
-                                    {{ __('Team :number', ['number' => $position + 1]) }}
-                                    <select wire:model="modalVolleystarsTeams.{{ $role }}.{{ $position }}">
-                                        <option value="">{{ __('Niet gekoppeld') }}</option>
-                                        @foreach ($this->volleystarsTeams as $teamId => $teamLabel)
-                                            <option value="{{ $teamId }}">{{ $teamLabel }}</option>
-                                        @endforeach
-                                    </select>
+                                    <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Team :number', ['number' => $position + 1]) }}</span>
+                                    <x-filament::input.wrapper>
+                                        <x-filament::input.select wire:model="modalVolleystarsTeams.{{ $role }}.{{ $position }}">
+                                            <option value="">{{ __('Niet gekoppeld') }}</option>
+                                            @foreach ($this->volleystarsTeams as $teamId => $teamLabel)
+                                                <option value="{{ $teamId }}">{{ $teamLabel }}</option>
+                                            @endforeach
+                                        </x-filament::input.select>
+                                    </x-filament::input.wrapper>
                                 </label>
                             @endfor
                         </div>

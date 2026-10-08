@@ -40,41 +40,52 @@
         :description="$withPoints ? __('Alle diensten zijn omgerekend met de vrijwilligerspunten uit de plannerinstellingen.') : __('Elke dienst telt als één taak.')"
         icon="heroicon-o-scale"
     >
-        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-[minmax(12rem,1fr)_minmax(9rem,.6fr)_minmax(9rem,.6fr)_minmax(12rem,1fr)_auto_auto] lg:items-end">
-            <label class="grid gap-1.5 text-sm font-medium text-gray-950 dark:text-white">
-                {{ __('Planningversie') }}
-                <select wire:model.live="versionId" class="fi-select-input rounded-lg border-gray-300 dark:bg-gray-800">
-                    @foreach ($this->versions as $id => $name)<option value="{{ $id }}">{{ $name }}</option>@endforeach
-                </select>
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3 md:items-end">
+            <label class="grid gap-2">
+                <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Planningversie') }}</span>
+                <x-filament::input.wrapper>
+                    <x-filament::input.select wire:model.live="versionId" :disabled="$this->versions->isEmpty()">
+                        @forelse ($this->versions as $id => $name)
+                            <option value="{{ $id }}">{{ $name }}</option>
+                        @empty
+                            <option value="">{{ __('Nog geen planningversies') }}</option>
+                        @endforelse
+                    </x-filament::input.select>
+                </x-filament::input.wrapper>
             </label>
-            <label class="grid gap-1.5 text-sm font-medium text-gray-950 dark:text-white">
-                {{ __('Van') }}
-                <input type="date" wire:model.live="fromDate" class="rounded-lg border-gray-300 text-sm dark:bg-gray-800">
-                @error('fromDate')<span class="text-xs text-danger-600">{{ $message }}</span>@enderror
+            <label class="grid gap-2">
+                <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Van') }}</span>
+                <x-filament::input.wrapper :valid="! $errors->has('fromDate')">
+                    <x-filament::input type="date" wire:model.live="fromDate" />
+                </x-filament::input.wrapper>
+                @error('fromDate')<span class="text-sm text-danger-600 dark:text-danger-400">{{ $message }}</span>@enderror
             </label>
-            <label class="grid gap-1.5 text-sm font-medium text-gray-950 dark:text-white">
-                {{ __('Tot en met') }}
-                <input type="date" wire:model.live="toDate" class="rounded-lg border-gray-300 text-sm dark:bg-gray-800">
-                @error('toDate')<span class="text-xs text-danger-600">{{ $message }}</span>@enderror
+            <label class="grid gap-2">
+                <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Tot en met') }}</span>
+                <x-filament::input.wrapper :valid="! $errors->has('toDate')">
+                    <x-filament::input type="date" wire:model.live="toDate" />
+                </x-filament::input.wrapper>
+                @error('toDate')<span class="text-sm text-danger-600 dark:text-danger-400">{{ $message }}</span>@enderror
             </label>
-            <label class="grid gap-1.5 text-sm font-medium text-gray-950 dark:text-white">
-                {{ __('Team zoeken') }}
-                <div class="relative">
-                    <x-filament::icon icon="heroicon-o-magnifying-glass" class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                    <input wire:model.live.debounce.250ms="search" type="search" placeholder="{{ __('Bijvoorbeeld Dames 1') }}" class="w-full rounded-lg border-gray-300 py-2 pl-10 pr-3 text-sm dark:bg-gray-800">
-                </div>
+            <label class="grid gap-2">
+                <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Team zoeken') }}</span>
+                <x-filament::input.wrapper prefix-icon="heroicon-o-magnifying-glass">
+                    <x-filament::input wire:model.live.debounce.250ms="search" type="search" placeholder="{{ __('Bijvoorbeeld Dames 1') }}" />
+                </x-filament::input.wrapper>
             </label>
-            <label class="grid gap-1.5 text-sm font-medium text-gray-950 dark:text-white">
-                {{ __('Sorteren op') }}
-                <select wire:model.live="sort" class="fi-select-input rounded-lg border-gray-300 dark:bg-gray-800">
-                    <option value="team_asc">{{ __('Teamnaam') }}</option>
-                    @if ($withPoints)<option value="percentage_desc">{{ __('Grootste tekort') }}</option>@endif
-                    <option value="total_desc">{{ __('Meeste taken') }}</option>
-                    <option value="referee_desc">{{ __('Meeste fluitbeurten') }}</option>
-                    <option value="scorer_desc">{{ __('Meeste telbeurten') }}</option>
-                    <option value="hall_duty_desc">{{ __('Meeste zaaldiensten') }}</option>
-                    @if ($withVolleystars)<option value="volleystars_desc">{{ __('Meeste VolleyStars-taken') }}</option>@endif
-                </select>
+            <label class="grid gap-2">
+                <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Sorteren op') }}</span>
+                <x-filament::input.wrapper>
+                    <x-filament::input.select wire:model.live="sort">
+                        <option value="team_asc">{{ __('Teamnaam') }}</option>
+                        @if ($withPoints)<option value="percentage_desc">{{ __('Grootste tekort') }}</option>@endif
+                        <option value="total_desc">{{ __('Meeste taken') }}</option>
+                        <option value="referee_desc">{{ __('Meeste fluitbeurten') }}</option>
+                        <option value="scorer_desc">{{ __('Meeste telbeurten') }}</option>
+                        <option value="hall_duty_desc">{{ __('Meeste zaaldiensten') }}</option>
+                        @if ($withVolleystars)<option value="volleystars_desc">{{ __('Meeste VolleyStars-taken') }}</option>@endif
+                    </x-filament::input.select>
+                </x-filament::input.wrapper>
             </label>
             <x-filament::button wire:click="exportImage" icon="heroicon-o-photo" color="gray" wire:loading.attr="disabled" wire:target="exportImage">
                 <span wire:loading.remove wire:target="exportImage">{{ __('Als afbeelding') }}</span>

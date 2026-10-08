@@ -33,7 +33,7 @@
                 'border-danger-300 bg-danger-50/50 dark:border-danger-500/30 dark:bg-danger-500/5' => $cleanupSelection[$key] ?? false,
                 'border-gray-200 hover:border-gray-300 dark:border-white/10 dark:hover:border-white/20' => ! ($cleanupSelection[$key] ?? false),
             ])>
-                <input type="checkbox" wire:model.live="cleanupSelection.{{ $key }}" class="rounded border-gray-300 text-danger-600 focus:ring-danger-500">
+                <x-filament::input.checkbox wire:model.live="cleanupSelection.{{ $key }}" />
                 <span><strong class="block text-sm text-gray-950 dark:text-white">{{ $label }}</strong><small class="text-gray-500 dark:text-gray-400">{{ trans_choice(':count record aanwezig|:count records aanwezig', $cleanupCounts[$key] ?? 0) }}</small></span>
             </label>
         @endforeach

@@ -83,14 +83,14 @@
                                             <p class="font-medium text-gray-950 dark:text-white">{{ $match->match_code }} · {{ $match->home_team_name }} – {{ $match->away_team_name }}</p>
                                             <div class="mt-2 grid gap-2 sm:grid-cols-2">
                                                 <label class="flex cursor-pointer items-start gap-2 rounded-md border border-gray-200 p-2 dark:border-white/10">
-                                                    <input type="radio" class="mt-1" wire:model.live="importChoices.{{ $match->id }}" value="manual">
+                                                    <x-filament::input.radio class="mt-1" wire:model.live="importChoices.{{ $match->id }}" value="manual" />
                                                     <span>
                                                         <span class="block font-medium">{{ __('Eigen planning houden') }}</span>
                                                         <span class="block text-xs text-gray-500">{{ $match->date?->format('d-m-Y') }} {{ \Illuminate\Support\Str::substr((string) $match->time, 0, 5) }} · {{ $match->venue?->name }}</span>
                                                     </span>
                                                 </label>
                                                 <label class="flex cursor-pointer items-start gap-2 rounded-md border border-gray-200 p-2 dark:border-white/10">
-                                                    <input type="radio" class="mt-1" wire:model.live="importChoices.{{ $match->id }}" value="source">
+                                                    <x-filament::input.radio class="mt-1" wire:model.live="importChoices.{{ $match->id }}" value="source" />
                                                     <span>
                                                         <span class="block font-medium">{{ __('Bond volgen') }}</span>
                                                         <span class="block text-xs text-gray-500">{{ \App\Planner\Support\DateFormat::date($item['row']['date'] ?? null) }} {{ $item['row']['time'] ?? '' }} · {{ $item['row']['venue'] ?? '' }}</span>
@@ -120,8 +120,8 @@
                                                 <span class="block font-medium text-gray-950 dark:text-white">{{ $match->match_code }} · {{ $match->home_team_name }} – {{ $match->away_team_name }}</span>
                                                 <span class="block text-xs text-gray-500">{{ $match->date?->format('d-m-Y') }} {{ \Illuminate\Support\Str::substr((string) $match->time, 0, 5) }}</span>
                                             </span>
-                                            <label class="flex cursor-pointer items-center gap-2"><input type="radio" wire:model.live="importChoices.{{ $match->id }}" value="keep"> {{ __('Behouden') }}</label>
-                                            <label class="flex cursor-pointer items-center gap-2"><input type="radio" wire:model.live="importChoices.{{ $match->id }}" value="delete"> {{ __('Verwijderen') }}</label>
+                                            <label class="flex cursor-pointer items-center gap-2"><x-filament::input.radio wire:model.live="importChoices.{{ $match->id }}" value="keep" /> {{ __('Behouden') }}</label>
+                                            <label class="flex cursor-pointer items-center gap-2"><x-filament::input.radio wire:model.live="importChoices.{{ $match->id }}" value="delete" /> {{ __('Verwijderen') }}</label>
                                         </li>
                                     @endforeach
                                 </ul>

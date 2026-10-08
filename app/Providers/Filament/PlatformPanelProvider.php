@@ -28,6 +28,7 @@ class PlatformPanelProvider extends PanelProvider
     {
         return $panel
             ->id('platform')
+            ->topbar(false)
             ->path('admin')
             ->login()
             ->passwordReset()

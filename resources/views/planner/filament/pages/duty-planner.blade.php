@@ -4,30 +4,44 @@
         :description="__('De planner controleert wedstrijden, uitwedstrijden, trainingen en teamregels voordat een taak wordt voorgesteld.')"
         icon="heroicon-o-sparkles"
     >
-        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-[minmax(14rem,1fr)_minmax(11rem,.7fr)_minmax(11rem,.7fr)_minmax(18rem,1.2fr)_auto] xl:items-end">
-            <label class="grid gap-1.5 text-sm font-medium text-gray-950 dark:text-white">
-                {{ __('Planningversie') }}
-                <select wire:model.live="versionId" class="fi-select-input rounded-lg border-gray-300 dark:bg-gray-800">
-                    @foreach ($this->versions as $id => $name)<option value="{{ $id }}">{{ $name }}</option>@endforeach
-                </select>
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4 xl:items-end">
+            <label class="grid gap-2">
+                <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Planningversie') }}</span>
+                <x-filament::input.wrapper>
+                    <x-filament::input.select wire:model.live="versionId" :disabled="$this->versions->isEmpty()">
+                        @forelse ($this->versions as $id => $name)
+                            <option value="{{ $id }}">{{ $name }}</option>
+                        @empty
+                            <option value="">{{ __('Nog geen planningversies') }}</option>
+                        @endforelse
+                    </x-filament::input.select>
+                </x-filament::input.wrapper>
             </label>
-            <label class="grid gap-1.5 text-sm font-medium text-gray-950 dark:text-white">
-                {{ __('Van') }}
-                <input type="text" wire:model="fromDate" inputmode="numeric" placeholder="dd-MM-jjjj" pattern="\d{2}-\d{2}-\d{4}" autocomplete="off" class="rounded-lg border-gray-300 dark:bg-gray-800">
-                @error('fromDate')<span class="text-xs text-danger-600">{{ $message }}</span>@enderror
+            <label class="grid gap-2">
+                <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Van') }}</span>
+                <x-filament::input.wrapper :valid="! $errors->has('fromDate')">
+                    <x-filament::input type="text" wire:model="fromDate" inputmode="numeric" placeholder="dd-MM-jjjj" pattern="\d{2}-\d{2}-\d{4}" autocomplete="off" />
+                </x-filament::input.wrapper>
+                @error('fromDate')<span class="text-sm text-danger-600 dark:text-danger-400">{{ $message }}</span>@enderror
             </label>
-            <label class="grid gap-1.5 text-sm font-medium text-gray-950 dark:text-white">
-                {{ __('Tot en met') }}
-                <input type="text" wire:model="toDate" inputmode="numeric" placeholder="dd-MM-jjjj" pattern="\d{2}-\d{2}-\d{4}" autocomplete="off" class="rounded-lg border-gray-300 dark:bg-gray-800">
-                @error('toDate')<span class="text-xs text-danger-600">{{ $message }}</span>@enderror
+            <label class="grid gap-2">
+                <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Tot en met') }}</span>
+                <x-filament::input.wrapper :valid="! $errors->has('toDate')">
+                    <x-filament::input type="text" wire:model="toDate" inputmode="numeric" placeholder="dd-MM-jjjj" pattern="\d{2}-\d{2}-\d{4}" autocomplete="off" />
+                </x-filament::input.wrapper>
+                @error('toDate')<span class="text-sm text-danger-600 dark:text-danger-400">{{ $message }}</span>@enderror
             </label>
-            <label class="grid gap-1.5 text-sm font-medium text-gray-950 dark:text-white">
-                {{ __('Generatiemodus') }}
-                <select wire:model.live="mode" class="fi-select-input rounded-lg border-gray-300 dark:bg-gray-800">
-                    <option value="fill">{{ __('Aanvullen — bestaande invulling behouden') }}</option>
-                    <option value="redistribute">{{ __('Herverdelen — automatische invulling opnieuw berekenen') }}</option>
-                </select>
+            <label class="grid gap-2">
+                <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Generatiemodus') }}</span>
+                <x-filament::input.wrapper>
+                    <x-filament::input.select wire:model.live="mode">
+                        <option value="fill">{{ __('Aanvullen — bestaande invulling behouden') }}</option>
+                        <option value="redistribute">{{ __('Herverdelen — automatische invulling opnieuw berekenen') }}</option>
+                    </x-filament::input.select>
+                </x-filament::input.wrapper>
             </label>
+        </div>
+        <div class="mt-4 flex justify-end">
             <x-filament::button wire:click="generate" icon="heroicon-o-sparkles" wire:loading.attr="disabled" wire:target="generate">
                 <span wire:loading.remove wire:target="generate">{{ __('Voorstel genereren') }}</span><span wire:loading wire:target="generate">{{ __('Voorstel maken…') }}</span>
             </x-filament::button>

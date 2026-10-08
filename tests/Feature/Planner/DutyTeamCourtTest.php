@@ -32,7 +32,7 @@ class DutyTeamCourtTest extends TestCase
     {
         $this->field(['DS 1' => 'DS 1'], 'DS 1', errors: ['Het team heeft die dag een uitwedstrijd.'])
             ->assertSee('Het team heeft die dag een uitwedstrijd.')
-            ->assertSee('border-danger-400', false);
+            ->assertSee('fi-invalid', false);
     }
 
     public function test_the_field_carries_its_path_as_key(): void

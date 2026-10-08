@@ -5,13 +5,17 @@
         icon="heroicon-o-document-duplicate"
     >
         <div class="grid gap-4 lg:grid-cols-[minmax(16rem,1fr)_minmax(0,2fr)] lg:items-end">
-            <label class="grid gap-1.5 text-sm font-medium text-gray-950 dark:text-white">
-                {{ __('Planningversie') }}
-                <select wire:model.live="versionId" class="fi-select-input rounded-lg border-gray-300 dark:bg-gray-800">
-                    @foreach ($this->versions as $id => $name)
-                        <option value="{{ $id }}">{{ $name }}</option>
-                    @endforeach
-                </select>
+            <label class="grid gap-2">
+                <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Planningversie') }}</span>
+                <x-filament::input.wrapper>
+                    <x-filament::input.select wire:model.live="versionId" :disabled="$this->versions->isEmpty()">
+                        @forelse ($this->versions as $id => $name)
+                            <option value="{{ $id }}">{{ $name }}</option>
+                        @empty
+                            <option value="">{{ __('Nog geen planningversies') }}</option>
+                        @endforelse
+                    </x-filament::input.select>
+                </x-filament::input.wrapper>
             </label>
             <div class="flex items-start gap-3 rounded-lg bg-primary-50 p-4 text-sm text-primary-800 dark:bg-primary-500/10 dark:text-primary-300">
                 <x-filament::icon icon="heroicon-o-information-circle" class="h-5 w-5 shrink-0" />
@@ -73,25 +77,29 @@
     >
         <div class="grid gap-4 xl:grid-cols-[minmax(19rem,.75fr)_minmax(0,2.25fr)] xl:items-stretch">
             <div class="rounded-xl border border-gray-200 bg-gray-50/70 p-4 dark:border-white/10 dark:bg-white/5">
-                <label class="grid gap-1.5 text-sm font-medium text-gray-950 dark:text-white">
-                    {{ __('Wedstrijddag') }}
-                    <select wire:model.live="date" class="fi-select-input rounded-lg border-gray-300 bg-white dark:bg-gray-800">
-                        @forelse ($this->matchDays as $day => $label)
-                            <option value="{{ $day }}">{{ $label }}</option>
-                        @empty
-                            <option value="{{ $date }}">{{ __('Geen wedstrijddagen beschikbaar') }}</option>
-                        @endforelse
-                    </select>
+                <label class="grid gap-2">
+                    <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Wedstrijddag') }}</span>
+                    <x-filament::input.wrapper>
+                        <x-filament::input.select wire:model.live="date">
+                            @forelse ($this->matchDays as $day => $label)
+                                <option value="{{ $day }}">{{ $label }}</option>
+                            @empty
+                                <option value="{{ $date }}">{{ __('Geen wedstrijddagen beschikbaar') }}</option>
+                            @endforelse
+                        </x-filament::input.select>
+                    </x-filament::input.wrapper>
                 </label>
-                <label class="mt-4 grid gap-1.5 text-sm font-medium text-gray-950 dark:text-white">
-                    {{ __('Sporthal') }}
-                    <select wire:model.live="venueId" class="fi-select-input rounded-lg border-gray-300 bg-white dark:bg-gray-800">
-                        @forelse ($this->venues as $id => $name)
-                            <option value="{{ $id }}">{{ $name }}</option>
-                        @empty
-                            <option value="">{{ __('Geen sporthal beschikbaar') }}</option>
-                        @endforelse
-                    </select>
+                <label class="mt-4 grid gap-2">
+                    <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Sporthal') }}</span>
+                    <x-filament::input.wrapper>
+                        <x-filament::input.select wire:model.live="venueId">
+                            @forelse ($this->venues as $id => $name)
+                                <option value="{{ $id }}">{{ $name }}</option>
+                            @empty
+                                <option value="">{{ __('Geen sporthal beschikbaar') }}</option>
+                            @endforelse
+                        </x-filament::input.select>
+                    </x-filament::input.wrapper>
                 </label>
                 <div class="mt-3 flex items-start gap-2 text-xs text-gray-500 dark:text-gray-400">
                     <x-filament::icon icon="heroicon-o-information-circle" class="h-4 w-4 shrink-0" />
@@ -119,17 +127,19 @@
         </div>
 
         <div class="mt-5 rounded-xl border border-gray-200 bg-gray-50/70 p-4 dark:border-white/10 dark:bg-white/5">
-            <label class="grid gap-1.5">
+            <label class="grid gap-2">
                 <span class="flex items-center justify-between gap-3">
-                    <span class="text-sm font-semibold text-gray-950 dark:text-white">{{ __('Voettekst') }}</span>
+                    <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Voettekst') }}</span>
                     @if (trim($footerText) !== $defaultFooterText)
                         <button type="button" wire:click="resetFooterText" class="text-xs font-semibold text-primary-600 hover:underline dark:text-primary-400">{{ __('Standaardtekst terugzetten') }}</button>
                     @endif
                 </span>
                 <span class="text-xs text-gray-500 dark:text-gray-400">{{ __('Verschijnt onderaan het dagschema (PDF en afbeelding). Een aanpassing hier geldt alleen voor deze export; de standaard stel je in bij de plannerinstellingen.') }}</span>
-                <textarea wire:model.live.debounce.500ms="footerText" rows="2" maxlength="255" class="mt-1 rounded-lg border-gray-300 bg-white text-sm dark:bg-gray-800"></textarea>
+                <x-filament::input.wrapper class="fi-fo-textarea" :valid="! $errors->has('footerText')">
+                    <textarea wire:model.live.debounce.500ms="footerText" rows="2" maxlength="255"></textarea>
+                </x-filament::input.wrapper>
             </label>
-            @error('footerText')<p class="mt-2 text-xs text-danger-600">{{ $message }}</p>@enderror
+            @error('footerText')<p class="mt-2 text-sm text-danger-600 dark:text-danger-400">{{ $message }}</p>@enderror
         </div>
     </x-filament::section>
 
@@ -140,8 +150,20 @@
             icon="heroicon-o-clipboard-document-list"
         >
             <div class="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
-                <label class="grid gap-1.5 text-sm font-medium text-gray-950 dark:text-white">{{ __('Van') }}<input type="text" wire:model="dutiesFromDate" inputmode="numeric" placeholder="dd-MM-jjjj" pattern="\d{2}-\d{2}-\d{4}" autocomplete="off" class="rounded-lg border-gray-300 dark:bg-gray-800">@error('dutiesFromDate')<span class="text-xs text-danger-600">{{ $message }}</span>@enderror</label>
-                <label class="grid gap-1.5 text-sm font-medium text-gray-950 dark:text-white">{{ __('Tot en met') }}<input type="text" wire:model="dutiesToDate" inputmode="numeric" placeholder="dd-MM-jjjj" pattern="\d{2}-\d{2}-\d{4}" autocomplete="off" class="rounded-lg border-gray-300 dark:bg-gray-800">@error('dutiesToDate')<span class="text-xs text-danger-600">{{ $message }}</span>@enderror</label>
+                <label class="grid gap-2">
+                    <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Van') }}</span>
+                    <x-filament::input.wrapper :valid="! $errors->has('dutiesFromDate')">
+                        <x-filament::input type="text" wire:model="dutiesFromDate" inputmode="numeric" placeholder="dd-MM-jjjj" pattern="\d{2}-\d{2}-\d{4}" autocomplete="off" />
+                    </x-filament::input.wrapper>
+                    @error('dutiesFromDate')<span class="text-sm text-danger-600 dark:text-danger-400">{{ $message }}</span>@enderror
+                </label>
+                <label class="grid gap-2">
+                    <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Tot en met') }}</span>
+                    <x-filament::input.wrapper :valid="! $errors->has('dutiesToDate')">
+                        <x-filament::input type="text" wire:model="dutiesToDate" inputmode="numeric" placeholder="dd-MM-jjjj" pattern="\d{2}-\d{2}-\d{4}" autocomplete="off" />
+                    </x-filament::input.wrapper>
+                    @error('dutiesToDate')<span class="text-sm text-danger-600 dark:text-danger-400">{{ $message }}</span>@enderror
+                </label>
                 <x-filament::button wire:click="dutiesExcel" icon="heroicon-o-table-cells" wire:loading.attr="disabled" wire:target="dutiesExcel" color="success"><span wire:loading.remove wire:target="dutiesExcel">{{ __('FTZ Excel downloaden') }}</span><span wire:loading wire:target="dutiesExcel">{{ __('Excel maken…') }}</span></x-filament::button>
             </div>
             <div class="mt-4 flex items-start gap-2 border-t border-gray-200 pt-4 text-xs text-gray-500 dark:border-white/10 dark:text-gray-400"><x-filament::icon icon="heroicon-o-information-circle" class="h-4 w-4 shrink-0" /><p>{{ __('Iedere wedstrijdregel bevat het fluitende team, het tellende team en de zaalwacht die op dat tijdstip dienst heeft.') }}</p></div>

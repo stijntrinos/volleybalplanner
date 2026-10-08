@@ -14,16 +14,36 @@
                 </div>
             @endif
             <div class="planner-assistant-selects">
-                <label>{{ __('Sporthal') }}<select wire:model.live="assistantVenueId" wire:change="findProposals">@foreach ($this->assistantVenues as $id => $name)<option value="{{ $id }}">{{ $name }}</option>@endforeach</select></label>
-                <label>{{ __('Veld') }}<select wire:model.live="assistantCourtId" wire:change="findProposals">@foreach ($this->assistantCourts as $id => $name)<option value="{{ $id }}">{{ $name }}</option>@endforeach</select></label>
+                <label>
+                    <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Sporthal') }}</span>
+                    <x-filament::input.wrapper>
+                        <x-filament::input.select wire:model.live="assistantVenueId" wire:change="findProposals">@foreach ($this->assistantVenues as $id => $name)<option value="{{ $id }}">{{ $name }}</option>@endforeach</x-filament::input.select>
+                    </x-filament::input.wrapper>
+                </label>
+                <label>
+                    <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Veld') }}</span>
+                    <x-filament::input.wrapper>
+                        <x-filament::input.select wire:model.live="assistantCourtId" wire:change="findProposals">@foreach ($this->assistantCourts as $id => $name)<option value="{{ $id }}">{{ $name }}</option>@endforeach</x-filament::input.select>
+                    </x-filament::input.wrapper>
+                </label>
             </div>
             {{-- Choosing a moment yourself: the same check as the proposals, but
                  a red outcome shows up too, with the reason. --}}
             <div class="planner-own-slot">
                 <strong>{{ __('Zelf een moment controleren') }}</strong>
                 <div class="planner-own-slot-fields">
-                    <label>{{ __('Datum') }}<input type="date" wire:model="ownDate"></label>
-                    <label>{{ __('Tijd') }}<input type="time" wire:model="ownTime" step="300"></label>
+                    <label>
+                        <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Datum') }}</span>
+                        <x-filament::input.wrapper :valid="! $errors->has('ownDate')">
+                            <x-filament::input type="date" wire:model="ownDate" />
+                        </x-filament::input.wrapper>
+                    </label>
+                    <label>
+                        <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Tijd') }}</span>
+                        <x-filament::input.wrapper :valid="! $errors->has('ownTime')">
+                            <x-filament::input type="time" wire:model="ownTime" step="300" />
+                        </x-filament::input.wrapper>
+                    </label>
                     <button type="button" wire:click="checkOwnSlot" wire:loading.attr="disabled" wire:target="checkOwnSlot">{{ __('Controleren') }}</button>
                 </div>
                 @error('ownDate')<small class="planner-own-slot-error">{{ $message }}</small>@enderror
