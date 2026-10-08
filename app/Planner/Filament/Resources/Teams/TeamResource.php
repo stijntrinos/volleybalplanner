@@ -2,6 +2,8 @@
 
 namespace App\Planner\Filament\Resources\Teams;
 
+use App\Planner\Features\PlanLimit;
+use App\Planner\Features\PlanLimits;
 use App\Planner\Filament\Concerns\HasPlannerNavigation;
 use App\Planner\Filament\NavigationGroups;
 use App\Planner\Filament\Resources\Teams\Pages\CreateTeam;
@@ -21,6 +23,12 @@ use UnitEnum;
 class TeamResource extends Resource
 {
     use HasPlannerNavigation;
+
+    /** Past the plan limit the create button becomes the upgrade prompt. */
+    public static function canCreate(): bool
+    {
+        return !PlanLimits::reached(PlanLimit::Teams) && parent::canCreate();
+    }
 
     protected static ?string $model = Team::class;
 

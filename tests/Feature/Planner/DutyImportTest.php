@@ -214,7 +214,7 @@ class DutyImportTest extends TestCase
 
     public function test_without_the_duties_module_the_import_refuses(): void
     {
-        $this->club->update(['features' => []]);
+        $this->setClubFeatures($this->club, []);
 
         $this->expectException(RuntimeException::class);
         $this->service()->analyze($this->csv([$this->row('Fluitdienst', 'AETOS HS 7', 'BM1A-11')]), $this->version);

@@ -2,6 +2,8 @@
 
 namespace App\Planner\Filament\Resources\Venues\Pages;
 
+use App\Planner\Features\PlanLimit;
+use App\Planner\Features\PlanLimits;
 use App\Planner\Filament\Resources\Venues\VenueResource;
 use App\Planner\Models\Venue;
 use Filament\Actions\CreateAction;
@@ -17,7 +19,9 @@ class ListVenues extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()->label(__('Sporthal toevoegen'))->icon(Heroicon::OutlinedPlus),
+            CreateAction::make()->label(__('Sporthal toevoegen'))->icon(Heroicon::OutlinedPlus)
+                ->hidden(fn (): bool => PlanLimits::reached(PlanLimit::Venues)),
+            PlanLimits::lockedAction(PlanLimit::Venues, 'createLocked', __('Sporthal toevoegen')),
         ];
     }
 

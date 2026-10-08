@@ -11,6 +11,7 @@ use App\Planner\Models\PlannerSetting;
 use App\Planner\Models\ScheduleVersion;
 use App\Planner\Models\Team;
 use App\Planner\Models\Training;
+use App\Planner\Models\Venue;
 use App\Planner\Support\TeamCode;
 use App\Planner\Support\Weekday;
 use App\Support\Tenancy\CurrentClub;
@@ -210,9 +211,16 @@ class DutyPlanner
                 ->keyBy(fn (HallDuty $duty): string => DutySlots::hallDutyKey($duty->date->toDateString(), $duty->venue_id, $duty->start_time));
             $version->hallDuties()->tap($range)->delete();
             $teams = Team::query()->select(Team::PLANNER_COLUMNS)->get()->keyBy(fn (Team $team) => TeamCode::key($team->code));
+            // The draft comes back from the browser: only this club's venues (or none)
+            // and well-formed dates and times are saved.
+            $venueIds = Venue::query()->pluck('id')->map(fn ($id): int => (int) $id)->all();
             foreach ($draft['hall_duties'] ?? [] as $duty) {
                 $team = $teams->get(TeamCode::key($duty['team_code'] ?? null));
-                if (!$team) {
+                if (!$team
+                    || (filled($duty['venue_id'] ?? null) && !in_array((int) $duty['venue_id'], $venueIds, true))
+                    || !preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) ($duty['date'] ?? ''))
+                    || !preg_match('/^\d{2}:\d{2}(:\d{2})?$/', (string) ($duty['start'] ?? ''))
+                    || !preg_match('/^\d{2}:\d{2}(:\d{2})?$/', (string) ($duty['end'] ?? ''))) {
                     continue;
                 }
                 $old = $oldDuties->get(DutySlots::hallDutyKey($duty['date'], (int) $duty['venue_id'], (string) $duty['start']));

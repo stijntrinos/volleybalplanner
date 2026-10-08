@@ -117,7 +117,8 @@ class PublicClubPagesTest extends TestCase
                 ->assertHeader('X-Frame-Options', 'SAMEORIGIN')
                 ->assertHeader('Content-Security-Policy', "frame-ancestors 'self'")
                 ->assertSee('class="planner-header"', false)
-                ->assertSee('Mogelijk gemaakt door '.config('app.name'));
+                ->assertSee('Gepland met')
+                ->assertSee('<strong>'.e(config('app.name')).'</strong>', false);
         }
     }
 
@@ -131,7 +132,7 @@ class PublicClubPagesTest extends TestCase
                 ->assertHeaderMissing('X-Frame-Options')
                 ->assertHeader('Content-Security-Policy', 'frame-ancestors *')
                 ->assertDontSee('class="planner-header"', false)
-                ->assertDontSee('Mogelijk gemaakt door');
+                ->assertDontSee('Gepland met');
         }
     }
 
@@ -146,10 +147,11 @@ class PublicClubPagesTest extends TestCase
             ->assertOk()
             ->assertSee('--planner-primary: #123abc', false)
             ->assertSee(Storage::disk('public')->url($path), false)
-            ->assertSee('alt="'.e($club->name).'"', false);
+            // The name stands next to the logo, so the image itself is decorative.
+            ->assertSee('<span class="planner-club-name">'.e($club->name).'</span>', false);
     }
 
-    public function test_an_invalid_colour_falls_back_and_without_logo_the_name_is_shown(): void
+    public function test_an_invalid_colour_falls_back_and_the_name_is_shown(): void
     {
         $club = $this->useClub($this->createClub());
         PlannerSetting::current()->update(['primary_color' => 'red;}body{display:none']);

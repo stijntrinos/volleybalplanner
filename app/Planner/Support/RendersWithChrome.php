@@ -109,8 +109,8 @@ trait RendersWithChrome
     protected function fonts(): array
     {
         return [
-            'regular' => $this->font('InriaSans-Regular.ttf'),
-            'bold' => $this->font('InriaSans-Bold.ttf'),
+            'regular' => $this->font('Outfit-Regular.ttf'),
+            'bold' => $this->font('Outfit-Bold.ttf'),
         ];
     }
 

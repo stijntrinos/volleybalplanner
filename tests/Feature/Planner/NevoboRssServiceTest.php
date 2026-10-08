@@ -5,9 +5,11 @@ namespace Tests\Feature\Planner;
 use App\Planner\Models\Team;
 use App\Planner\Models\TeamSource;
 use App\Planner\Services\NevoboRssService;
+use App\Planner\Support\HostResolver;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Concerns\InteractsWithClubs;
 use Tests\TestCase;
 
@@ -51,6 +53,70 @@ class NevoboRssServiceTest extends TestCase
         $this->assertFalse($result['ok']);
         $this->assertNotEmpty($result['reason']);
         $this->assertNotNull($source->refresh()->last_error);
+    }
+
+    /** @return array<string, array{string}> */
+    public static function internalUrls(): array
+    {
+        return [
+            'loopback ip' => ['https://127.0.0.1/feed.xml'],
+            'short loopback' => ['https://127.1/feed.xml'],
+            'private range' => ['https://10.0.0.5/feed.xml'],
+            'metadata service' => ['https://169.254.169.254/latest/meta-data'],
+            'ipv6 loopback' => ['https://[::1]/feed.xml'],
+            'trailing dot' => ['https://localhost./feed.xml'],
+        ];
+    }
+
+    #[DataProvider('internalUrls')]
+    public function test_internal_addresses_are_refused(string $url): void
+    {
+        $source = TeamSource::factory()->create(['url' => $url]);
+        Http::fake();
+
+        try {
+            app(NevoboRssService::class)->fetch($source);
+            $this->fail('An internal feed URL was fetched.');
+        } catch (InvalidArgumentException) {
+            Http::assertNothingSent();
+        }
+    }
+
+    public function test_a_host_name_pointing_at_an_internal_address_is_refused(): void
+    {
+        $this->app->instance(HostResolver::class, new class extends HostResolver
+        {
+            public function ipv4(string $host): array
+            {
+                return ['10.0.0.7'];
+            }
+        });
+        $source = TeamSource::factory()->create(['url' => 'https://feeds.attacker.example/x.xml']);
+        Http::fake();
+
+        $this->expectException(InvalidArgumentException::class);
+        app(NevoboRssService::class)->fetch($source);
+    }
+
+    public function test_redirects_are_not_followed(): void
+    {
+        $source = TeamSource::factory()->create(['url' => 'https://example.test/feed.xml']);
+        Http::fake(['example.test/*' => Http::response('', 302, ['Location' => 'http://169.254.169.254/'])]);
+
+        $result = app(NevoboRssService::class)->fetch($source);
+
+        $this->assertFalse($result['ok']);
+        Http::assertSentCount(1);
+    }
+
+    public function test_the_stored_error_does_not_contain_the_response(): void
+    {
+        $source = TeamSource::factory()->create(['url' => 'https://example.test/broken.xml']);
+        Http::fake(['example.test/*' => Http::response('secret internal page', 500)]);
+
+        app(NevoboRssService::class)->fetch($source);
+
+        $this->assertStringNotContainsString('secret', (string) $source->refresh()->last_error);
     }
 
     public function test_only_public_https_urls_are_allowed(): void

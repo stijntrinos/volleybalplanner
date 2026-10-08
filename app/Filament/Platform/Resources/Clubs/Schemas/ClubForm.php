@@ -2,16 +2,20 @@
 
 namespace App\Filament\Platform\Resources\Clubs\Schemas;
 
+use App\Models\Plan;
+use App\Planner\Features\PlanLimit;
 use App\Planner\Features\PlannerFeature;
 use App\Support\Tenancy\ReservedSlugs;
-use Closure;
-use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Html;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 
 class ClubForm
@@ -55,31 +59,40 @@ class ClubForm
                             ->default(true)
                             ->columnSpanFull(),
                     ]),
-                Section::make('Modules')
-                    ->description('De basisplanning (thuiswedstrijden, sporthallen, teams, Nevobo-sync en exports) is altijd beschikbaar. Zet hier de extra modules aan.')
-                    ->icon('heroicon-o-puzzle-piece')
+                Section::make('Abonnement')
+                    ->description('Het pakket bepaalt welke modules de club heeft en hoeveel teams, sporthallen en beheerders erin passen. Modules buiten het pakket ziet de club vergrendeld, met een upgrade-knop.')
+                    ->icon('heroicon-o-credit-card')
                     ->aside()
                     ->schema([
-                        CheckboxList::make('features')
-                            ->hiddenLabel()
-                            ->label('Modules')
-                            ->options(PlannerFeature::class)
-                            ->descriptions(collect(PlannerFeature::cases())
-                                ->mapWithKeys(fn (PlannerFeature $feature): array => [$feature->value => $feature->getDescription()])
-                                ->all())
-                            ->bulkToggleable()
-                            ->columns(['default' => 1, 'lg' => 2])
-                            ->gridDirection('row')
-                            ->rules([
-                                fn (): Closure => function (string $attribute, mixed $value, Closure $fail): void {
-                                    $unmet = PlannerFeature::unmetRequirements(array_map('strval', (array) $value));
-
-                                    if ($unmet !== []) {
-                                        $fail(implode(' ', $unmet));
-                                    }
-                                },
-                            ]),
+                        Select::make('plan_id')
+                            ->label('Pakket')
+                            ->relationship('plan', 'name', fn (Builder $query) => $query->ordered())
+                            ->getOptionLabelFromRecordUsing(fn (Plan $record): string => $record->name.($record->formattedPrice() ? ' · '.$record->formattedPrice() : ''))
+                            ->required()
+                            ->live(),
+                        Html::make(fn (Get $get): HtmlString => self::planSummary(Plan::query()->find($get('plan_id'))))
+                            ->visible(fn (Get $get): bool => filled($get('plan_id'))),
                     ]),
             ]);
+    }
+
+    /** What the chosen plan gives the club: limits and the modules, locked ones struck through. */
+    private static function planSummary(?Plan $plan): HtmlString
+    {
+        if ($plan === null) {
+            return new HtmlString('');
+        }
+
+        $limits = collect(PlanLimit::cases())
+            ->map(fn (PlanLimit $limit): string => '<span><strong>'.e($plan->limit($limit) ?? 'Onbeperkt').'</strong> '.e(Str::lower($limit->getLabel())).'</span>')
+            ->implode('');
+
+        $modules = collect(PlannerFeature::cases())
+            ->map(fn (PlannerFeature $feature): string => $plan->includes($feature)
+                ? '<li class="is-included">'.e($feature->getLabel()).'</li>'
+                : '<li class="is-locked">'.e($feature->getLabel()).'</li>')
+            ->implode('');
+
+        return new HtmlString('<div class="vp-plan-summary"><div class="vp-plan-summary-limits">'.$limits.'</div><ul>'.$modules.'</ul></div>');
     }
 }

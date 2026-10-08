@@ -1,37 +1,34 @@
 <style>
     @font-face {
-        font-family: 'Inria Sans';
+        font-family: 'Outfit';
         font-weight: 400;
         font-style: normal;
         src: url('data:font/truetype;charset=utf-8;base64,{{ $fonts['regular'] }}') format('truetype');
     }
 
     @font-face {
-        font-family: 'Inria Sans';
+        font-family: 'Outfit';
         font-weight: 700;
         font-style: normal;
         src: url('data:font/truetype;charset=utf-8;base64,{{ $fonts['bold'] }}') format('truetype');
     }
 
     /*
-     * Every colour derives from the club colour (--planner-primary), so the
-     * schedule follows the club's identity without a stylesheet of its own.
+     * The Volleybalplanner day schedule (design system "Export · Dagschema"):
+     * the club colour carries the header and footer bars and the court
+     * headings; the sheet itself stays in the planner's neutral greys, so a
+     * printed schedule reads the same for every club.
      */
     :root {
         --planner-primary: {{ $branding['primary_color'] }};
-        --primary-dark: color-mix(in srgb, var(--planner-primary) 62%, #0b1220);
-        --primary-soft: color-mix(in srgb, var(--planner-primary) 55%, #fff);
-        --background: color-mix(in srgb, var(--planner-primary) 22%, #fff);
-        --column-head: color-mix(in srgb, var(--planner-primary) 80%, #fff);
-        --accent: #f59e0b;
-        --accent-deep: #d97706;
-        --team: var(--primary-dark);
-        --grey: #3c3c3c;
-        --border: #e1e5eb;
-        --empty: color-mix(in srgb, var(--planner-primary) 32%, #fff);
-        --radius: 11px;
-        /* The light rim that lifts the blocks off the background. */
-        --ring: 0 0 0 3px rgba(255, 255, 255, .88), 0 0 8px 3px rgba(255, 255, 255, .4);
+        --ink: #10293b;
+        --ink-muted: #4a5d6b;
+        --ink-faint: #7a8893;
+        --surface: #f3f6f8;
+        --raised: #ffffff;
+        --line: #d5dee4;
+        --empty: #e9eef1;
+        --radius: 10px;
     }
 
     * {
@@ -40,8 +37,7 @@
 
     /*
      * The frame is the size of the image itself. What the sheet leaves around
-     * it keeps the background colour, so the edge blends with the sheet
-     * instead of standing out as an empty strip.
+     * it keeps the surface colour, so the edge blends with the sheet.
      */
     body {
         margin: 0;
@@ -51,42 +47,28 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: var(--background);
-        font-family: 'Inria Sans', sans-serif;
-        color: #fff;
+        background: var(--surface);
+        font-family: 'Outfit', 'Segoe UI', sans-serif;
+        color: var(--ink);
         -webkit-font-smoothing: antialiased;
     }
 
     /*
      * The sheet keeps its own sizes; the script at the bottom of the page
-     * stretches the width and scales the whole into the frame. Without
-     * flex-shrink flex would squash the sheet first and only then scale.
+     * stretches the width and scales the whole into the frame.
      */
     .sheet {
         flex: 0 0 auto;
         width: {{ $width }}px;
-        background: var(--background);
+        background: var(--surface);
     }
 
-    /*
-     * The icons are filled paths with their own width and height. They must
-     * scale with their box, and the colour comes from the parent.
-     */
-    .header__watermark svg,
-    .footer__watermark svg,
-    .hall-duty__watermark svg,
     .column-header__icon svg {
         display: block;
         width: 100%;
         height: auto;
     }
 
-    .header__watermark svg path,
-    .header__watermark svg g,
-    .footer__watermark svg path,
-    .footer__watermark svg g,
-    .hall-duty__watermark svg path,
-    .hall-duty__watermark svg g,
     .column-header__icon svg path,
     .column-header__icon svg g {
         fill: currentColor;
@@ -94,292 +76,200 @@
 
     /* ---------- Header ---------- */
     .header {
-        position: relative;
-        overflow: hidden;
-        padding: 18px 26px 16px;
-        background: var(--primary-dark);
+        padding: 22px 32px;
+        background: var(--planner-primary);
+        color: #ffffff;
         display: flex;
         align-items: center;
-        gap: 22px;
+        gap: 24px;
     }
 
-    .header__watermark {
-        position: absolute;
-        color: var(--primary-soft);
-        opacity: .3;
-    }
-
-    .header__watermark--net {
-        left: 152px;
-        top: -6px;
-        width: 240px;
-    }
-
-    .header__watermark--ball {
-        right: 158px;
-        top: -26px;
-        width: 196px;
-    }
-
-    .header__logo {
-        position: relative;
-        flex: 0 0 auto;
-        width: 96px;
-        height: 96px;
-        padding: 7px;
-        border-radius: 9px;
-        background: #fff;
+    .header__logo,
+    .header__club-name {
+        flex: none;
+        width: 76px;
+        height: 76px;
+        border-radius: 12px;
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
     }
 
     .header__logo img {
-        display: block;
-        width: 100%;
-        height: 100%;
+        max-width: 64px;
+        max-height: 64px;
         object-fit: contain;
     }
 
+    .header__club-name {
+        padding: 6px;
+        color: var(--planner-primary);
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.1;
+        text-align: center;
+        word-break: break-word;
+    }
+
+    .header__club-name--spacer {
+        visibility: hidden;
+    }
+
     .header__titles {
-        position: relative;
-        flex: 1 1 auto;
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
         text-align: center;
     }
 
     .header__venue {
         margin: 0;
-        font-size: 42px;
+        font-size: 34px;
+        line-height: 1.15;
         font-weight: 700;
-        line-height: 1.04;
-        letter-spacing: .5px;
-        color: #fdf6ec;
-        text-transform: uppercase;
+        letter-spacing: .02em;
     }
 
     .header__date {
-        margin: 2px 0 0;
-        font-size: 34px;
-        font-weight: 700;
-        line-height: 1.1;
-        color: var(--accent);
+        margin: 0;
+        font-size: 22px;
+        font-weight: 400;
+        opacity: .92;
     }
 
     .header__tagline {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 14px;
-        margin-top: 10px;
-        font-size: 12px;
-        font-weight: 400;
-        letter-spacing: 4.5px;
-        color: rgba(255, 255, 255, .72);
-        text-transform: uppercase;
-    }
-
-    .header__tagline::before,
-    .header__tagline::after {
-        content: '';
-        width: 62px;
-        height: 1px;
-        background: rgba(255, 255, 255, .35);
+        margin: 4px 0 0;
+        font-size: 15px;
+        opacity: .85;
     }
 
     /* ---------- Grid ---------- */
     .grid {
         display: grid;
         grid-template-columns: repeat({{ $grid->columns() }}, minmax(0, 1fr)) @if ($showDuties) {{ $hallDutyWidth }}px @endif;
-        grid-template-rows: max-content;
+        /* The headings keep their own height; only the time slots share the minimum. */
+        grid-template-rows: auto;
         grid-auto-rows: minmax({{ $minimumRowHeight }}px, auto);
         gap: {{ $rowGap }}px {{ $gap }}px;
-        padding: 16px {{ $margin }}px 20px;
+        padding: 18px {{ $margin }}px 18px;
     }
 
     .column-header {
-        grid-row: 1;
-        display: flex;
-        align-items: center;
-        gap: {{ $header['gap'] }}px;
-        padding: 4px {{ $header['padding'] }}px;
-        border-radius: var(--radius);
-        background: var(--column-head);
-    }
-
-    /*
-     * A circle for a court number, a pill for a name like "1A": at a fixed
-     * width anything longer than one character ran out of the circle.
-     */
-    .column-header__number {
-        flex: 0 0 auto;
         display: flex;
         align-items: center;
         justify-content: center;
-        min-width: {{ $header['number'] }}px;
-        height: {{ $header['number'] }}px;
-        padding: 0 12px;
-        border-radius: {{ (int) ($header['number'] / 2) }}px;
-        background: var(--primary-dark);
-        font-size: 31px;
-        font-weight: 700;
-        color: #fff;
+        gap: {{ $header['gap'] }}px;
+        padding: 8px {{ $header['padding'] }}px;
+        min-height: 48px;
+        border-radius: var(--radius);
+        background: var(--planner-primary);
+        color: #ffffff;
     }
 
-    .column-header__number,
-    .column-header__name {
-        position: relative;
-        top: -2px;
+    .column-header__number {
+        display: none;
     }
 
-    /*
-     * The size is set per header in the markup, chosen so the label fits.
-     * Clipping should therefore no longer happen.
-     */
     .column-header__name {
-        flex: 1 1 auto;
         font-weight: 700;
-        letter-spacing: .4px;
-        text-align: center;
-        text-transform: uppercase;
         white-space: nowrap;
-    }
-
-    /* The shield has the dark tone, like the number circle. */
-    .column-header__icon {
-        flex: 0 0 auto;
-        width: {{ $dutyHeader['icon'] }}px;
-        color: var(--primary-dark);
+        overflow: hidden;
+        line-height: 1.1;
     }
 
     .column-header--hall-duty {
         gap: {{ $dutyHeader['gap'] }}px;
-        padding: 4px {{ $dutyHeader['padding'] }}px;
+        padding: 8px {{ $dutyHeader['padding'] }}px;
+        background: var(--ink);
     }
 
-    .column-header--hall-duty .column-header__name {
-        letter-spacing: .2px;
+    .column-header__icon {
+        flex: none;
+        width: {{ $dutyHeader['icon'] }}px;
+        color: #ffffff;
     }
 
-    /* ---------- Match card ---------- */
+    /* ---------- Match cards ---------- */
     .card {
         display: flex;
         flex-direction: column;
-        overflow: hidden;
+        border: 1px solid var(--line);
         border-radius: var(--radius);
-        background: #fff;
-        box-shadow: var(--ring);
+        background: var(--raised);
+        overflow: hidden;
     }
 
-    /* The bar over the full width; the tab with the time drops out in the middle. */
     .card__time {
-        position: relative;
-        height: {{ $barHeight }}px;
-        border-radius: var(--radius) var(--radius) 0 0;
-        background: var(--primary-dark);
+        min-height: {{ $barHeight }}px;
+        display: flex;
+        align-items: center;
+        padding: 5px 12px 4px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--line);
     }
 
     .card__time-tab {
-        position: absolute;
-        top: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 3px 24px 4px;
-        border-radius: 0 0 var(--radius) var(--radius);
-        background: var(--primary-dark);
-        font-size: 19px;
+        font-size: 15px;
         font-weight: 700;
-        line-height: 1.16;
-        white-space: nowrap;
-        color: #fff;
-    }
-
-    /*
-     * The hollow shoulders where the tab leaves the bar. border-radius cannot
-     * make an inward curve; a radial gradient can: transparent inside the
-     * radius, the primary tone outside.
-     */
-    .card__time-tab::before,
-    .card__time-tab::after {
-        content: '';
-        position: absolute;
-        top: {{ $barHeight }}px;
-        width: 7px;
-        height: 7px;
-    }
-
-    .card__time-tab::before {
-        left: -7px;
-        background: radial-gradient(circle at 0 100%, transparent 7px, var(--primary-dark) 7px);
-    }
-
-    .card__time-tab::after {
-        right: -7px;
-        background: radial-gradient(circle at 100% 100%, transparent 7px, var(--primary-dark) 7px);
+        font-variant-numeric: tabular-nums;
+        color: var(--ink);
     }
 
     .card__body {
-        flex: 1 1 auto;
-        white-space: nowrap;
+        flex: 1;
         display: flex;
         flex-direction: column;
-        justify-content: flex-start;
-        gap: 2px;
-        /* Top space keeps the first line clear of the dropping tab. */
-        padding: 18px 10px 8px;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 8px 12px 10px;
         text-align: center;
     }
 
     .card__teams {
+        max-width: 100%;
         font-weight: 700;
         line-height: 1.2;
-        color: var(--team);
+        white-space: nowrap;
+        color: var(--ink);
     }
 
-    .card__locker-rooms {
-        font-weight: 700;
-        line-height: 1.2;
-        color: var(--accent-deep);
-    }
-
+    .card__locker-rooms,
     .card__duties {
+        max-width: 100%;
         line-height: 1.2;
-        color: var(--grey);
+        white-space: nowrap;
+        color: var(--ink-muted);
     }
 
     /* ---------- Hall duty ---------- */
     .hall-duty {
-        position: relative;
-        overflow: hidden;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         gap: 2px;
+        padding: 10px;
         border-radius: var(--radius);
-        background: var(--primary-dark);
-        box-shadow: var(--ring);
-    }
-
-    .hall-duty__watermark {
-        position: absolute;
-        top: 50%;
-        right: -18px;
-        width: 96px;
-        transform: translateY(-50%);
-        color: var(--primary-soft);
-        opacity: .3;
+        background: var(--ink);
+        color: #ffffff;
+        text-align: center;
     }
 
     .hall-duty__period {
-        position: relative;
-        font-size: 23px;
-        font-weight: 700;
-        color: #fff;
+        font-size: 14px;
+        opacity: .9;
+        font-variant-numeric: tabular-nums;
     }
 
     .hall-duty__team {
-        position: relative;
-        font-size: 33px;
+        font-size: 24px;
         font-weight: 700;
-        line-height: 1.1;
-        color: var(--accent);
     }
 
     .empty {
@@ -389,69 +279,37 @@
 
     /* ---------- Footer ---------- */
     .footer {
-        position: relative;
-        overflow: hidden;
-        padding: 13px 24px 14px;
-        background: var(--primary-dark);
-        text-align: center;
-    }
-
-    .footer__watermark {
-        position: absolute;
-        top: -8px;
-        width: 74px;
-        color: var(--primary-soft);
-        opacity: .34;
-    }
-
-    .footer__watermark--left {
-        left: 148px;
-    }
-
-    .footer__watermark--right {
-        right: 148px;
-    }
-
-    /* The lines next to the text run to the edge, with the balls over them. */
-    .footer__text {
-        position: relative;
+        padding: 12px 32px;
+        background: var(--planner-primary);
+        color: #ffffff;
         display: flex;
         align-items: center;
-        justify-content: center;
-        gap: 26px;
-        font-size: 28px;
+        gap: 24px;
+    }
+
+    .footer__text {
+        flex: 1;
+        text-align: center;
+        font-size: 17px;
         font-weight: 700;
-        letter-spacing: .4px;
-        color: var(--accent);
-        text-transform: uppercase;
+        letter-spacing: .04em;
     }
 
-    .footer__text::before,
-    .footer__text::after {
-        content: '';
-        flex: 1 1 auto;
-        height: 2px;
-        background: rgba(255, 255, 255, .26);
+    .footer__credit {
+        flex: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        opacity: .85;
     }
 
-    /* Whatever PlannerPlugin::scheduleFooterUsing() renders, e.g. a sponsor row. */
+    .footer__credit strong {
+        font-weight: 700;
+    }
+
     .schedule-footer {
-        background: #fff;
-    }
-
-    /* Without a logo the club name takes its place, in a box of the same size. */
-    .header__club-name {
-        position: relative;
-        flex: 0 0 auto;
-        width: 160px;
-        font-size: 22px;
-        font-weight: 700;
-        line-height: 1.1;
-        color: #fff;
-        text-transform: uppercase;
-    }
-
-    .header__club-name--spacer {
-        visibility: hidden;
+        padding: 10px {{ $margin }}px;
+        background: var(--raised);
     }
 </style>

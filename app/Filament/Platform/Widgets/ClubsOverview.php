@@ -20,12 +20,13 @@ class ClubsOverview extends Widget
 
     protected static bool $isLazy = false;
 
-    /** @return Collection<int, array{name: string, slug: string, active: bool, users: ?int, modules: non-negative-int, created: string, url: ?string, avatar: string}> */
+    /** @return Collection<int, array{name: string, slug: string, active: bool, users: ?int, plan: ?string, created: string, url: ?string, avatar: string}> */
     public function getClubs(): Collection
     {
         $panel = Filament::getPanel('club');
 
         return Club::query()
+            ->with('plan')
             ->withCount('users')
             ->orderByDesc('is_active')
             ->orderBy('name')
@@ -35,7 +36,7 @@ class ClubsOverview extends Widget
                 'slug' => $club->slug,
                 'active' => $club->is_active,
                 'users' => $club->users_count,
-                'modules' => count($club->features ?? []),
+                'plan' => $club->planName(),
                 'created' => $club->created_at?->format('d-m-Y') ?? '',
                 'url' => $panel->getUrl($club),
                 'avatar' => app(InitialsAvatarProvider::class)->get($club),

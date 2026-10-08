@@ -93,9 +93,11 @@ trait BuildsSettingsTabs
                             ->disk('public')
                             ->directory(fn (): string => 'planner/'.app(CurrentClub::class)->id().'/branding')
                             ->visibility('public')
-                            ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/svg+xml', 'image/webp'])
+                            // No SVG: served from the app's own origin, an SVG
+                            // can carry script that runs with a visitor's session.
+                            ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/webp'])
                             ->maxSize(2048)
-                            ->helperText(__('PNG, JPG, SVG of WebP, maximaal 2 MB. Zonder logo blijft die plek leeg.')),
+                            ->helperText(__('PNG, JPG of WebP, maximaal 2 MB. Zonder logo blijft die plek leeg.')),
                         ColorPicker::make('primary_color')
                             ->label(__('Clubkleur'))
                             ->hex()

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Club;
+use App\Models\Plan;
 use App\Models\User;
 use App\Planner\Enums\ChangeRequestKind;
 use App\Planner\Enums\ChangeRequestStatus;
@@ -11,7 +12,6 @@ use App\Planner\Enums\DutyType;
 use App\Planner\Enums\MatchType;
 use App\Planner\Enums\NevoboChangeStatus;
 use App\Planner\Enums\ScheduleVersionStatus;
-use App\Planner\Features\PlannerFeature;
 use App\Planner\Models\ChangeRequest;
 use App\Planner\Models\Court;
 use App\Planner\Models\FixtureMatch;
@@ -27,6 +27,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
+use RuntimeException;
 
 /**
  * A demo club with the data the design system was drawn with: two halls,
@@ -42,12 +43,19 @@ class DemoSeeder extends Seeder
 
     public function run(): void
     {
+        // A known password and a platform admin: never on a live server.
+        if (app()->isProduction()) {
+            throw new RuntimeException('De DemoSeeder draait niet in productie.');
+        }
+
         Artisan::call('planner:sync-roles');
 
         $club = Club::query()->firstOrCreate(
             ['slug' => 'vc-voorbeeld'],
-            ['name' => self::CLUB, 'features' => PlannerFeature::allValues()],
+            ['name' => self::CLUB],
         );
+        // Vereniging: everything but zitvolleybal, so a locked module shows too.
+        $club->update(['plan_id' => Plan::query()->where('slug', 'vereniging')->value('id')]);
 
         $user = User::query()->firstOrCreate(
             ['email' => self::EMAIL],

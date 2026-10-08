@@ -46,6 +46,7 @@ class PlannerService
         if (!$match->version->isDraft()) {
             throw new DomainException(__('Alleen een conceptplanning kan worden gewijzigd.'));
         }
+        $this->assertOwnPlacement($placement);
 
         // The check used to run outside the transaction, so two planners could
         // both get green on the same court and time slot. The matches of this
@@ -119,6 +120,25 @@ class PlannerService
         return ['confirmation_required' => false, 'conflicts' => $findings, 'undo_token' => $token, 'provisional' => $isProposal];
     }
 
+    /**
+     * The placement comes from the browser (drag and drop, the assistant), so
+     * the venue and courts must be this club's and the courts that venue's.
+     *
+     * @param  array<string, mixed>  $placement
+     */
+    private function assertOwnPlacement(array $placement): void
+    {
+        if (!isset($placement['venue_id'])) {
+            return;
+        }
+
+        $venue = Venue::query()->whereKey($placement['venue_id'])->first();
+        $courts = array_filter([$placement['court_id'] ?? null, $placement['second_court_id'] ?? null]);
+        if ($venue === null || $venue->courts()->whereKey($courts)->count() !== count(array_unique($courts))) {
+            throw new DomainException(__('Deze sporthal of dit veld bestaat niet.'));
+        }
+    }
+
     public function undo(string $token): bool
     {
         $data = Cache::pull("planner-undo:{$token}");
@@ -126,7 +146,8 @@ class PlannerService
             return false;
         }
         $match = FixtureMatch::query()->find($data['match_id']);
-        if (!$match) {
+        // Published planning only changes through a new draft.
+        if (!$match || !$match->version->isDraft()) {
             return false;
         }
         $match->update($data['values']);

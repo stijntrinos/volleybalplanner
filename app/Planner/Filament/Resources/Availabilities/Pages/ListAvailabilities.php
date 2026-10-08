@@ -43,11 +43,18 @@ class ListAvailabilities extends ListRecords
                             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                         ])
                         ->storeFiles(false)
+                        ->maxSize(10240)
                         ->required(),
                 ])
                 ->action(function (array $data): void {
                     $file = $data['file'];
-                    $path = $file instanceof TemporaryUploadedFile ? $file->getRealPath() : (string) $file;
+                    // Only a real upload of this request; never a path from the browser.
+                    if (!$file instanceof TemporaryUploadedFile) {
+                        $this->showError(__('Import mislukt'), __('Upload het bestand opnieuw.'));
+
+                        return;
+                    }
+                    $path = $file->getRealPath();
 
                     try {
                         $result = app(AvailabilityImportService::class)->import($path);

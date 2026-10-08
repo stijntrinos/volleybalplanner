@@ -9,7 +9,7 @@ class TextMeasureTest extends TestCase
 {
     public function test_a_short_line_keeps_the_full_size(): void
     {
-        $this->assertSame(18, TextMeasure::fitting('Demo DS 4 - Gemini DS 3', 280, 18));
+        $this->assertSame(18, TextMeasure::fitting('Demo DS 4 - Gemini DS 3', 320, 18));
     }
 
     public function test_a_long_line_shrinks_until_it_fits(): void

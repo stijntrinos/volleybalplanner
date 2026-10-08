@@ -92,7 +92,7 @@ class MatchOverviewTest extends TestCase
 
     public function test_without_the_duties_module_no_duties_or_officials_are_shown(): void
     {
-        $this->club->update(['features' => [PlannerFeature::ChangeRequests->value]]);
+        $this->setClubFeatures($this->club, [PlannerFeature::ChangeRequests->value]);
         $venue = Venue::factory()->create(['name' => 'Sporthal De Laar']);
         $team = Team::factory()->create(['code' => 'DS 3']);
         $this->match(['date' => '2026-09-12', 'match_code' => 'HOME-1', 'venue_id' => $venue->id, 'referee' => 'REF-TEAM']);
@@ -316,20 +316,37 @@ class MatchOverviewTest extends TestCase
         $this->match(['date' => '2026-09-12', 'match_code' => 'OF-DS1', 'home_team_name' => 'Demo DS 1', 'venue_id' => $venue->id]);
         $this->match(['date' => '2026-09-12', 'match_code' => 'OF-DS10', 'home_team_name' => 'Demo DS 10', 'venue_id' => $venue->id]);
         HallDuty::factory()->create([
-            'version_id' => $this->published->id, 'date' => '2026-09-12', 'start_time' => '18:30', 'end_time' => '22:30',
+            'version_id' => $this->published->id, 'date' => '2026-09-12', 'start_time' => '18:35', 'end_time' => '22:35',
             'team_id' => $ds1->id, 'venue_id' => $venue->id, 'notes' => 'DUTY-DS1',
         ]);
         HallDuty::factory()->create([
-            'version_id' => $this->published->id, 'date' => '2026-09-12', 'start_time' => '08:30', 'end_time' => '12:30',
+            'version_id' => $this->published->id, 'date' => '2026-09-12', 'start_time' => '08:35', 'end_time' => '12:35',
             'team_id' => $ds10->id, 'venue_id' => $venue->id, 'notes' => 'DUTY-DS10',
         ]);
 
         Livewire::test(MatchOverview::class)
             ->set('team', 'Demo DS 1')
             ->assertSee('OF-DS1')
-            ->assertSee('DUTY-DS1')
+            ->assertSee('18:35-22:35')
             ->assertDontSee('OF-DS10')
-            ->assertDontSee('DUTY-DS10');
+            ->assertDontSee('08:35-12:35');
+    }
+
+    public function test_internal_notes_are_neither_shown_nor_searchable(): void
+    {
+        $venue = Venue::factory()->create(['name' => 'De Laar']);
+        $this->match(['date' => '2026-09-12', 'match_code' => 'NOTE-1', 'venue_id' => $venue->id, 'notes' => 'Sleutel bij Piet']);
+        HallDuty::factory()->create([
+            'version_id' => $this->published->id, 'date' => '2026-09-12', 'start_time' => '18:30', 'end_time' => '22:30',
+            'team_id' => Team::factory()->create()->id, 'venue_id' => $venue->id, 'notes' => 'Alarmcode 1234',
+        ]);
+
+        Livewire::test(MatchOverview::class)
+            ->assertSee('NOTE-1')
+            ->assertDontSee('Sleutel bij Piet')
+            ->assertDontSee('Alarmcode 1234')
+            ->set('search', 'Piet')
+            ->assertDontSee('NOTE-1');
     }
 
     public function test_the_venue_filter_only_appears_with_several_venues(): void

@@ -10,13 +10,13 @@
         <title>{{ __('Takenoverzicht') }}</title>
         <style>
             @font-face {
-                font-family: 'Inria Sans';
+                font-family: 'Outfit';
                 font-weight: 400;
                 src: url('data:font/truetype;charset=utf-8;base64,{{ $fonts['regular'] }}') format('truetype');
             }
 
             @font-face {
-                font-family: 'Inria Sans';
+                font-family: 'Outfit';
                 font-weight: 700;
                 src: url('data:font/truetype;charset=utf-8;base64,{{ $fonts['bold'] }}') format('truetype');
             }
@@ -35,7 +35,7 @@
             body {
                 margin: 0;
                 background: var(--background);
-                font-family: 'Inria Sans', sans-serif;
+                font-family: 'Outfit', sans-serif;
                 -webkit-font-smoothing: antialiased;
             }
 

@@ -2,6 +2,8 @@
 
 namespace App\Planner\Filament\Resources\Teams\Pages;
 
+use App\Planner\Features\PlanLimit;
+use App\Planner\Features\PlanLimits;
 use App\Planner\Features\PlannerFeature;
 use App\Planner\Filament\Resources\Teams\TeamResource;
 use App\Planner\Models\Team;
@@ -19,7 +21,9 @@ class ListTeams extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()->label(__('Team toevoegen'))->icon(Heroicon::OutlinedPlus),
+            CreateAction::make()->label(__('Team toevoegen'))->icon(Heroicon::OutlinedPlus)
+                ->hidden(fn (): bool => PlanLimits::reached(PlanLimit::Teams)),
+            PlanLimits::lockedAction(PlanLimit::Teams, 'createLocked', __('Team toevoegen')),
         ];
     }
 

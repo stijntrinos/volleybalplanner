@@ -1,8 +1,7 @@
 <x-filament-panels::page>
     <x-filament::section
-        :heading="__('1. FTZ-voorstel maken')"
+        :heading="__('1. Voorstel maken')"
         :description="__('De planner controleert wedstrijden, uitwedstrijden, trainingen en teamregels voordat een taak wordt voorgesteld.')"
-        icon="heroicon-o-sparkles"
     >
         <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4 xl:items-end">
             <label class="grid gap-2">
@@ -58,23 +57,24 @@
             $teamOptions = $this->teamOptions;
         @endphp
 
-        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <div class="vp-ftz-stats">
             @foreach ([
-                ['label' => __('Wedstrijden'), 'count' => $summary['matches'], 'icon' => 'heroicon-o-trophy'],
-                ['label' => __('Scheidsrechters'), 'count' => $summary['referees'], 'icon' => 'heroicon-o-megaphone'],
-                ['label' => __('Tellers'), 'count' => $summary['scorers'], 'icon' => 'heroicon-o-pencil-square'],
-                ['label' => __('Zaaldiensten'), 'count' => $summary['hall_duties'], 'icon' => 'heroicon-o-key'],
-                ['label' => __('Aandachtspunten'), 'count' => $summary['issues'], 'icon' => 'heroicon-o-exclamation-triangle'],
+                ['label' => __('Wedstrijden'), 'count' => $summary['matches']],
+                ['label' => __('Scheidsrechters'), 'count' => $summary['referees']],
+                ['label' => __('Tellers'), 'count' => $summary['scorers']],
+                ['label' => __('Zaaldiensten'), 'count' => $summary['hall_duties']],
+                ['label' => __('Aandachtspunten'), 'count' => $summary['issues'], 'warn' => $summary['issues'] > 0],
             ] as $card)
-                <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="flex items-center gap-3"><div class="rounded-lg bg-gray-100 p-2 text-gray-500 dark:bg-white/5"><x-filament::icon :icon="$card['icon']" class="h-5 w-5" /></div><div><p class="text-2xl font-semibold text-gray-950 dark:text-white">{{ $card['count'] }}</p><p class="text-xs text-gray-500">{{ $card['label'] }}</p></div></div>
+                <div class="vp-card vp-ftz-stat">
+                    <span @class(['vp-ftz-stat-value', 'is-warn' => $card['warn'] ?? false])>{{ $card['count'] }}</span>
+                    <span class="vp-stat-label">{{ $card['label'] }}</span>
                 </div>
             @endforeach
         </div>
 
-        <div class="flex flex-wrap items-center gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
+        <div class="vp-card vp-ftz-review">
             <div class="mr-auto">
-                <p class="text-sm font-semibold text-gray-950 dark:text-white">{{ __('2. Voorstel beoordelen en controleren') }}</p>
+                <h2 class="vp-ftz-review-title">{{ __('2. Voorstel beoordelen en toepassen') }}</h2>
                 @if ($checkedAt)
                     <p @class(['mt-0.5 text-xs font-medium', 'text-warning-600 dark:text-warning-400' => $summary['issues'] > 0, 'text-success-600 dark:text-success-400' => $summary['issues'] === 0])>
                         {{ __('Gecontroleerd :time', ['time' => $checkedAt]) }} · {{ trans_choice(':count aandachtspunt|:count aandachtspunten', $summary['issues']) }}
@@ -102,22 +102,26 @@
                     $showDayLock = $lastDate !== $block['date'];
                     $lastDate = $block['date'];
                 @endphp
+                @php
+                    $blockSummary = trans_choice(':count wedstrijd|:count wedstrijden', $counts['matches']).' · '
+                        .__(':referee fluiten · :scorer tellen · :hall zaaldienst', ['referee' => $counts['referee'], 'scorer' => $counts['scorer'], 'hall' => $counts['hall_duties']]);
+                @endphp
                 <x-filament::section
-                    :heading="$block['venue']"
-                    :description="\App\Planner\Support\DateFormat::withWeekday($block['date'])"
-                    icon="heroicon-o-building-office-2"
+                    :heading="$block['venue'] . ' · ' . \App\Planner\Support\DateFormat::withWeekday($block['date'])"
+                    :description="$blockSummary"
                     collapsible
+                    class="vp-ftz-block"
                     wire:key="duty-block-{{ $block['date'] }}-{{ $block['venue_id'] }}"
                 >
                     <x-slot name="afterHeader">
                         <div class="flex flex-wrap items-center gap-2">
-                            <p @class(['mr-2 text-xs', 'text-warning-600 dark:text-warning-400' => $counts['issues'] > 0, 'text-gray-500 dark:text-gray-400' => $counts['issues'] === 0])>
-                                {{ trans_choice(':count wedstrijd|:count wedstrijden', $counts['matches']) }} ·
-                                {{ __(':referee fluit · :scorer tel · :hall zaaldienst', ['referee' => $counts['referee'], 'scorer' => $counts['scorer'], 'hall' => $counts['hall_duties']]) }}
-                                @if ($counts['issues'] > 0)
-                                    · {{ trans_choice(':count aandachtspunt|:count aandachtspunten', $counts['issues']) }}
-                                @endif
-                            </p>
+                            @if ($counts['issues'] > 0)
+                                <span class="vp-badge is-warn">{{ trans_choice(':count aandachtspunt|:count aandachtspunten', $counts['issues']) }}</span>
+                            @elseif ($checkedAt)
+                                <span class="vp-badge is-ok">{{ __('Gecontroleerd') }}</span>
+                            @else
+                                <span class="vp-badge is-muted">{{ __('Niet gecontroleerd') }}</span>
+                            @endif
                             <x-filament::button size="xs" color="gray" icon="heroicon-o-shield-check"
                                 wire:click="checkBlock({{ $blockArguments }})" wire:loading.attr="disabled">
                                 {{ __('Controleren') }}
@@ -152,28 +156,28 @@
                     </x-slot>
 
                     <div class="overflow-x-auto">
-                        <table class="w-full min-w-[60rem] text-left text-sm">
+                        <table class="vp-table vp-ftz-table">
                             <thead>
-                                <tr class="border-b border-gray-200 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:border-white/10">
-                                    <th class="px-3 py-3">{{ __('Tijd') }}</th>
-                                    <th class="px-3 py-3">{{ __('Type') }}</th>
-                                    <th class="px-3 py-3">{{ __('Veld') }}</th>
-                                    <th class="px-3 py-3">{{ __('Wedstrijd / dienst') }}</th>
-                                    <th class="px-3 py-3">{{ __('Fluiten / team') }}</th>
-                                    <th class="px-3 py-3">{{ __('Tellen') }}</th>
+                                <tr>
+                                    <th scope="col">{{ __('Tijd') }}</th>
+                                    <th scope="col">{{ __('Type') }}</th>
+                                    <th scope="col">{{ __('Veld') }}</th>
+                                    <th scope="col">{{ __('Wedstrijd of dienst') }}</th>
+                                    <th scope="col">{{ __('Fluiten') }}</th>
+                                    <th scope="col">{{ __('Tellen') }}</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200 dark:divide-white/10">
+                            <tbody>
                                 @foreach ($block['rows'] as $row)
                                     @if ($row['type'] === 'hall_duty')
-                                        <tr class="bg-warning-50/60 dark:bg-warning-500/5" wire:key="duty-hall-{{ $row['index'] }}">
-                                            <td class="px-3 py-3 align-top font-semibold text-gray-950 dark:text-white">{{ $row['time'] }}</td>
-                                            <td class="px-3 py-3 align-top">
-                                                <x-filament::badge color="warning" icon="heroicon-o-key" size="sm">{{ __('Zaaldienst') }}</x-filament::badge>
+                                        <tr class="vp-ftz-hall-row" wire:key="duty-hall-{{ $row['index'] }}">
+                                            <td class="is-time">{{ $row['time'] }}</td>
+                                            <td >
+                                                <span class="vp-badge is-muted">{{ __('Zaaldienst') }}</span>
                                             </td>
-                                            <td class="px-3 py-3 align-top text-gray-400">—</td>
-                                            <td class="px-3 py-3 align-top italic text-gray-500 dark:text-gray-400">{{ __('Zaaldienst :venue', ['venue' => $block['venue']]) }}</td>
-                                            <td class="w-72 px-3 py-3 align-top">
+                                            <td class="vp-muted">—</td>
+                                            <td class="vp-muted">{{ __('Zaaldienst :venue', ['venue' => $block['venue']]) }}</td>
+                                            <td class="vp-ftz-duty">
                                                 <div class="flex items-start gap-2">
                                                     <div class="flex-1">
                                                         <x-planner::duty-team-court
@@ -193,7 +197,7 @@
                                                     />
                                                 </div>
                                             </td>
-                                            <td class="px-3 py-3 align-top text-gray-400">—</td>
+                                            <td class="vp-muted">—</td>
                                         </tr>
                                     @else
                                         @php
@@ -202,16 +206,16 @@
                                         @endphp
                                         {{-- Index in the key: the actions and fields in this row refer to it. --}}
                                         <tr wire:key="duty-match-{{ $row['id'] }}-{{ $row['index'] }}">
-                                            <td class="px-3 py-3 align-top font-semibold text-gray-950 dark:text-white">{{ $row['time'] }}</td>
-                                            <td class="px-3 py-3 align-top">
-                                                <x-filament::badge color="gray" size="sm">{{ __('Wedstrijd') }}</x-filament::badge>
+                                            <td class="is-time">{{ $row['time'] }}</td>
+                                            <td >
+                                                <span class="vp-muted">{{ __('Wedstrijd') }}</span>
                                             </td>
-                                            <td class="px-3 py-3 align-top text-gray-500 dark:text-gray-400">{{ $row['court'] ?? '—' }}</td>
-                                            <td class="px-3 py-3 align-top">
-                                                <p class="font-medium text-gray-950 dark:text-white">{{ $row['home'] }} <span class="font-normal text-gray-400">–</span> {{ $row['away'] }}</p>
-                                                <p class="mt-1 font-mono text-xs text-gray-400">{{ $row['code'] }}</p>
+                                            <td class="vp-muted">{{ $row['court'] ?? '—' }}</td>
+                                            <td >
+                                                <p class="vp-ftz-match">{{ $row['home'] }} <span class="vp-muted">–</span> {{ $row['away'] }}</p>
+                                                <p class="vp-ftz-code">{{ $row['code'] }}</p>
                                             </td>
-                                            <td class="w-72 px-3 py-3 align-top">
+                                            <td class="vp-ftz-duty">
                                                 <div class="flex items-start gap-2">
                                                     <div class="flex-1">
                                                         <x-planner::duty-team-court
@@ -232,7 +236,7 @@
                                                     />
                                                 </div>
                                             </td>
-                                            <td class="w-72 px-3 py-3 align-top">
+                                            <td class="vp-ftz-duty">
                                                 <div class="flex items-start gap-2">
                                                     <div class="flex-1">
                                                         <x-planner::duty-team-court
@@ -262,10 +266,10 @@
             @endforeach
         </div>
     @else
-        <div class="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/50 px-6 py-14 text-center dark:border-white/10 dark:bg-white/[.02]">
-            <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-400"><x-filament::icon icon="heroicon-o-sparkles" class="h-7 w-7" /></div>
-            <h2 class="font-semibold text-gray-950 dark:text-white">{{ __('Nog geen FTZ-voorstel') }}</h2>
-            <p class="mx-auto mt-1 max-w-md text-sm text-gray-500 dark:text-gray-400">{{ __('Kies een planningversie en generatiemodus. De planner maakt daarna een voorstel dat je kunt aanpassen en controleren voordat het wordt toegepast.') }}</p>
+        <div class="vp-card vp-ftz-empty">
+            <x-filament::icon icon="heroicon-o-sparkles" class="vp-ftz-empty-icon" />
+            <h2>{{ __('Nog geen FTZ-voorstel') }}</h2>
+            <p>{{ __('Kies een planningversie en generatiemodus. De planner maakt daarna een voorstel dat je kunt aanpassen en controleren voordat het wordt toegepast.') }}</p>
         </div>
     @endif
     <x-filament-actions::modals />

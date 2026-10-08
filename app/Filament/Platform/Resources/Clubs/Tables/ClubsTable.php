@@ -16,6 +16,7 @@ class ClubsTable
             ->columns([
                 TextColumn::make('name')->label('Naam')->searchable()->sortable(),
                 TextColumn::make('slug')->label('Slug')->searchable(),
+                TextColumn::make('plan.name')->label('Pakket')->badge()->color('gray')->placeholder('Geen pakket')->sortable(),
                 IconColumn::make('is_active')->label('Actief')->boolean(),
                 TextColumn::make('users_count')->label('Gebruikers')->counts('users'),
                 TextColumn::make('created_at')->label('Aangemaakt')->dateTime('d-m-Y')->sortable(),

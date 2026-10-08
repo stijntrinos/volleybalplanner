@@ -5,6 +5,8 @@ namespace App\Filament\Club\Resources\ClubUsers;
 use App\Filament\Club\Resources\ClubUsers\Pages\ListClubUsers;
 use App\Models\Club;
 use App\Models\User;
+use App\Planner\Features\PlanLimit;
+use App\Planner\Features\PlanLimits;
 use App\Planner\Support\ClubRole;
 use App\Support\Tenancy\ClubInvitations;
 use BackedEnum;
@@ -73,6 +75,7 @@ class ClubUserResource extends Resource
                 Action::make('invite')
                     ->label('Uitnodigen')
                     ->icon('heroicon-o-envelope')
+                    ->hidden(fn (): bool => PlanLimits::reached(PlanLimit::Admins))
                     ->schema([
                         TextInput::make('name')->label('Naam')->required()->maxLength(255),
                         TextInput::make('email')->label('E-mail')->email()->required()->maxLength(255),
@@ -84,6 +87,7 @@ class ClubUserResource extends Resource
 
                         Notification::make()->title('Uitnodiging verstuurd')->success()->send();
                     }),
+                PlanLimits::lockedAction(PlanLimit::Admins, 'inviteLocked', 'Uitnodigen'),
             ])
             ->recordActions([
                 Action::make('changeRole')

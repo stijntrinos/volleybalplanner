@@ -2,21 +2,29 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Club\Pages\Subscription;
+use App\Filament\Pages\Auth\EditAccount;
 use App\Models\Club;
 use App\Planner\PlannerPlugin;
 use BezhanSalleh\FilamentShield\Middleware\SyncShieldTenant;
+use Filament\Actions\Action;
+use Filament\Auth\MultiFactor\App\AppAuthentication;
+use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use MarcelWeidum\Passkeys\PasskeysPlugin;
 
 /**
  * The club workspace: one tenant per club, holding the complete planner.
@@ -32,6 +40,19 @@ class ClubPanelProvider extends PanelProvider
             ->path('app')
             ->login()
             ->passwordReset()
+            // Account security as on the Aetos site: an authenticator app as
+            // second step, passkeys instead of a password, "Mijn account".
+            ->multiFactorAuthentication([
+                AppAuthentication::make()->recoverable()->brandName('Volleybalplanner'),
+            ])
+            ->plugin(PasskeysPlugin::make())
+            ->pages([EditAccount::class, Subscription::class])
+            ->userMenuItems([
+                'profile' => fn (Action $action): Action => $action
+                    ->label('Mijn account')
+                    ->icon('heroicon-m-user-circle')
+                    ->url(fn (): string => EditAccount::getUrl()),
+            ])
             ->brandName('Volleybalplanner')
             ->spa()
             ->sidebarCollapsibleOnDesktop()
@@ -42,6 +63,8 @@ class ClubPanelProvider extends PanelProvider
             ], isPersistent: true)
             ->discoverResources(in: app_path('Filament/Club/Resources'), for: 'App\\Filament\\Club\\Resources')
             ->plugin(PlannerPlugin::make())
+            // The upgrade pop-up behind locked modules and reached limits.
+            ->renderHook(PanelsRenderHook::BODY_END, fn (): string => Filament::getTenant() ? Blade::render('@livewire(\App\Livewire\PlanUpgradePrompt::class)') : '')
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

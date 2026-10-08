@@ -12,6 +12,9 @@ use ZipArchive;
  */
 class SpreadsheetReader
 {
+    /** Unpacked size limit per sheet part. */
+    private const MAX_PART_BYTES = 50 * 1024 * 1024;
+
     /** @return list<array<string, mixed>> */
     public function read(string $path): array
     {
@@ -45,6 +48,15 @@ class SpreadsheetReader
         $zip = new ZipArchive;
         if ($zip->open($path) !== true) {
             throw new RuntimeException(__('Het xlsx-bestand kon niet worden geopend.'));
+        }
+
+        // A small upload can unpack to gigabytes; refuse that before reading.
+        foreach (['xl/sharedStrings.xml', 'xl/worksheets/sheet1.xml'] as $part) {
+            $size = $zip->statName($part)['size'] ?? 0;
+            if ($size > self::MAX_PART_BYTES) {
+                $zip->close();
+                throw new RuntimeException(__('Het xlsx-bestand is te groot om te importeren.'));
+            }
         }
 
         $shared = [];

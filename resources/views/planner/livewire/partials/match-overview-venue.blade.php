@@ -17,9 +17,6 @@
                     <span class="text-gray-600">
                         {{ DateFormat::time($duty->start_time) }}-{{ DateFormat::time($duty->end_time) }}
                     </span>
-                    @if ($duty->notes)
-                        <span class="text-gray-600">{{ $duty->notes }}</span>
-                    @endif
                 </li>
             @endforeach
         </ul>
@@ -37,9 +34,6 @@
                         </span>
                         @if ($task->court)
                             <span class="text-gray-600">{{ __('Veld :court', ['court' => $task->court]) }}</span>
-                        @endif
-                        @if ($task->notes)
-                            <span class="text-gray-600">{{ $task->notes }}</span>
                         @endif
                     </li>
                 @endforeach

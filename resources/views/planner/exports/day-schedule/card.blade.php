@@ -1,13 +1,13 @@
 @php
     $rooms = $lockerRooms[$match->id] ?? ['home' => null, 'away' => null];
 
-    $teams = $match->home_team_name . ' - ' . $match->away_team_name;
-    $lockerRoomLine = __('Kleedkamer') . ' ' . ($rooms['home'] ?: '-') . ' - ' . __('Kleedkamer') . ' ' . ($rooms['away'] ?: '-');
-    $dutyLine = __('Fluiten') . ' ' . ($match->referee ?: '-') . ' - ' . __('Tellen') . ' ' . ($match->scorer ?: '-');
+    $teams = $match->home_team_name . ' – ' . $match->away_team_name;
+    $lockerRoomLine = __('Kleedkamer') . ' ' . ($rooms['home'] ?: '-') . ' · ' . __('Kleedkamer') . ' ' . ($rooms['away'] ?: '-');
+    $dutyLine = __('Fluiten') . ' ' . ($match->referee ?: ($match->nevobo_referee ? 'Nevobo' : '-')) . ' · ' . __('Tellen') . ' ' . ($match->scorer ?: '-');
 @endphp
 
 <div class="card" style="grid-column: {{ $column }} / span {{ $columnSpan }}; grid-row: {{ $row }};">
-    {{-- The bar runs the full width, the tab with the time drops out of it. --}}
+    {{-- The kick-off time heads the card; the teams and duties sit centred below. --}}
     <div class="card__time"><span class="card__time-tab">{{ $time }}</span></div>
     <div class="card__body">
         {{-- Every line shrinks as far as needed to stay on one line; a second

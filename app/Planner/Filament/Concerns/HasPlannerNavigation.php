@@ -20,4 +20,10 @@ trait HasPlannerNavigation
     {
         return static::canAccess();
     }
+
+    /** Locked by the plan, but the user would see it otherwise. */
+    public static function showsLockedNavigation(): bool
+    {
+        return static::lockedFeature() !== null && parent::canAccess();
+    }
 }

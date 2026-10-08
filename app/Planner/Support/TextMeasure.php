@@ -43,7 +43,7 @@ final class TextMeasure
     }
 
     /** The bold font the schedule is set in; also used by RendersWithChrome. */
-    public static function fontPath(string $file = 'InriaSans-Bold.ttf'): string
+    public static function fontPath(string $file = 'Outfit-Bold.ttf'): string
     {
         return resource_path('fonts/planner/'.$file);
     }

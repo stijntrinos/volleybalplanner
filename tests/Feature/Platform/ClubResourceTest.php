@@ -6,7 +6,9 @@ use App\Filament\Platform\Resources\Clubs\Pages\CreateClub;
 use App\Filament\Platform\Resources\Clubs\Pages\EditClub;
 use App\Filament\Platform\Resources\Clubs\Pages\ListClubs;
 use App\Models\Club;
+use App\Models\Plan;
 use App\Models\User;
+use App\Planner\Features\PlannerFeature;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -23,22 +25,27 @@ class ClubResourceTest extends TestCase
         Filament::setCurrentPanel('platform');
     }
 
-    public function test_platform_admin_creates_a_club_with_features(): void
+    public function test_platform_admin_creates_a_club_on_a_plan(): void
     {
+        $basis = Plan::query()->where('slug', 'basis')->sole();
+
         Livewire::test(CreateClub::class)
-            ->fillForm(['name' => 'VV Test', 'slug' => 'vv-test', 'is_active' => true, 'features' => ['duties', 'volunteer_points']])
+            ->fillForm(['name' => 'VV Test', 'slug' => 'vv-test', 'is_active' => true, 'plan_id' => $basis->id])
             ->call('create')
             ->assertHasNoFormErrors();
 
-        $this->assertEqualsCanonicalizing(['duties', 'volunteer_points'], Club::firstWhere('slug', 'vv-test')->features);
+        $club = Club::firstWhere('slug', 'vv-test');
+        $this->assertTrue($club->plan->is($basis));
+        $this->assertTrue($club->hasFeature(PlannerFeature::Duties));
+        $this->assertFalse($club->hasFeature(PlannerFeature::ChangeRequests));
     }
 
-    public function test_feature_dependencies_are_enforced(): void
+    public function test_a_club_needs_a_plan(): void
     {
         Livewire::test(CreateClub::class)
-            ->fillForm(['name' => 'VV Test', 'slug' => 'vv-test', 'features' => ['volunteer_points']])
+            ->fillForm(['name' => 'VV Test', 'slug' => 'vv-test', 'plan_id' => null])
             ->call('create')
-            ->assertHasFormErrors(['features']);
+            ->assertHasFormErrors(['plan_id' => 'required']);
     }
 
     public function test_reserved_and_malformed_slugs_are_rejected(): void

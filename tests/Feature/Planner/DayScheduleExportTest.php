@@ -169,7 +169,7 @@ class DayScheduleExportTest extends TestCase
         $this->assertStringContainsString('class="hall-duty"', $html);
         $this->assertStringContainsString('HS 2', $html);
 
-        $this->useClub($this->club->fill(['features' => []]));
+        $this->useClub($this->setClubFeatures($this->club, []));
         $html = $service->dayScheduleHtml($version, '2026-09-12');
         $this->assertStringNotContainsString('class="card__duties"', $html);
         $this->assertStringNotContainsString('class="hall-duty"', $html);

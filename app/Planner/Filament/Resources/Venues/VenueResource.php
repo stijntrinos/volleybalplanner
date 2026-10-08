@@ -2,6 +2,8 @@
 
 namespace App\Planner\Filament\Resources\Venues;
 
+use App\Planner\Features\PlanLimit;
+use App\Planner\Features\PlanLimits;
 use App\Planner\Filament\Concerns\HasPlannerNavigation;
 use App\Planner\Filament\NavigationGroups;
 use App\Planner\Filament\Resources\Venues\Pages\CreateVenue;
@@ -23,6 +25,12 @@ use UnitEnum;
 class VenueResource extends Resource
 {
     use HasPlannerNavigation;
+
+    /** Past the plan limit the create button becomes the upgrade prompt. */
+    public static function canCreate(): bool
+    {
+        return !PlanLimits::reached(PlanLimit::Venues) && parent::canCreate();
+    }
 
     protected static ?string $model = Venue::class;
 

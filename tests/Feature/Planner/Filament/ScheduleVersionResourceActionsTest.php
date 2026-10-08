@@ -58,7 +58,7 @@ class ScheduleVersionResourceActionsTest extends TestCase
         $arguments = $test->instance()->mountedActions[0]['arguments'];
         $this->assertSame($version->name, $arguments['version']);
         $this->assertContains(
-            'Team HS1 heeft een overlappende wedstrijd.',
+            'Team HS1 speelt dan ook AETOS HS1 – '.FixtureMatch::query()->latest('id')->value('away_team_name').' om 10:00.',
             collect($arguments['conflicts'])->pluck('message')->all(),
         );
         $this->assertFalse($version->refresh()->isPublished());

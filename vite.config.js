@@ -10,6 +10,7 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/css/planner.css',
                 'resources/js/planner.js',
+                'resources/css/site.css',
             ],
             refresh: true,
         }),

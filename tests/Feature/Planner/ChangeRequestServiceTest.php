@@ -88,7 +88,8 @@ class ChangeRequestServiceTest extends TestCase
         $this->assertSame(['PUBLISHED'], $codes);
     }
 
-    public function test_without_a_published_planning_it_falls_back_on_the_newest_draft(): void
+    /** The forms are public: an unpublished draft must not leak through them. */
+    public function test_without_a_published_planning_no_draft_is_shown(): void
     {
         $this->published->update(['status' => ScheduleVersionStatus::Archived, 'is_published' => null]);
         $draft = ScheduleVersion::factory()->create(['status' => ScheduleVersionStatus::Draft]);
@@ -96,7 +97,7 @@ class ChangeRequestServiceTest extends TestCase
 
         $codes = $this->service()->matches($this->ds1->id)->pluck('match_code')->all();
 
-        $this->assertSame(['DRAFT'], $codes);
+        $this->assertSame([], $codes);
     }
 
     public function test_a_request_stores_the_match_code_next_to_the_id(): void
@@ -162,7 +163,7 @@ class ChangeRequestServiceTest extends TestCase
             'team_id' => $this->ds1->id, 'match_id' => $match->id,
             'name' => 'Jan', 'email' => 'jan@example.com', 'reason' => 'x', 'explanation' => 'x',
         ]);
-        $this->club()->update(['features' => []]);
+        $this->setClubFeatures($this->club(), []);
 
         $this->assertSame([], $this->service()->openRequestCodes());
     }
@@ -303,7 +304,7 @@ class ChangeRequestServiceTest extends TestCase
     public function test_without_the_duties_module_there_are_no_duties(): void
     {
         $this->match('ABC1', '2026-10-03', $this->ds1)->update(['referee' => 'DS 1']);
-        $this->club()->update(['features' => ['change_requests']]);
+        $this->setClubFeatures($this->club(), ['change_requests']);
 
         $this->assertCount(0, $this->service()->dutyTeams());
         $this->assertCount(0, $this->service()->duties($this->ds1->id));

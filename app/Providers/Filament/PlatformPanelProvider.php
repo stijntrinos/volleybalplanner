@@ -2,9 +2,12 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\EditAccount;
 use App\Filament\Platform\Widgets\ClubsOverview;
 use App\Planner\Support\DesignTokens;
 use App\Planner\Support\InitialsAvatarProvider;
+use Filament\Actions\Action;
+use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -12,13 +15,14 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Contracts\View\View;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use MarcelWeidum\Passkeys\PasskeysPlugin;
 
 /**
  * Platform administration: clubs, their modules and their first admins.
@@ -40,6 +44,19 @@ class PlatformPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->passwordReset()
+            // Account security as on the Aetos site: an authenticator app as
+            // second step, passkeys instead of a password, "Mijn account".
+            ->multiFactorAuthentication([
+                AppAuthentication::make()->recoverable()->brandName('Volleybalplanner Platform'),
+            ])
+            ->plugin(PasskeysPlugin::make())
+            ->pages([EditAccount::class])
+            ->userMenuItems([
+                'profile' => fn (Action $action): Action => $action
+                    ->label('Mijn account')
+                    ->icon('heroicon-m-user-circle')
+                    ->url(fn (): string => EditAccount::getUrl()),
+            ])
             ->brandName('Volleybalplanner Platform')
             // Same design system as the club workspace: the panel theme, Outfit,
             // the planner palettes and the in-house initials avatars.

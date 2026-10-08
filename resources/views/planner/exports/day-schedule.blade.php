@@ -20,9 +20,6 @@
     <body>
         <div class="sheet">
             <div class="header">
-                <div class="header__watermark header__watermark--net">{!! $svg('net') !!}</div>
-                <div class="header__watermark header__watermark--ball">{!! $svg('ball') !!}</div>
-
                 @if ($branding['logo'])
                     <div class="header__logo"><img src="{{ $branding['logo'] }}" alt="{{ $branding['club_name'] }}"></div>
                 @else
@@ -46,7 +43,7 @@
                 @foreach ($grid->courts() as $index => $court)
                     <div class="column-header" style="grid-column: {{ $index + 1 }};">
                         <span class="column-header__number">{{ $court->name }}</span>
-                        <span class="column-header__name" style="font-size: {{ $courtHeaderSize($court->name) }}px;">
+                        <span class="column-header__name" style="font-size: {{ min(24, $courtHeaderSize($court->name)) }}px;">
                             {{ __('Veld') }} {{ $court->name }}
                         </span>
                     </div>
@@ -55,7 +52,7 @@
                 @if ($showDuties)
                     <div class="column-header column-header--hall-duty" style="grid-column: {{ $grid->hallDutyColumn() }};">
                         <span class="column-header__icon">{!! $svg('hall-duty') !!}</span>
-                        <span class="column-header__name" style="font-size: {{ $dutyHeaderSize }}px;">{{ __('Zaalwacht') }}</span>
+                        <span class="column-header__name" style="font-size: {{ min(22, $dutyHeaderSize) }}px;">{{ __('Zaalwacht') }}</span>
                     </div>
                 @endif
 
@@ -79,8 +76,7 @@
                     @foreach ($grid->hallDuties() as $block)
                         <div class="hall-duty"
                             style="grid-column: {{ $grid->hallDutyColumn() }}; grid-row: {{ $block['row'] }} / span {{ $block['row_span'] }};">
-                            <div class="hall-duty__watermark">{!! $svg('hall-duty') !!}</div>
-                            <div class="hall-duty__period">{{ $block['start'] }} - {{ $block['end'] }}</div>
+                            <div class="hall-duty__period">{{ $block['start'] }} – {{ $block['end'] }}</div>
                             <div class="hall-duty__team">{{ $block['duty']->team?->code ?: '-' }}</div>
                         </div>
                     @endforeach
@@ -88,9 +84,12 @@
             </div>
 
             <div class="footer">
-                <div class="footer__watermark footer__watermark--left">{!! $svg('ball') !!}</div>
-                <div class="footer__watermark footer__watermark--right">{!! $svg('ball') !!}</div>
                 <div class="footer__text">{{ $footerText }}</div>
+                <div class="footer__credit">
+                    <span>{{ __('Gepland met') }}</span>
+                    <svg viewBox="0 0 48 48" width="14" height="14" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" fill="#FFFFFF"></rect><g transform="translate(36 12)" fill="none" stroke="#FFFFFF" stroke-width="3.8" stroke-linecap="round"><circle r="8.1"></circle><path d="M0 0 Q3.98 -3.34 0 -8.1"></path><path d="M0 0 Q0.9 5.12 7.01 4.05"></path><path d="M0 0 Q-4.89 -1.78 -7.01 4.05"></path></g><rect x="2" y="26" width="20" height="20" rx="5" fill="#FFFFFF"></rect><rect x="26" y="26" width="20" height="20" rx="5" fill="#FFFFFF"></rect></svg>
+                    <strong>Volleybalplanner</strong>
+                </div>
             </div>
 
             @if (filled($scheduleFooter))

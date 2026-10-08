@@ -264,7 +264,6 @@ class MatchOverview extends Component
                     $duty->team->name,
                     $duty->venue->name,
                     $duty->venue->city,
-                    $duty->notes,
                 ])->filter()->implode(' '), $this->search),
             )->values();
             $volleystars = $volleystars->filter(
@@ -434,7 +433,7 @@ class MatchOverview extends Component
             $match->court?->name,
             $match->secondCourt?->name,
             $match->secondCourt ? 'CC CenterCourt' : null,
-            $match->notes,
+            // No notes: they are internal, and a match on them would reveal them.
         ])->filter()->implode(' ');
     }
 }

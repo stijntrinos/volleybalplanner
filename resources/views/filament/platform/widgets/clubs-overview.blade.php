@@ -22,7 +22,7 @@
                     </div>
                     <div class="vp-club-meta">
                         <span>{{ $club['users'] }} {{ $club['users'] === 1 ? 'gebruiker' : 'gebruikers' }}</span>
-                        <span>{{ $club['modules'] }} {{ $club['modules'] === 1 ? 'module' : 'modules' }}</span>
+                        <span>{{ $club['plan'] ?? 'Geen pakket' }}</span>
                         <span>sinds {{ $club['created'] }}</span>
                     </div>
                 </a>

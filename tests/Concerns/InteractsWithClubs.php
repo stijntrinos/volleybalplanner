@@ -3,6 +3,7 @@
 namespace Tests\Concerns;
 
 use App\Models\Club;
+use App\Models\Plan;
 use App\Models\User;
 use App\Planner\Features\PlannerFeature;
 use App\Planner\Support\ClubRole;
@@ -25,6 +26,18 @@ trait InteractsWithClubs
     protected function createClub(?array $features = null): Club
     {
         return Club::factory()->withFeatures($features ?? PlannerFeature::allValues())->create();
+    }
+
+    /**
+     * Gives the club exactly these modules (its own plan, no limits).
+     *
+     * @param  list<string>  $features
+     */
+    protected function setClubFeatures(Club $club, array $features): Club
+    {
+        $club->plan()->associate(Plan::factory()->withFeatures($features)->create())->save();
+
+        return $club;
     }
 
     /** Makes the club current for models (BelongsToClub) and for Filament. */

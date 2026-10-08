@@ -76,10 +76,10 @@ class DutyChangeRequestFormTest extends TestCase
     {
         $url = route('planner.public.duty-change-request', ['club' => $this->club]);
 
-        $this->club->update(['features' => [PlannerFeature::ChangeRequests->value]]);
+        $this->setClubFeatures($this->club, [PlannerFeature::ChangeRequests->value]);
         $this->get($url)->assertNotFound();
 
-        $this->club->update(['features' => [PlannerFeature::Duties->value]]);
+        $this->setClubFeatures($this->club, [PlannerFeature::Duties->value]);
         $this->get($url)->assertNotFound();
     }
 

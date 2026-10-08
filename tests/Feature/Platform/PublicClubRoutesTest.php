@@ -39,8 +39,8 @@ class PublicClubRoutesTest extends TestCase
 
     public function test_disabled_feature_gives_404(): void
     {
-        Club::factory()->create(['slug' => 'zonder', 'features' => []]);
-        Club::factory()->create(['slug' => 'met', 'features' => ['duties']]);
+        Club::factory()->create(['slug' => 'zonder']);
+        Club::factory()->withFeatures(['duties'])->create(['slug' => 'met']);
 
         $this->get('/zonder/duties-probe')->assertNotFound();
         $this->get('/met/duties-probe')->assertOk();

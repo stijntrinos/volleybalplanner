@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Club;
+use App\Models\Plan;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -19,7 +20,7 @@ class ClubFactory extends Factory
             'name' => $name,
             'slug' => Str::slug($name).'-'.Str::lower(Str::random(4)),
             'is_active' => true,
-            'features' => [],
+            'plan_id' => null,
         ];
     }
 
@@ -28,9 +29,18 @@ class ClubFactory extends Factory
         return $this->state(['is_active' => false]);
     }
 
-    /** @param  list<string>  $features */
+    /**
+     * A club on its own plan with exactly these modules and no limits.
+     *
+     * @param  list<string>  $features
+     */
     public function withFeatures(array $features): static
     {
-        return $this->state(['features' => $features]);
+        return $this->state(['plan_id' => Plan::factory()->withFeatures($features)]);
+    }
+
+    public function onPlan(Plan|string $plan): static
+    {
+        return $this->state(['plan_id' => $plan instanceof Plan ? $plan->id : Plan::query()->where('slug', $plan)->value('id')]);
     }
 }

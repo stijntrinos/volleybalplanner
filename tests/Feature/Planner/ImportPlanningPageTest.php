@@ -108,7 +108,7 @@ class ImportPlanningPageTest extends TestCase
         $club = $this->createClub([]);
         $this->actingAsClubUser(ClubRole::PlanningCommittee, $club);
 
-        $this->assertNotContains(PlannerFeature::Duties->value, $club->features ?? []);
+        $this->assertNotContains(PlannerFeature::Duties->value, $club->featureValues());
         $this->get('/app/'.$club->slug.'/import-planning')->assertOk();
     }
 }

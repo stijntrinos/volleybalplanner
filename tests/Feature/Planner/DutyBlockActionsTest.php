@@ -53,7 +53,7 @@ class DutyBlockActionsTest extends TestCase
         $this->generated()
             ->assertSee('Middachtensingel')
             ->assertSee('Zaaldienst Middachtensingel')
-            ->assertSee('Wedstrijd / dienst');
+            ->assertSee('Wedstrijd of dienst');
     }
 
     public function test_every_field_has_its_own_lock_with_explanation(): void

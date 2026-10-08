@@ -62,7 +62,7 @@ class MatchChangeRequestFormTest extends TestCase
 
     public function test_without_the_change_requests_module_the_page_does_not_exist(): void
     {
-        $this->club->update(['features' => []]);
+        $this->setClubFeatures($this->club, []);
 
         $this->get(route('planner.public.match-change-request', ['club' => $this->club]))->assertNotFound();
     }

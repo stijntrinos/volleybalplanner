@@ -2,6 +2,7 @@
 
 namespace App\Planner\Filament\Pages;
 
+use App\Planner\Filament\Widgets\AccountSecurityNotice;
 use App\Planner\Filament\Widgets\DashboardAside;
 use App\Planner\Filament\Widgets\PendingAwayChanges;
 use App\Planner\Filament\Widgets\PendingChanges;
@@ -31,6 +32,7 @@ class Dashboard extends BaseDashboard
     public function getWidgets(): array
     {
         return [
+            AccountSecurityNotice::class,
             VersionBanner::class,
             PlannerStats::class,
             PendingChanges::class,

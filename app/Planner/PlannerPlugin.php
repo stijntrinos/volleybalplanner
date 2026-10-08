@@ -2,6 +2,7 @@
 
 namespace App\Planner;
 
+use App\Planner\Filament\LockedModuleNavigation;
 use App\Planner\Filament\NavigationGroups;
 use App\Planner\Models\PlannerSetting;
 use App\Planner\Support\DesignTokens;
@@ -48,6 +49,8 @@ class PlannerPlugin implements Plugin
                 NavigationGroup::make(NavigationGroups::INPUT)->label(__(NavigationGroups::INPUT)),
                 NavigationGroup::make(NavigationGroups::MASTER_DATA)->label(__(NavigationGroups::MASTER_DATA)),
             ])
+            // Modules outside the plan: visible, locked, opening the upgrade prompt.
+            ->navigationItems(LockedModuleNavigation::items())
             ->discoverResources(in: app_path('Planner/Filament/Resources'), for: 'App\\Planner\\Filament\\Resources')
             ->discoverPages(in: app_path('Planner/Filament/Pages'), for: 'App\\Planner\\Filament\\Pages')
             ->discoverWidgets(in: app_path('Planner/Filament/Widgets'), for: 'App\\Planner\\Filament\\Widgets')

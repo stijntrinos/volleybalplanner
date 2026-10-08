@@ -4,6 +4,7 @@ namespace App\Planner\Services;
 
 use App\Planner\Enums\AvailabilityScope;
 use App\Planner\Enums\AvailabilityStatus;
+use App\Planner\Enums\MatchType;
 use App\Planner\Models\Availability;
 use App\Planner\Models\FixtureMatch;
 use App\Planner\Models\ScheduleVersion;
@@ -288,8 +289,8 @@ class ConflictEngine
                     'level' => $overlap ? self::LEVEL_CONFLICT : self::LEVEL_WARNING,
                     'type' => self::TYPE_TEAM,
                     'message' => $overlap
-                        ? __('Team :code heeft een overlappende wedstrijd.', ['code' => $code])
-                        : __('Team :code speelt al op deze dag.', ['code' => $code]),
+                        ? __('Team :code speelt dan ook :match.', ['code' => $code, 'match' => $this->describe($other)])
+                        : __('Team :code speelt op deze dag ook :match.', ['code' => $code, 'match' => $this->describe($other)]),
                     'match_id' => $other->id,
                 ];
             }
@@ -485,6 +486,22 @@ class ConflictEngine
         return $team($match->home_team_name) !== ''
             && $team($match->home_team_name) === $team($other->home_team_name)
             && $team($match->away_team_name) === $team($other->away_team_name);
+    }
+
+    /**
+     * The other match in a team finding, e.g. "Zuiderzee DS 1 – VC Voorbeeld
+     * DS 1 om 15:00 (uit)": without it a planner can't tell a real clash from
+     * the match they are moving.
+     */
+    private function describe(FixtureMatch $other): string
+    {
+        $text = __(':home – :away om :time', [
+            'home' => $other->home_team_name,
+            'away' => $other->away_team_name,
+            'time' => substr((string) $other->time, 0, 5),
+        ]);
+
+        return $other->match_type === MatchType::Away ? $text.' '.__('(uitwedstrijd)') : $text;
     }
 
     private function minutes(string $time): int

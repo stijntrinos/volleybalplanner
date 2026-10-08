@@ -33,16 +33,29 @@ class PlannerTopbar extends Topbar
         return view('planner::filament.topbar', $this->viewData());
     }
 
-    /** @return array{searchUrl: ?string, activeVersion: ?string, attention: int, attentionUrl: ?string} */
+    /** @return array{searchUrl: ?string, activeVersion: ?string, attention: int, attentionItems: list<array{label: string, count: int, url: string}>} */
     private function viewData(): array
     {
-        if (! app(CurrentClub::class)->get()) {
-            return ['searchUrl' => null, 'activeVersion' => null, 'attention' => 0, 'attentionUrl' => null];
+        if (!app(CurrentClub::class)->get()) {
+            return ['searchUrl' => null, 'activeVersion' => null, 'attention' => 0, 'attentionItems' => []];
         }
 
         $canSearch = HomeMatches::canAccess();
-        $openRequests = $this->openRequests();
-        $nevoboChanges = $this->openNevoboChanges();
+
+        // What needs a decision, each with its own page; the bell counts
+        // only what the user can open.
+        $items = array_values(array_filter([
+            ChangeRequestResource::canAccess() ? [
+                'label' => __('Nieuwe wijzigingsverzoeken'),
+                'count' => $this->openRequests(),
+                'url' => ChangeRequestResource::getUrl('index'),
+            ] : null,
+            NevoboChanges::canAccess() ? [
+                'label' => __('Open Nevobo-wijzigingen'),
+                'count' => $this->openNevoboChanges(),
+                'url' => NevoboChanges::getUrl(),
+            ] : null,
+        ], fn (?array $item): bool => $item !== null && $item['count'] > 0));
 
         return [
             'searchUrl' => $canSearch ? HomeMatches::getUrl(['zoeken' => 1]) : null,
@@ -50,18 +63,14 @@ class PlannerTopbar extends Topbar
                 ->where('status', ScheduleVersionStatus::Published)
                 ->latest('published_at')
                 ->value('name'),
-            'attention' => $openRequests + $nevoboChanges,
-            'attentionUrl' => match (true) {
-                $openRequests > 0 && ChangeRequestResource::canAccess() => ChangeRequestResource::getUrl('index'),
-                $nevoboChanges > 0 && NevoboChanges::canAccess() => NevoboChanges::getUrl(),
-                default => null,
-            },
+            'attention' => array_sum(array_column($items, 'count')),
+            'attentionItems' => $items,
         ];
     }
 
     private function openRequests(): int
     {
-        if (! app(CurrentClub::class)->get()?->hasFeature(PlannerFeature::ChangeRequests)) {
+        if (!app(CurrentClub::class)->get()?->hasFeature(PlannerFeature::ChangeRequests)) {
             return 0;
         }
 

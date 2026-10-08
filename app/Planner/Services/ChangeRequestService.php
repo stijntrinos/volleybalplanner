@@ -399,10 +399,12 @@ class ChangeRequestService
         return app(CurrentClub::class)->require()->hasFeature(PlannerFeature::Duties);
     }
 
-    /** The planning the club uses publicly; otherwise the newest draft. */
+    /**
+     * The planning the club uses publicly. The forms are public, so a draft
+     * never shows here: without a published planning there is nothing to ask.
+     */
     private function version(): ?ScheduleVersion
     {
-        return ScheduleVersion::query()->where('status', ScheduleVersionStatus::Published)->latest('id')->first()
-            ?? ScheduleVersion::query()->where('status', ScheduleVersionStatus::Draft)->latest('id')->first();
+        return ScheduleVersion::query()->where('status', ScheduleVersionStatus::Published)->latest('id')->first();
     }
 }

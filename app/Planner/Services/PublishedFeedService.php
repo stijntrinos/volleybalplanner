@@ -173,7 +173,7 @@ class PublishedFeedService
 
     private function publishedVersion(): ?ScheduleVersion
     {
-        return ScheduleVersion::query()->where('status', ScheduleVersionStatus::Published)->first();
+        return ScheduleVersion::query()->where('status', ScheduleVersionStatus::Published)->latest('id')->first();
     }
 
     private function escape(?string $value): string

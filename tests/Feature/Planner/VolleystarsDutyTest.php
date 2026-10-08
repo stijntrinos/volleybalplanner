@@ -37,7 +37,8 @@ class VolleystarsDutyTest extends TestCase
         $this->assertSame(['09:00', '12:00'], [substr($duty->start, 0, 5), substr($duty->end, 0, 5)]);
         $this->assertSame('De Laar', $duty->venue);
         $this->assertSame('2026-10', $duty->month());
-        $this->assertSame('Tellen DS 2 Club DS 2 De Laar Ingang achterzijde', $duty->searchText());
+        // Notes are internal, so they are not searchable on the public overview.
+        $this->assertSame('Tellen DS 2 Club DS 2 De Laar', $duty->searchText());
     }
 
     public function test_publish_blocked_carries_the_conflicts(): void

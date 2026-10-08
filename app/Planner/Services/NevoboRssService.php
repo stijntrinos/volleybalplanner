@@ -4,7 +4,10 @@ namespace App\Planner\Services;
 
 use App\Planner\Models\PlannerSetting;
 use App\Planner\Models\TeamSource;
+use App\Planner\Support\HostResolver;
 use App\Planner\Support\MatchCode;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use InvalidArgumentException;
@@ -33,8 +36,14 @@ class NevoboRssService
         try {
             $fromCache = Cache::has($key);
             $items = Cache::remember($key, now()->addMinutes($ttl), function () use ($source): array {
-                $response = Http::timeout(10)->accept('application/rss+xml, application/xml, text/xml')
+                // No redirects: a redirect could lead past the address check
+                // to an internal host.
+                $response = Http::timeout(10)->withOptions(['allow_redirects' => false, 'force_ip_resolve' => 'v4'])
+                    ->accept('application/rss+xml, application/xml, text/xml')
                     ->withUserAgent(config('app.name').'/1.0')->get($source->url)->throw();
+                if (!$response->successful()) {
+                    throw new RequestException($response);
+                }
 
                 return $this->parse($response->body(), (string) $source->url);
             });
@@ -44,9 +53,16 @@ class NevoboRssService
 
             return ['ok' => true, 'items' => $items, 'cached' => $fromCache];
         } catch (Throwable $exception) {
-            $source->update(['last_checked_at' => now(), 'last_error' => $exception->getMessage()]);
+            // Never store the response body or connection details: they are
+            // shown in the sources table.
+            $reason = match (true) {
+                $exception instanceof RequestException => __('De feed gaf HTTP-status :status.', ['status' => $exception->response->status()]),
+                $exception instanceof ConnectionException => __('De feed is niet bereikbaar.'),
+                default => __('De feed kon niet gelezen worden.'),
+            };
+            $source->update(['last_checked_at' => now(), 'last_error' => $reason]);
 
-            return ['ok' => false, 'reason' => $exception->getMessage()];
+            return ['ok' => false, 'reason' => $reason];
         }
     }
 
@@ -136,9 +152,35 @@ class NevoboRssService
         if (($parts['scheme'] ?? null) !== 'https' || empty($parts['host'])) {
             throw new InvalidArgumentException(__('Alleen geldige HTTPS-feed-URL’s zijn toegestaan.'));
         }
-        $host = $parts['host'];
-        if (in_array($host, ['localhost', '127.0.0.1', '::1'], true) || str_ends_with($host, '.local')) {
+        $host = rtrim(trim($parts['host'], '[]'), '.');
+        if ($host === 'localhost' || str_ends_with($host, '.localhost') || str_ends_with($host, '.local') || str_ends_with($host, '.internal')) {
             throw new InvalidArgumentException(__('Lokale feed-URL’s zijn niet toegestaan.'));
         }
+
+        // Every address the host points at must be public, so a feed URL
+        // can't reach the server itself or the internal network.
+        foreach ($this->addressesOf($host) as $address) {
+            if (filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+                throw new InvalidArgumentException(__('Lokale feed-URL’s zijn niet toegestaan.'));
+            }
+        }
+    }
+
+    /** @return list<string> */
+    private function addressesOf(string $host): array
+    {
+        if (filter_var($host, FILTER_VALIDATE_IP) !== false) {
+            return [$host];
+        }
+
+        // Shorthand numeric hosts (127.1, 2130706433, 0x7f.1) still reach an
+        // address in curl; only a regular IP literal is accepted.
+        if (preg_match('/^(0x[0-9a-f]+|\d+)(\.(0x[0-9a-f]+|\d+))*$/i', $host)) {
+            return ['0.0.0.0'];
+        }
+
+        // The request itself only uses IPv4 (force_ip_resolve), so the A
+        // records are what it reaches.
+        return app(HostResolver::class)->ipv4($host);
     }
 }

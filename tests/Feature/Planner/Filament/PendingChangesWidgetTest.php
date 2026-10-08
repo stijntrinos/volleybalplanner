@@ -109,7 +109,7 @@ class PendingChangesWidgetTest extends TestCase
     public function test_the_away_widget_is_hidden_without_the_away_matches_module(): void
     {
         $this->grantRole();
-        $this->club->update(['features' => array_values(array_diff(PlannerFeature::allValues(), [PlannerFeature::AwayMatches->value]))]);
+        $this->setClubFeatures($this->club, array_values(array_diff(PlannerFeature::allValues(), [PlannerFeature::AwayMatches->value])));
         $this->useClub($this->club->fresh());
 
         $this->assertTrue(PendingChanges::canView());

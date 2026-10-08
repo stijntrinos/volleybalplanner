@@ -65,7 +65,6 @@ final class VolleystarsDuty
             $this->teamName,
             $this->venue,
             $this->court,
-            $this->notes,
         ])->filter()->implode(' ');
     }
 }
