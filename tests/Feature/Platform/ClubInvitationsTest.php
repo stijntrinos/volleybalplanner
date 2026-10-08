@@ -118,6 +118,18 @@ class ClubInvitationsTest extends TestCase
         $this->assertSame(1, $club->seatsTaken());
     }
 
+    public function test_old_invitations_are_pruned(): void
+    {
+        $club = Club::factory()->create();
+        $this->invite($club, 'oud@example.nl', ClubRole::ClubAdmin);
+        Invitation::query()->update(['expires_at' => now()->subDays(40)]);
+        $this->invite($club, 'nieuw@example.nl', ClubRole::ClubAdmin);
+
+        $this->artisan('model:prune', ['--model' => [Invitation::class]])->assertSuccessful();
+
+        $this->assertSame(['nieuw@example.nl'], Invitation::query()->pluck('email')->all());
+    }
+
     private function invite(Club $club, string $email, ClubRole $role): string
     {
         app(ClubInvitations::class)->invite($club, 'Jan', $email, $role);

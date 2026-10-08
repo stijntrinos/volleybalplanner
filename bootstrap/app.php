@@ -17,6 +17,12 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(SecurityHeaders::class);
 
+        // Behind a load balancer or proxy: its address (or "*"), so client IPs,
+        // https and rate limits are per visitor instead of per proxy.
+        if (filled($proxies = env('TRUSTED_PROXIES'))) {
+            $middleware->trustProxies(at: $proxies === '*' ? '*' : array_map('trim', explode(',', $proxies)));
+        }
+
         $middleware->alias([
             'club' => ResolveClubFromRoute::class,
             'feature' => EnsureClubFeature::class,

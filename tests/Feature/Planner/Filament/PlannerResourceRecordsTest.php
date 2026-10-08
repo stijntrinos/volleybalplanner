@@ -153,10 +153,11 @@ class PlannerResourceRecordsTest extends TestCase
         $this->actingAsClubUser(club: $club);
         $team = Team::factory()->create();
 
+        // Locker rooms stay visible but locked, with an upgrade hint.
         Livewire::test(EditTeam::class, ['record' => $team->getKey()])
             ->assertFormFieldDoesNotExist('include_in_duties')
             ->assertFormFieldDoesNotExist('volunteer_points_used')
-            ->assertFormFieldDoesNotExist('locker_room_category');
+            ->assertFormFieldDisabled('locker_room_category');
 
         Livewire::test(ListTeams::class)->assertTableColumnHidden('points_balance');
     }

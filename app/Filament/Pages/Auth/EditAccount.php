@@ -31,6 +31,8 @@ use Illuminate\Validation\Rules\Password;
  * "Mijn account": name, e-mail address, password, passkeys and two-factor
  * authentication, as on the Aetos site. Registered on both panels and
  * reached through the account menu.
+ *
+ * @property-read Schema $form
  */
 class EditAccount extends Page implements HasForms
 {

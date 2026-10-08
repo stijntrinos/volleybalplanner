@@ -32,8 +32,8 @@ class PendingChanges extends TableWidget
     /** Rendered with the page: the dashboard is the first thing people see. */
     protected static bool $isLazy = false;
 
-    /** @var array<string, int|string> */
-    protected int|string|array $columnSpan = ['default' => 'full', 'xl' => 2];
+    // One column on small screens (the grid has one there), part of three on xl.
+    protected int|string|array $columnSpan = ['default' => 1, 'xl' => 2];
 
     public function table(Table $table): Table
     {

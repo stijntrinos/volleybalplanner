@@ -5,7 +5,7 @@
     $sentTopic = ContactTopic::tryFrom((string) session('contact-sent'));
     $email = config('site.email');
     $phone = config('site.phone');
-    $privacyUrl = config('site.privacy_url');
+    $privacyUrl = config('site.privacy_url') ?: route('site.privacy');
 
     $steps = [
         ['Je vult het formulier in', $replyDays ? "We nemen binnen {$replyDays} werkdagen contact op om een moment te prikken." : 'We nemen snel contact op om een moment te prikken.'],

@@ -13,6 +13,7 @@ use App\Notifications\ContactRequestReceived;
 use App\Planner\Filament\Pages\AwayMatches;
 use App\Planner\Filament\Resources\Teams\Pages\ListTeams;
 use App\Planner\Filament\Resources\Teams\TeamResource;
+use App\Planner\Filament\Resources\Venues\Pages\EditVenue;
 use App\Planner\Filament\Resources\Venues\Pages\ListVenues;
 use App\Planner\Models\Team;
 use App\Planner\Models\Venue;
@@ -82,6 +83,26 @@ class PlanLocksTest extends TestCase
         Livewire::test(ListVenues::class)->assertActionHidden('create')->assertActionVisible('createLocked');
     }
 
+    public function test_switching_a_venue_into_the_planner_respects_the_limit(): void
+    {
+        $club = Club::factory()->create(['plan_id' => Plan::factory()->create(['max_venues' => 1])->id]);
+        $this->actingAsClubUser(ClubRole::ClubAdmin, $club);
+        $inPlanner = Venue::factory()->create(['is_managed' => true, 'is_active' => true]);
+        $away = Venue::factory()->create(['is_managed' => false, 'is_active' => true]);
+
+        Livewire::test(EditVenue::class, ['record' => $away->getRouteKey()])
+            ->fillForm(['is_managed' => true])
+            ->call('save')
+            ->assertHasFormErrors(['is_managed']);
+        $this->assertFalse($away->refresh()->is_managed);
+
+        // A venue that already counts can still be edited.
+        Livewire::test(EditVenue::class, ['record' => $inPlanner->getRouteKey()])
+            ->fillForm(['name' => 'Nieuwe naam'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+    }
+
     public function test_inviting_stops_at_the_admin_limit(): void
     {
         $club = Club::factory()->create(['plan_id' => Plan::factory()->create(['max_admins' => 1])->id]);
@@ -148,6 +169,40 @@ class PlanLocksTest extends TestCase
             ->assertOk()
             ->assertSee('Jullie hebben het grootste pakket')
             ->assertDontSee('Upgrade aanvragen');
+    }
+
+    public function test_a_trial_or_subscription_that_ends_soon_shows_a_notice_to_club_admins(): void
+    {
+        $club = Club::factory()->onPlan('basis')->create(['trial_ends_at' => now()->addDays(5)]);
+        $this->actingAsClubUser(ClubRole::ClubAdmin, $club);
+
+        $this->get('/app/'.$club->slug)->assertOk()->assertSee('De proefperiode loopt tot');
+        $this->get('/app/'.$club->slug.'/abonnement')->assertSee('Proefperiode tot');
+
+        $club->update(['trial_ends_at' => null, 'subscription_starts_at' => now()->subYear(), 'subscription_ends_at' => now()->subDay()]);
+        $this->assertSame('danger', $club->refresh()->subscriptionNotice()['tone']);
+
+        $club->update(['subscription_ends_at' => now()->addYear()]);
+        $this->assertNull($club->refresh()->subscriptionNotice());
+    }
+
+    public function test_the_committee_does_not_see_the_subscription_notice(): void
+    {
+        $club = Club::factory()->onPlan('basis')->create(['trial_ends_at' => now()->addDays(5)]);
+        $this->actingAsClubUser(ClubRole::PlanningCommittee, $club);
+
+        $this->get('/app/'.$club->slug)->assertOk()->assertDontSee('De proefperiode loopt tot');
+    }
+
+    public function test_settings_show_locked_modules_where_they_belong(): void
+    {
+        $club = Club::factory()->onPlan('basis')->create();
+        $this->actingAsClubUser(ClubRole::ClubAdmin, $club);
+
+        $this->get('/app/'.$club->slug.'/settings?section=website-feeds')
+            ->assertOk()
+            ->assertSee('RSS-feeds zit niet in je pakket; met Vereniging krijg je het erbij.')
+            ->assertSee('Zitvolleybal zit niet in je pakket; met Groot krijg je het erbij.');
     }
 
     public function test_the_planning_committee_does_not_see_the_subscription(): void

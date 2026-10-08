@@ -115,4 +115,11 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    // The mail layout in the Volleybalplanner colours
+    // (resources/views/vendor/mail/html/themes/volleybalplanner.css).
+    'markdown' => [
+        'theme' => env('MAIL_MARKDOWN_THEME', 'volleybalplanner'),
+        'paths' => [resource_path('views/vendor/mail')],
+    ],
+
 ];

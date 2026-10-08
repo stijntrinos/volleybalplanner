@@ -1,8 +1,10 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use App\Models\Invitation;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+// Old invitations: expired ones and accepted ones after a month.
+Schedule::command('model:prune', ['--model' => [Invitation::class]])->dailyAt('03:15');
+
+// The activity log keeps a year (activitylog.clean_after_days).
+Schedule::command('activitylog:clean')->dailyAt('03:30');

@@ -92,12 +92,8 @@
             </div>
             <div class="footer-bottom">
                 <span>© {{ now()->year }} {{ $company ?: 'Volleybalplanner' }}</span>
-                @if (filled(config('site.privacy_url')))
-                    <a href="{{ config('site.privacy_url') }}">Privacyverklaring</a>
-                @endif
-                @if (filled(config('site.terms_url')))
-                    <a href="{{ config('site.terms_url') }}">Algemene voorwaarden</a>
-                @endif
+                <a href="{{ config('site.privacy_url') ?: route('site.privacy') }}">Privacyverklaring</a>
+                <a href="{{ config('site.terms_url') ?: route('site.terms') }}">Algemene voorwaarden</a>
             </div>
         </div>
     </footer>

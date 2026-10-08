@@ -48,6 +48,21 @@ class Subscription extends Page
             && ($user->isPlatformAdmin() || $user->hasClubRole($club, ClubRole::ClubAdmin));
     }
 
+    private static function period(Club $club): ?string
+    {
+        $date = fn ($day): string => $day->translatedFormat('j F Y');
+
+        return match (true) {
+            $club->trial_ends_at !== null && $club->subscription_starts_at === null => __('Proefperiode tot :date', ['date' => $date($club->trial_ends_at)]),
+            $club->subscription_ends_at !== null => __('Loopt van :from tot :to', [
+                'from' => $club->subscription_starts_at ? $date($club->subscription_starts_at) : '…',
+                'to' => $date($club->subscription_ends_at),
+            ]),
+            $club->subscription_starts_at !== null => __('Sinds :date, doorlopend', ['date' => $date($club->subscription_starts_at)]),
+            default => null,
+        };
+    }
+
     /** @return array<string, mixed> */
     protected function getViewData(): array
     {
@@ -57,6 +72,7 @@ class Subscription extends Page
 
         return [
             'plan' => $club->plan,
+            'period' => self::period($club),
             // On the largest plan there is nothing to upgrade to.
             'canUpgrade' => $club->plan ? $club->plan->nextPlan() !== null : Plan::query()->exists(),
             'limits' => array_map(fn (PlanLimit $limit): array => [

@@ -112,6 +112,12 @@ return [
     |
     */
 
+    /*
+    | Platform admins can do everything in every club, so they must use a
+    | passkey or two-factor authentication.
+    */
+    'require_platform_admin_mfa' => (bool) env('AUTH_REQUIRE_PLATFORM_ADMIN_MFA', true),
+
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
 ];

@@ -51,10 +51,21 @@ class AppServiceProvider extends ServiceProvider
 
         // Who acted as whom, and when: changes made while impersonating would
         // otherwise look like the club user's own.
-        Event::listen(EnterImpersonation::class, fn (EnterImpersonation $event) => activity('impersonation')
-            ->causedBy($event->impersonator)->performedOn($event->impersonated)->log('Impersonation started'));
+        Event::listen(EnterImpersonation::class, function (EnterImpersonation $event): void {
+            $log = activity('impersonation');
+            if ($event->impersonator instanceof Model) {
+                $log->causedBy($event->impersonator);
+            }
+            if ($event->impersonated instanceof Model) {
+                $log->performedOn($event->impersonated);
+            }
+            $log->log('Impersonation started');
+        });
         Event::listen(LeaveImpersonation::class, function (LeaveImpersonation $event): void {
-            $log = activity('impersonation')->causedBy($event->impersonator);
+            $log = activity('impersonation');
+            if ($event->impersonator instanceof Model) {
+                $log->causedBy($event->impersonator);
+            }
             if ($event->impersonated instanceof Model) {
                 $log->performedOn($event->impersonated);
             }

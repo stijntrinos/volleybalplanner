@@ -17,6 +17,7 @@ use Filament\Facades\Filament;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
@@ -108,6 +109,23 @@ class ClubUserResource extends Resource
                     ]))
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Sluiten'),
+                Action::make('security')
+                    ->label('Beveiliging')
+                    ->icon('heroicon-o-finger-print')
+                    ->color('gray')
+                    ->modalHeading('Beveiliging van accounts')
+                    ->fillForm(fn (): array => ['require_strong_auth' => self::club()->require_strong_auth])
+                    ->schema([
+                        Toggle::make('require_strong_auth')
+                            ->label('Passkey of tweestapsverificatie verplicht')
+                            ->helperText('Wie geen passkey of authenticator-app heeft, moet die bij de volgende keer inloggen eerst instellen. Geldt voor iedereen in deze club.'),
+                    ])
+                    ->modalSubmitActionLabel('Opslaan')
+                    ->action(function (array $data): void {
+                        self::club()->update(['require_strong_auth' => (bool) $data['require_strong_auth']]);
+
+                        Notification::make()->title('Opgeslagen')->success()->send();
+                    }),
                 Action::make('committeePermissions')
                     ->label('Rechten '.mb_strtolower(ClubRole::PlanningCommittee->getLabel()))
                     ->icon('heroicon-o-shield-check')

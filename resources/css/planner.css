@@ -514,3 +514,12 @@
 .planner-add-match{display:inline-flex;align-items:center;gap:6px;height:44px;padding:0 16px;border:0;border-radius:var(--vp-radius-md);background:var(--vp-brand);color:var(--vp-on-brand);font-weight:600;font-size:14px;white-space:nowrap}
 .planner-add-match:hover{background:var(--vp-brand-strong)}
 @media(max-width:640px){.planner-add-match span{position:absolute;left:-9999px}.planner-add-match{padding:0 12px}}
+
+/* Phones: the date gets its own row, "Vandaag" and the version share the next. */
+@media (max-width: 640px) {
+    .planner-toolbar-primary { flex-wrap: wrap; }
+    .planner-toolbar-primary .planner-date-navigation { flex: 1 1 100%; }
+    .planner-toolbar-primary .planner-date-navigation > button { flex: none; }
+    .planner-toolbar-primary .planner-date-navigation .planner-current-date { flex: 1; min-width: 0; }
+    .planner-toolbar-primary .planner-version { min-width: 0; flex: 1 1 0; }
+}

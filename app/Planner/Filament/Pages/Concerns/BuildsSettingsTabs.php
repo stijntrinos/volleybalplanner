@@ -4,6 +4,7 @@ namespace App\Planner\Filament\Pages\Concerns;
 
 use App\Planner\Enums\OverlapPolicy;
 use App\Planner\Features\PlannerFeature;
+use App\Planner\Filament\Support\LockedFeature;
 use App\Planner\Models\Venue;
 use App\Planner\Support\TeamCode;
 use App\Support\Tenancy\CurrentClub;
@@ -19,6 +20,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Text;
 use Filament\Support\Icons\Heroicon;
 
 /**
@@ -306,6 +308,40 @@ trait BuildsSettingsTabs
                             ->visible(fn (): bool => static::hasModule(PlannerFeature::Duties))
                             ->columnSpanFull(),
                     ]),
+            ]);
+    }
+
+    /** Where the planning shows up outside the planner: pages, embeds, feeds. */
+    protected function websiteTab(): Tab
+    {
+        $club = app(CurrentClub::class)->get();
+        $link = fn (string $route): string => $club ? route($route, ['club' => $club]) : '';
+
+        return Tab::make(__('Website & feeds'))
+            ->icon(Heroicon::OutlinedGlobeAlt)
+            ->schema([
+                Section::make(__('Publieke pagina\'s'))
+                    ->description(__('Deel deze links of zet ze op de clubwebsite. Met ?embed=1 erachter passen het overzicht en de verzoekformulieren in een iframe.'))
+                    ->icon(Heroicon::OutlinedLink)
+                    ->schema([
+                        TextInput::make('public_home_link')->label(__('Startpagina'))->default($link('planner.public.home'))->disabled()->dehydrated(false)->copyable(),
+                        TextInput::make('public_matches_link')->label(__('Wedstrijdoverzicht'))->default($link('planner.public.matches'))->disabled()->dehydrated(false)->copyable(),
+                    ]),
+                Section::make(__('RSS-feeds'))
+                    ->description(__('Voor de clubwebsite, een app of een agenda: de feeds volgen de actieve planning.'))
+                    ->icon(Heroicon::OutlinedRss)
+                    ->schema(static::hasModule(PlannerFeature::RssFeeds)
+                        ? [
+                            TextInput::make('rss_central_link')->label(__('Alle wedstrijden en diensten'))->default($link('planner.public.rss.central'))->disabled()->dehydrated(false)->copyable(),
+                            TextInput::make('rss_home_link')->label(__('Thuiswedstrijden'))->default($link('planner.public.rss.home'))->disabled()->dehydrated(false)->copyable(),
+                        ]
+                        : LockedFeature::notice(PlannerFeature::RssFeeds)),
+                Section::make(__('Zitvolleybal'))
+                    ->description(__('Het zitvolleybalteam (XZ 1) speelt in een eigen zaal: wedstrijden daar worden thuiswedstrijden met de zitvolleybalindeling, elders uitwedstrijden.'))
+                    ->icon(Heroicon::OutlinedUserGroup)
+                    ->schema(static::hasModule(PlannerFeature::SittingVolleyball)
+                        ? [Text::make(__('Staat aan: bij het importeren herkent de planner de zitvolleybalwedstrijden vanzelf.'))]
+                        : LockedFeature::notice(PlannerFeature::SittingVolleyball)),
             ]);
     }
 

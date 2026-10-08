@@ -7,6 +7,9 @@
                 @if ($plan?->tagline)
                     <p>{{ $plan->tagline }}</p>
                 @endif
+                @if ($period)
+                    <p class="vp-subscription-period">{{ $period }}</p>
+                @endif
             </div>
             <div class="vp-subscription-actions">
                 @if ($plan?->formattedPrice())

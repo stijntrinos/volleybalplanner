@@ -224,4 +224,22 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
     {
         return filled($this->app_authentication_secret) || $this->hasPasskeysEnabled();
     }
+
+    /**
+     * Whether this user has to set up two-factor authentication before going
+     * on: platform admins always (config auth.require_platform_admin_mfa),
+     * members of a club that requires it, unless a passkey already covers it.
+     */
+    public function mustSetUpStrongAuthentication(): bool
+    {
+        if ($this->hasStrongAuthentication()) {
+            return false;
+        }
+
+        if ($this->isPlatformAdmin() && config('auth.require_platform_admin_mfa')) {
+            return true;
+        }
+
+        return $this->clubs()->where('is_active', true)->where('require_strong_auth', true)->exists();
+    }
 }

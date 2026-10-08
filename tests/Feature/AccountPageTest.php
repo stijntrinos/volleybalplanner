@@ -118,4 +118,27 @@ class AccountPageTest extends TestCase
 
         Livewire::test(EditAccount::class)->assertDontSee('Bevestig eerst je wachtwoord');
     }
+
+    public function test_platform_admins_must_set_up_strong_authentication(): void
+    {
+        config(['auth.require_platform_admin_mfa' => true]);
+        $admin = User::factory()->platformAdmin()->create();
+
+        $this->assertTrue($admin->mustSetUpStrongAuthentication());
+        $this->actingAs($admin)->get('/admin')->assertRedirect();
+        $this->get('/admin/account')->assertOk();
+
+        $admin->forceFill(['app_authentication_secret' => 'JBSWY3DPEHPK3PXP'])->save();
+        $this->assertFalse($admin->refresh()->mustSetUpStrongAuthentication());
+    }
+
+    public function test_a_club_can_require_strong_authentication_of_its_members(): void
+    {
+        $user = $this->actingAsClubUser();
+        $this->assertFalse($user->mustSetUpStrongAuthentication());
+
+        $user->clubs()->first()->update(['require_strong_auth' => true]);
+
+        $this->assertTrue($user->refresh()->mustSetUpStrongAuthentication());
+    }
 }

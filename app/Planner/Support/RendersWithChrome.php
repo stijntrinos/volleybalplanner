@@ -49,7 +49,12 @@ trait RendersWithChrome
             // from a temporary file, without network traffic.
             ->noSandbox()
             // With a small /dev/shm Chrome hangs halfway through rendering.
-            ->addChromiumArguments(['disable-dev-shm-usage']);
+            // No host resolves: everything (fonts, logo) is inline, so even a
+            // slip in escaping could not make Chrome fetch an internal URL.
+            ->addChromiumArguments([
+                'disable-dev-shm-usage',
+                'host-resolver-rules' => 'MAP * ~NOTFOUND',
+            ]);
 
         $node = config('browsershot.node_binary') ?: NodePaths::binary('node');
         $npm = config('browsershot.npm_binary') ?: NodePaths::binary('npm');

@@ -1647,3 +1647,42 @@ body > main {
         font-size: 28px;
     }
 }
+
+/* ---------- Legal pages ---------- */
+
+.legal {
+    max-width: 760px;
+    padding-top: 48px;
+    padding-bottom: 80px;
+    color: var(--ink-muted);
+    font-size: 16px;
+    line-height: 1.65;
+}
+
+.legal h2 {
+    margin: 32px 0 8px;
+    color: var(--ink);
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.legal h2:first-child {
+    margin-top: 0;
+}
+
+.legal p,
+.legal ul {
+    margin: 0 0 12px;
+}
+
+.legal ul {
+    padding-left: 20px;
+}
+
+.legal li {
+    margin-bottom: 6px;
+}
+
+.legal strong {
+    color: var(--ink);
+}

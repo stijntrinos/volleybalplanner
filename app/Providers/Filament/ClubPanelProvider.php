@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Club\Pages\Subscription;
 use App\Filament\Pages\Auth\EditAccount;
+use App\Http\Middleware\RequireStrongAuthentication;
 use App\Models\Club;
 use App\Planner\PlannerPlugin;
 use BezhanSalleh\FilamentShield\Middleware\SyncShieldTenant;
@@ -17,6 +18,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\View\PanelsRenderHook;
+use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -44,7 +46,9 @@ class ClubPanelProvider extends PanelProvider
             // second step, passkeys instead of a password, "Mijn account".
             ->multiFactorAuthentication([
                 AppAuthentication::make()->recoverable()->brandName('Volleybalplanner'),
-            ])
+            ], isRequired: true)
+            // "Required" only for who must: RequireStrongAuthentication decides per user.
+            ->multiFactorAuthenticationRequiredMiddlewareName(RequireStrongAuthentication::class)
             ->plugin(PasskeysPlugin::make())
             ->pages([EditAccount::class, Subscription::class])
             ->userMenuItems([
@@ -63,6 +67,8 @@ class ClubPanelProvider extends PanelProvider
             ], isPersistent: true)
             ->discoverResources(in: app_path('Filament/Club/Resources'), for: 'App\\Filament\\Club\\Resources')
             ->plugin(PlannerPlugin::make())
+            // Trial or subscription about to end: a notice for club admins.
+            ->renderHook(PanelsRenderHook::CONTENT_START, fn (): View => view('filament.club.subscription-banner'))
             // The upgrade pop-up behind locked modules and reached limits.
             ->renderHook(PanelsRenderHook::BODY_END, fn (): string => Filament::getTenant() ? Blade::render('@livewire(\App\Livewire\PlanUpgradePrompt::class)') : '')
             ->middleware([

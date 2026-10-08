@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\EditAccount;
 use App\Filament\Platform\Widgets\ClubsOverview;
+use App\Http\Middleware\RequireStrongAuthentication;
 use App\Planner\Support\DesignTokens;
 use App\Planner\Support\InitialsAvatarProvider;
 use Filament\Actions\Action;
@@ -48,7 +49,9 @@ class PlatformPanelProvider extends PanelProvider
             // second step, passkeys instead of a password, "Mijn account".
             ->multiFactorAuthentication([
                 AppAuthentication::make()->recoverable()->brandName('Volleybalplanner Platform'),
-            ])
+            ], isRequired: true)
+            // "Required" only for who must: RequireStrongAuthentication decides per user.
+            ->multiFactorAuthenticationRequiredMiddlewareName(RequireStrongAuthentication::class)
             ->plugin(PasskeysPlugin::make())
             ->pages([EditAccount::class])
             ->userMenuItems([

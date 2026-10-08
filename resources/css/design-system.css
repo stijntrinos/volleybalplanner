@@ -2145,3 +2145,37 @@ a.vp-day:hover {
     color: var(--vp-ink-muted);
     font-size: 14px;
 }
+
+/* Subscription period notice above the content (club admins). */
+.vp-subscription-banner {
+    margin: 16px 24px 0;
+    border-color: var(--vp-warn);
+    background: var(--vp-warn-soft);
+    color: var(--vp-warn-ink);
+}
+
+.vp-subscription-banner .vp-banner-link {
+    color: var(--vp-warn-ink);
+}
+
+.vp-subscription-banner.is-danger {
+    border-color: #dc2626;
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+.vp-subscription-banner.is-danger .vp-banner-link {
+    color: #991b1b;
+}
+
+.vp-subscription-period {
+    margin-top: 6px !important;
+    font-size: 14px;
+}
+
+.vp-invitation-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}

@@ -75,12 +75,12 @@ class PlanUpgradePrompt extends Component
             'email' => $user->email,
             'teams' => null,
             'venues' => null,
-            'message' => implode("\n", array_filter([
+            'message' => implode("\n", [
                 'Huidig pakket: '.($club->planName() ?? 'geen'),
-                'Gewenst pakket: '.($target?->name ?? 'onbekend'),
+                'Gewenst pakket: '.($target->name ?? 'onbekend'),
                 'Aanleiding: '.$this->subject(),
                 'Werkruimte: '.Filament::getPanel('club')->getUrl($club),
-            ])),
+            ]),
         ]);
 
         if (filled($recipient = config('site.contact_recipient'))) {

@@ -6,9 +6,11 @@ use App\Models\Plan;
 use App\Planner\Features\PlanLimit;
 use App\Planner\Features\PlannerFeature;
 use App\Support\Tenancy\ReservedSlugs;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Html;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
@@ -53,6 +55,10 @@ class ClubForm
                             ->notIn(ReservedSlugs::ALL)
                             ->unique(ignoreRecord: true)
                             ->columnSpanFull(),
+                        Toggle::make('require_strong_auth')
+                            ->label('Passkey of tweestapsverificatie verplicht')
+                            ->helperText('Leden moeten een passkey of authenticator-app instellen. De clubbeheerder kan dit ook zelf aanzetten.')
+                            ->columnSpanFull(),
                         Toggle::make('is_active')
                             ->label('Actief')
                             ->helperText('Leden van een inactieve club kunnen niet inloggen, de publieke pagina’s zijn offline en de Nevobo-sync slaat de club over.')
@@ -66,12 +72,23 @@ class ClubForm
                     ->schema([
                         Select::make('plan_id')
                             ->label('Pakket')
-                            ->relationship('plan', 'name', fn (Builder $query) => $query->ordered())
+                            ->relationship('plan', 'name', fn (Builder $query) => $query->orderBy('sort_order')->orderBy('id'))
                             ->getOptionLabelFromRecordUsing(fn (Plan $record): string => $record->name.($record->formattedPrice() ? ' · '.$record->formattedPrice() : ''))
                             ->required()
                             ->live(),
                         Html::make(fn (Get $get): HtmlString => self::planSummary(Plan::query()->find($get('plan_id'))))
                             ->visible(fn (Get $get): bool => filled($get('plan_id'))),
+                        Grid::make(3)->schema([
+                            DatePicker::make('trial_ends_at')
+                                ->label('Proefperiode tot')
+                                ->helperText('Leeg = geen proefperiode.'),
+                            DatePicker::make('subscription_starts_at')
+                                ->label('Abonnement vanaf'),
+                            DatePicker::make('subscription_ends_at')
+                                ->label('Abonnement tot')
+                                ->afterOrEqual('subscription_starts_at')
+                                ->helperText('Leeg = loopt door.'),
+                        ]),
                     ]),
             ]);
     }

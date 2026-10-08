@@ -34,8 +34,8 @@ class DashboardAside extends Widget
     /** Rendered with the page: the dashboard is the first thing people see. */
     protected static bool $isLazy = false;
 
-    /** @var array<string, int|string> */
-    protected int|string|array $columnSpan = ['default' => 'full', 'xl' => 1];
+    // One column on small screens (the grid has one there), part of three on xl.
+    protected int|string|array $columnSpan = ['default' => 1, 'xl' => 1];
 
     protected string $view = 'planner::filament.widgets.dashboard-aside';
 

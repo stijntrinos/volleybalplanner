@@ -3,6 +3,7 @@
 namespace App\Filament\Platform\Resources\Clubs\Tables;
 
 use App\Filament\Platform\Resources\Clubs\ClubResource;
+use App\Models\Club;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -17,6 +18,13 @@ class ClubsTable
                 TextColumn::make('name')->label('Naam')->searchable()->sortable(),
                 TextColumn::make('slug')->label('Slug')->searchable(),
                 TextColumn::make('plan.name')->label('Pakket')->badge()->color('gray')->placeholder('Geen pakket')->sortable(),
+                TextColumn::make('subscription_ends_at')
+                    ->label('Loopt tot')
+                    ->date('d-m-Y')
+                    ->placeholder('Doorlopend')
+                    ->description(fn (Club $record): ?string => $record->subscriptionNotice()['message'] ?? null)
+                    ->color(fn (Club $record): ?string => $record->subscriptionNotice()['tone'] ?? null)
+                    ->sortable(),
                 IconColumn::make('is_active')->label('Actief')->boolean(),
                 TextColumn::make('users_count')->label('Gebruikers')->counts('users'),
                 TextColumn::make('created_at')->label('Aangemaakt')->dateTime('d-m-Y')->sortable(),

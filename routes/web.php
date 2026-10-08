@@ -13,6 +13,8 @@ Route::name('site.')->group(function (): void {
     Route::get('functies', [PageController::class, 'features'])->name('features');
     Route::get('prijzen', [PageController::class, 'pricing'])->name('pricing');
     Route::get('contact', [PageController::class, 'contact'])->name('contact');
+    Route::view('privacy', 'site.pages.privacy')->name('privacy');
+    Route::view('voorwaarden', 'site.pages.terms')->name('terms');
     Route::post('contact', [PageController::class, 'storeContact'])
         ->middleware('throttle:site-contact')
         ->name('contact.store');

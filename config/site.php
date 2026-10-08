@@ -22,6 +22,7 @@ return [
     // E.g. "TransIP in Nederland"; shown in the FAQ about where data is stored.
     'hosting' => env('SITE_HOSTING'),
 
+    // Empty: the site's own /privacy and /voorwaarden pages are used.
     'privacy_url' => env('SITE_PRIVACY_URL'),
 
     'terms_url' => env('SITE_TERMS_URL'),

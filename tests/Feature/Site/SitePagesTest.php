@@ -26,7 +26,7 @@ class SitePagesTest extends TestCase
 
     public function test_every_page_of_the_site_renders(): void
     {
-        foreach (['/' => 'Wedstrijdplanning zonder puzzelstress', '/functies' => 'Alles wat de zaalcommissie doet', '/prijzen' => 'Eén prijs per seizoen', '/contact' => 'Plan een demo of stel je vraag'] as $path => $heading) {
+        foreach (['/privacy' => 'Privacyverklaring', '/voorwaarden' => 'Algemene voorwaarden', '/' => 'Wedstrijdplanning zonder puzzelstress', '/functies' => 'Alles wat de zaalcommissie doet', '/prijzen' => 'Eén prijs per seizoen', '/contact' => 'Plan een demo of stel je vraag'] as $path => $heading) {
             $this->get($path)->assertOk()->assertSee($heading);
         }
     }

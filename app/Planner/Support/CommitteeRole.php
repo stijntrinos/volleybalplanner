@@ -27,6 +27,7 @@ final class CommitteeRole
                 ->where($registrar->teamsKey, $club->getKey())
                 ->first()
                 ?? Role::create(['name' => ClubRole::PlanningCommittee->value, 'guard_name' => 'web', $registrar->teamsKey => $club->getKey()]);
+            assert($role instanceof Role);
 
             // Only permissions that exist: planner:sync-roles creates them.
             $role->syncPermissions(Permission::query()

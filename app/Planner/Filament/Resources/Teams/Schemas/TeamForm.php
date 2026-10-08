@@ -5,6 +5,7 @@ namespace App\Planner\Filament\Resources\Teams\Schemas;
 use App\Planner\Features\PlannerFeature;
 use App\Planner\Filament\Resources\Teams\Pages\EditTeam;
 use App\Planner\Filament\Resources\Teams\RelationManagers\SourcesRelationManager;
+use App\Planner\Filament\Support\LockedFeature;
 use App\Planner\Models\Team;
 use App\Planner\Support\Weekday;
 use App\Support\Tenancy\CurrentClub;
@@ -57,7 +58,8 @@ class TeamForm
                                     ->label(__('Kleedkamercategorie'))
                                     ->options(self::lockerRoomOptions())
                                     ->native(false)
-                                    ->visible(fn (): bool => self::hasFeature(PlannerFeature::LockerRooms))
+                                    ->disabled(fn (): bool => LockedFeature::isLocked(PlannerFeature::LockerRooms))
+                                    ->hintAction(LockedFeature::hintAction(PlannerFeature::LockerRooms))
                                     ->helperText(__('Wordt gebruikt om kleedkamerconflicten te voorkomen.')),
                             ]),
                     ]),

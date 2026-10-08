@@ -24,6 +24,10 @@ use Spatie\Permission\Models\Role;
  * @property bool $is_active
  * @property int|null $plan_id
  * @property list<string>|null $committee_groups
+ * @property bool $require_strong_auth
+ * @property Carbon|null $trial_ends_at
+ * @property Carbon|null $subscription_starts_at
+ * @property Carbon|null $subscription_ends_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Collection<int, User> $users
@@ -48,7 +52,7 @@ class Club extends Model implements HasCurrentTenantLabel, HasName
     /** @use HasFactory<ClubFactory> */
     use HasFactory;
 
-    protected $fillable = ['name', 'slug', 'is_active', 'plan_id', 'committee_groups'];
+    protected $fillable = ['name', 'slug', 'is_active', 'plan_id', 'committee_groups', 'require_strong_auth', 'trial_ends_at', 'subscription_starts_at', 'subscription_ends_at'];
 
     protected $attributes = ['is_active' => true];
 
@@ -57,6 +61,10 @@ class Club extends Model implements HasCurrentTenantLabel, HasName
         return [
             'is_active' => 'boolean',
             'committee_groups' => 'array',
+            'require_strong_auth' => 'boolean',
+            'trial_ends_at' => 'date',
+            'subscription_starts_at' => 'date',
+            'subscription_ends_at' => 'date',
         ];
     }
 
@@ -152,6 +160,39 @@ class Club extends Model implements HasCurrentTenantLabel, HasName
         $max = $this->planLimit($limit);
 
         return $max === null || $current < $max;
+    }
+
+    /**
+     * A notice about the subscription period, or null when there is nothing
+     * to say: a trial or subscription that ends within the warning window,
+     * or one that has ended.
+     *
+     * @return array{tone: 'warning'|'danger', message: string}|null
+     */
+    public function subscriptionNotice(): ?array
+    {
+        $today = now()->startOfDay();
+        $date = fn (Carbon $day): string => $day->translatedFormat('j F Y');
+
+        if ($this->trial_ends_at !== null && $this->subscription_starts_at === null) {
+            if ($this->trial_ends_at->lt($today)) {
+                return ['tone' => 'danger', 'message' => __('De proefperiode is afgelopen op :date.', ['date' => $date($this->trial_ends_at)])];
+            }
+            if ($this->trial_ends_at->lte($today->copy()->addDays(14))) {
+                return ['tone' => 'warning', 'message' => __('De proefperiode loopt tot :date.', ['date' => $date($this->trial_ends_at)])];
+            }
+        }
+
+        if ($this->subscription_ends_at !== null) {
+            if ($this->subscription_ends_at->lt($today)) {
+                return ['tone' => 'danger', 'message' => __('Het abonnement is afgelopen op :date.', ['date' => $date($this->subscription_ends_at)])];
+            }
+            if ($this->subscription_ends_at->lte($today->copy()->addDays(30))) {
+                return ['tone' => 'warning', 'message' => __('Het abonnement loopt af op :date.', ['date' => $date($this->subscription_ends_at)])];
+            }
+        }
+
+        return null;
     }
 
     public function planName(): ?string

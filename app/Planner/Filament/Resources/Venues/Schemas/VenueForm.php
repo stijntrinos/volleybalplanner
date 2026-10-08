@@ -3,8 +3,13 @@
 namespace App\Planner\Filament\Resources\Venues\Schemas;
 
 use App\Planner\Enums\Source;
+use App\Planner\Features\PlanLimit;
+use App\Planner\Features\PlanLimits;
 use App\Planner\Features\PlannerFeature;
+use App\Planner\Filament\Support\LockedFeature;
+use App\Planner\Models\Venue;
 use App\Support\Tenancy\CurrentClub;
+use Closure;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -86,7 +91,8 @@ class VenueForm
                         Toggle::make('is_managed')
                             ->label(__('Bij thuiswedstrijden tonen'))
                             ->helperText(__('Maakt de locatie zichtbaar bij Thuiswedstrijden en bij beschikbaarheidsregels.'))
-                            ->default(false),
+                            ->default(false)
+                            ->rules([fn (Get $get, ?Venue $record): Closure => self::venueLimitRule((bool) $get('is_active'), $record)]),
 
                         Toggle::make('has_duties')
                             ->label(__('FTZ-locatie'))
@@ -97,7 +103,8 @@ class VenueForm
                         Toggle::make('show_locker_rooms_on_schedule')
                             ->label(__('Kleedkamers op het dagschema'))
                             ->helperText(__('Deelt kleedkamers in en toont ze bij elke wedstrijd in het geëxporteerde dagschema.'))
-                            ->visible(fn (): bool => self::hasFeature(PlannerFeature::LockerRooms))
+                            ->disabled(fn (): bool => LockedFeature::isLocked(PlannerFeature::LockerRooms))
+                            ->hintAction(LockedFeature::hintAction(PlannerFeature::LockerRooms))
                             ->default(false),
 
                         Toggle::make('for_matches')
@@ -113,6 +120,24 @@ class VenueForm
                     ])
                     ->columnSpanFull(),
             ]);
+    }
+
+    /**
+     * A sporthal in the planner (active and shown at home matches) counts
+     * against the plan; switching one on past the limit is refused, so the
+     * toggles can't get around the locked "add" button.
+     */
+    private static function venueLimitRule(bool $otherToggleOn, ?Venue $record): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail) use ($otherToggleOn, $record): void {
+            $counts = (bool) $value && $otherToggleOn;
+            $countedAlready = $record !== null && $record->getOriginal('is_active') && $record->getOriginal('is_managed');
+
+            if ($counts && !$countedAlready && PlanLimits::reached(PlanLimit::Venues)) {
+                $max = (int) app(CurrentClub::class)->get()?->planLimit(PlanLimit::Venues);
+                $fail(PlanLimit::Venues->reachedMessage($max).' '.__('Upgrade je pakket om meer sporthallen in de planner te zetten.'));
+            }
+        };
     }
 
     private static function hasFeature(PlannerFeature $feature): bool

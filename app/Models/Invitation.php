@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Planner\Support\ClubRole;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
@@ -25,6 +26,8 @@ use Illuminate\Support\Carbon;
  */
 class Invitation extends Model
 {
+    use Prunable;
+
     /** How long an invitation link works. */
     public const VALID_DAYS = 7;
 
@@ -57,6 +60,19 @@ class Invitation extends Model
     public function scopePending(Builder $query): void
     {
         $query->whereNull('accepted_at')->where('expires_at', '>', now());
+    }
+
+    /**
+     * Expired invitations, and accepted ones after a month: what model:prune
+     * removes (scheduled daily).
+     *
+     * @return Builder<self>
+     */
+    public function prunable(): Builder
+    {
+        return self::query()->where(fn (Builder $query) => $query
+            ->where(fn (Builder $query) => $query->whereNull('accepted_at')->where('expires_at', '<', now()->subDays(30)))
+            ->orWhere('accepted_at', '<', now()->subDays(30)));
     }
 
     public static function hashToken(string $token): string

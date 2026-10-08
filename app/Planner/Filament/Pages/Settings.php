@@ -106,6 +106,7 @@ class Settings extends Page implements HasForms
                     $this->planningTab(),
                     $this->dutiesTab(),
                     $this->requestsTab(),
+                    $this->websiteTab(),
                     $this->colorsTab(),
                     $this->technicalTab(),
                 ])
