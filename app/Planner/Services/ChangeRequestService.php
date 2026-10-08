@@ -16,6 +16,7 @@ use App\Planner\Models\ScheduleVersion;
 use App\Planner\Models\Team;
 use App\Planner\Support\TeamCode;
 use App\Support\Tenancy\CurrentClub;
+use App\Support\Tenancy\ReadOnlyClub;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Validation\ValidationException;
@@ -45,6 +46,11 @@ class ChangeRequestService
      */
     public function isOpen(): bool
     {
+        // A read-only club takes no new requests: nobody could handle them.
+        if (ReadOnlyClub::active()) {
+            return false;
+        }
+
         return (bool) (PlannerSetting::query()->value('requests_open') ?? true);
     }
 

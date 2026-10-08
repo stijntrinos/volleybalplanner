@@ -8,6 +8,7 @@ use App\Planner\Support\ClubTeamMatcher;
 use App\Planner\Support\TeamCode;
 use App\Planner\Support\Weekday;
 use App\Support\Tenancy\BelongsToClub;
+use App\Support\Tenancy\ReadOnlyClub;
 use Database\Factories\Planner\PlannerSettingFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -150,10 +151,13 @@ class PlannerSetting extends Model
         return PlannerSettingFactory::new();
     }
 
-    /** The settings row of the current club, created on first use. */
+    /**
+     * The settings row of the current club, created on first use (but not
+     * in read-only mode, which refuses the insert: the defaults are used).
+     */
     public static function current(): self
     {
-        return static::query()->firstOrCreate();
+        return ReadOnlyClub::active() ? static::query()->firstOrNew() : static::query()->firstOrCreate();
     }
 
     /** @return BelongsTo<Venue, $this> */

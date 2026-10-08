@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * Scopes a model to the current club and fills club_id on create. Querying
  * without an active club throws instead of silently returning every club.
+ * Saving or deleting while the club is read-only throws ClubIsReadOnly,
+ * unless the model implements WritableWhenReadOnly.
  */
 trait BelongsToClub
 {
@@ -24,6 +26,14 @@ trait BelongsToClub
                 $model->setAttribute('club_id', app(CurrentClub::class)->id());
             }
         });
+
+        $guard = function (Model $model): void {
+            if (!$model instanceof WritableWhenReadOnly) {
+                ReadOnlyClub::guard();
+            }
+        };
+        static::saving($guard);
+        static::deleting($guard);
     }
 
     /** @return BelongsTo<Club, $this> */

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Planner\Support\ClubRole;
+use App\Support\Tenancy\ReadOnlyClub;
 use Database\Factories\UserFactory;
 use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthentication;
 use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthenticationRecovery;
@@ -76,7 +77,24 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, HasDefaultTenant, HasTenants, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, Notifiable, PasskeyAuthenticatable;
+    use HasFactory, Notifiable, PasskeyAuthenticatable;
+    use HasRoles {
+        checkPermissionTo as protected checkGrantedPermissionTo;
+    }
+
+    /**
+     * Spatie's gate check, minus the write permissions while the current
+     * club is read-only. Spatie's Gate::before runs before the app's own,
+     * so this is the place where a granted permission can still be refused.
+     */
+    public function checkPermissionTo($permission, ?string $guardName = null): bool
+    {
+        if (is_string($permission) && ReadOnlyClub::blocks($permission)) {
+            return false;
+        }
+
+        return $this->checkGrantedPermissionTo($permission, $guardName);
+    }
 
     protected function casts(): array
     {

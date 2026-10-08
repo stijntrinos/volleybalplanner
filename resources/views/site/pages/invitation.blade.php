@@ -1,4 +1,4 @@
-<x-site.layout title="Uitnodiging">
+<x-site.layout title="Uitnodiging" :noindex="true">
     <section class="wrap invitation">
         <div class="card invitation-card">
             @if ($state === 'invalid')

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ContactTopic;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
@@ -23,6 +24,8 @@ use Illuminate\Support\Carbon;
  */
 class ContactRequest extends Model
 {
+    use MassPrunable;
+
     protected $fillable = ['topic', 'name', 'club', 'email', 'phone', 'teams', 'venues', 'message'];
 
     protected function casts(): array
@@ -31,6 +34,19 @@ class ContactRequest extends Model
             'topic' => ContactTopic::class,
             'handled_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Personal data from the contact form (AVG): handled requests go after a
+     * year, unhandled ones after two.
+     *
+     * @return Builder<self>
+     */
+    public function prunable(): Builder
+    {
+        return self::query()->where(fn (Builder $query) => $query
+            ->where('handled_at', '<', now()->subYear())
+            ->orWhere('created_at', '<', now()->subYears(2)));
     }
 
     /** @param  Builder<self>  $query */

@@ -29,13 +29,13 @@
         <p>We gebruiken de gegevens om de planner te leveren en te beveiligen, om contact op te nemen over een aanvraag of abonnement, en om wettelijke verplichtingen na te komen. We verkopen geen gegevens en gebruiken ze niet voor advertenties. De site plaatst alleen cookies die nodig zijn om in te loggen en formulieren veilig te versturen.</p>
 
         <h2>Hoe lang</h2>
-        <p>Accounts en planningsgegevens bewaren we zolang de vereniging klant is; daarna verwijderen we ze, tenzij de wet langer bewaren voorschrijft. Contactaanvragen bewaren we tot twee jaar na het laatste contact. Logbestanden en de activiteitenlog bewaren we maximaal een jaar.</p>
+        <p>Accounts en planningsgegevens bewaren we zolang de vereniging klant is; daarna verwijderen we ze, tenzij de wet langer bewaren voorschrijft. Wijzigingsverzoeken (met naam, e-mail en telefoon van de aanvrager) verwijderen we automatisch na een jaar. Contactaanvragen verwijderen we een jaar na afhandeling en uiterlijk na twee jaar. Uitnodigingen verdwijnen een maand na verloop of acceptatie. Logbestanden en de activiteitenlog bewaren we maximaal een jaar.</p>
 
         <h2>Waar</h2>
         <p>{{ $hosting ? "De gegevens staan bij {$hosting}." : 'De gegevens staan bij een hostingpartij binnen de Europese Unie.' }} Met partijen die gegevens voor ons verwerken, zoals hosting en e-mailverzending, hebben we afspraken gemaakt die aan de AVG voldoen.</p>
 
         <h2>Je rechten</h2>
-        <p>Je kunt je gegevens inzien, laten verbeteren of laten verwijderen, en bezwaar maken tegen een verwerking. Gaat het om gegevens in de planner van je vereniging, neem dan eerst contact op met de vereniging. Je kunt ook een klacht indienen bij de Autoriteit Persoonsgegevens.</p>
+        <p>Je kunt je gegevens inzien, laten verbeteren of laten verwijderen, en bezwaar maken tegen een verwerking. Met een account doe je het meeste zelf via Mijn account: je gegevens downloaden en je account verwijderen. Gaat het om gegevens in de planner van je vereniging, neem dan eerst contact op met de vereniging. Je kunt ook een klacht indienen bij de Autoriteit Persoonsgegevens.</p>
 
         <h2>Contact</h2>
         <p>Vragen over privacy? {{ $email ? 'Mail naar' : 'Neem contact op via' }} @if ($email)<a href="mailto:{{ $email }}">{{ $email }}</a>@else<a href="{{ route('site.contact', ['onderwerp' => 'vraag']) }}">het contactformulier</a>@endif.</p>

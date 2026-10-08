@@ -41,6 +41,8 @@ class ClubPanelProvider extends PanelProvider
             ->topbar(false)
             ->path('app')
             ->login()
+            // Login and panel pages stay out of search engines.
+            ->renderHook(PanelsRenderHook::HEAD_START, fn (): string => '<meta name="robots" content="noindex, nofollow">')
             ->passwordReset()
             // Account security as on the Aetos site: an authenticator app as
             // second step, passkeys instead of a password, "Mijn account".

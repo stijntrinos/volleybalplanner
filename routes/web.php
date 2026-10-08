@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\Site\PageController;
+use App\Http\Controllers\Site\SeoController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,6 +16,8 @@ Route::name('site.')->group(function (): void {
     Route::get('contact', [PageController::class, 'contact'])->name('contact');
     Route::view('privacy', 'site.pages.privacy')->name('privacy');
     Route::view('voorwaarden', 'site.pages.terms')->name('terms');
+    Route::get('robots.txt', [SeoController::class, 'robots'])->name('robots');
+    Route::get('sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
     Route::post('contact', [PageController::class, 'storeContact'])
         ->middleware('throttle:site-contact')
         ->name('contact.store');

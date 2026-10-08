@@ -3,6 +3,8 @@
 namespace App\Filament\Pages\Auth;
 
 use App\Models\User;
+use App\Support\Accounts\AccountDeletion;
+use App\Support\Accounts\PersonalData;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
@@ -26,10 +28,12 @@ use Filament\Support\Enums\Alignment;
 use Filament\Support\Exceptions\Halt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * "Mijn account": name, e-mail address, password, passkeys and two-factor
- * authentication, as on the Aetos site. Registered on both panels and
+ * authentication, as on the Aetos site, plus downloading one's data and
+ * deleting the account (AVG). Registered on both panels and
  * reached through the account menu.
  *
  * @property-read Schema $form
@@ -203,7 +207,75 @@ class EditAccount extends Page implements HasForms
                 );
         }
 
+        $components[] = Section::make('Je gegevens')
+            ->aside()
+            ->description('Download alles wat Volleybalplanner over jou bewaart, of verwijder je account. De planning van je vereniging blijft bestaan; je naam verdwijnt eruit.')
+            ->schema([
+                Actions::make([$this->downloadDataAction(), $this->deleteAccountAction()])->key('privacyActions'),
+            ]);
+
         return $schema->components($components);
+    }
+
+    private function downloadDataAction(): Action
+    {
+        return Action::make('downloadData')
+            ->label('Mijn gegevens downloaden')
+            ->icon('heroicon-o-arrow-down-tray')
+            ->color('gray')
+            ->action(function (PersonalData $personalData): StreamedResponse {
+                $user = $this->getUser();
+                $json = (string) json_encode($personalData->export($user), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+                return response()->streamDownload(function () use ($json): void {
+                    echo $json;
+                }, $personalData->filename($user), ['Content-Type' => 'application/json']);
+            });
+    }
+
+    private function deleteAccountAction(): Action
+    {
+        $blockers = app(AccountDeletion::class)->blockers($this->getUser());
+
+        return Action::make('deleteAccount')
+            ->label('Account verwijderen')
+            ->icon('heroicon-o-trash')
+            ->color('danger')
+            ->modalIcon('heroicon-o-exclamation-triangle')
+            ->modalHeading('Account verwijderen')
+            ->modalDescription($blockers === []
+                ? 'Je account en passkeys worden direct en definitief verwijderd. Je hebt dan geen toegang meer tot je vereniging(en). Dit kan niet ongedaan worden gemaakt.'
+                : implode(' ', $blockers))
+            ->modalWidth('md')
+            ->schema($blockers === [] ? [
+                TextInput::make('password')
+                    ->label('Huidig wachtwoord')
+                    ->password()
+                    ->revealable()
+                    ->autocomplete('current-password')
+                    ->required()
+                    ->currentPassword(guard: Filament::getAuthGuard()),
+            ] : [])
+            ->modalSubmitAction($blockers === [] ? null : false)
+            ->modalSubmitActionLabel('Definitief verwijderen')
+            ->modalCancelActionLabel($blockers === [] ? 'Annuleren' : 'Sluiten')
+            ->action(function (AccountDeletion $deletion): void {
+                $user = $this->getUser();
+                // Checked again: the modal may have been open for a while.
+                abort_unless($deletion->blockers($user) === [], 403);
+
+                // Log out first: logging out saves a new remember token on the
+                // user, which would otherwise insert the deleted row again.
+                Filament::auth()->logout();
+                if (request()->hasSession()) {
+                    request()->session()->invalidate();
+                    request()->session()->regenerateToken();
+                }
+
+                $deletion->delete($user);
+
+                $this->redirect(route('site.home', ['account' => 'verwijderd']));
+            });
     }
 
     private function passkeysUnlocked(): bool

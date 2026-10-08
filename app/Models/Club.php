@@ -163,6 +163,35 @@ class Club extends Model implements HasCurrentTenantLabel, HasName
     }
 
     /**
+     * The day the trial or subscription ran out, or null while it runs (or
+     * when no period is set). From the day after, the club is read-only.
+     */
+    public function subscriptionEndedOn(): ?Carbon
+    {
+        $today = now()->startOfDay();
+
+        if ($this->trial_ends_at !== null && $this->subscription_starts_at === null && $this->trial_ends_at->lt($today)) {
+            return $this->trial_ends_at;
+        }
+
+        if ($this->subscription_ends_at !== null && $this->subscription_ends_at->lt($today)) {
+            return $this->subscription_ends_at;
+        }
+
+        return null;
+    }
+
+    /**
+     * Read-only mode: after the trial or subscription ended, everyone can
+     * still look at the planning, but nothing can be changed until the
+     * period is extended in /admin.
+     */
+    public function isReadOnly(): bool
+    {
+        return $this->subscriptionEndedOn() !== null;
+    }
+
+    /**
      * A notice about the subscription period, or null when there is nothing
      * to say: a trial or subscription that ends within the warning window,
      * or one that has ended.

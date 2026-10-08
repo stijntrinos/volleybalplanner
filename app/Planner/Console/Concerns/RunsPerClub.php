@@ -61,6 +61,11 @@ trait RunsPerClub
             if ($clubs->count() > 1) {
                 $this->components->info($club->name);
             }
+            if ($club->isReadOnly()) {
+                $this->components->warn(__('Overgeslagen: :club staat in de leesstand.', ['club' => $club->name]));
+
+                continue;
+            }
             $status = app(CurrentClub::class)->run($club, fn (): int => $callback($club));
             if ($status !== self::SUCCESS) {
                 $result = $status;

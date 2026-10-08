@@ -21,6 +21,8 @@ class ClubInvitations
     /** @return Invitation|null null when the person was already a member and only got the role */
     public function invite(Club $club, string $name, string $email, ClubRole $role, ?User $inviter = null): ?Invitation
     {
+        ReadOnlyClub::guard();
+
         $email = Str::lower(trim($email));
 
         $member = $club->users()->where('email', $email)->first();

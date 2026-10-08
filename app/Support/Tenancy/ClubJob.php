@@ -38,6 +38,11 @@ abstract class ClubJob implements ShouldQueue
     {
         Context::add('club_id', $this->club->getKey());
 
+        // A read-only club keeps its planning as it was.
+        if ($this->club->isReadOnly()) {
+            return;
+        }
+
         $currentClub->run($this->club, fn () => $this->handleForClub());
     }
 

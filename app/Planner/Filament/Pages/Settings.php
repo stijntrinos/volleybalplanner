@@ -10,6 +10,7 @@ use App\Planner\Models\PlannerSetting;
 use App\Planner\Models\UserPreference;
 use App\Planner\Services\Duties\DutyRules;
 use App\Support\Tenancy\CurrentClub;
+use App\Support\Tenancy\ReadOnlyClub;
 use BackedEnum;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -132,7 +133,9 @@ class Settings extends Page implements HasForms
         // settings below apply to the whole club and need an explicit right.
         if (!auth()->user()?->can('Update:PlannerSetting')) {
             Notification::make()->title(__('Je voorkeuren zijn opgeslagen'))
-                ->body(__('De clubbrede plannerinstellingen zijn ongewijzigd gebleven; daarvoor mis je het recht.'))
+                ->body(ReadOnlyClub::active()
+                    ? __('De clubbrede plannerinstellingen zijn ongewijzigd gebleven: de vereniging staat in de leesstand.')
+                    : __('De clubbrede plannerinstellingen zijn ongewijzigd gebleven; daarvoor mis je het recht.'))
                 ->warning()->send();
 
             return;

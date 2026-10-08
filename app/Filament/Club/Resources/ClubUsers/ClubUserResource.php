@@ -11,6 +11,7 @@ use App\Planner\Support\ClubRole;
 use App\Planner\Support\CommitteeRole;
 use App\Planner\Support\PlannerPermissions;
 use App\Support\Tenancy\ClubInvitations;
+use App\Support\Tenancy\ReadOnlyClub;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
@@ -80,7 +81,7 @@ class ClubUserResource extends Resource
                 Action::make('invite')
                     ->label('Uitnodigen')
                     ->icon('heroicon-o-envelope')
-                    ->hidden(fn (): bool => PlanLimits::reached(PlanLimit::Admins))
+                    ->hidden(fn (): bool => ReadOnlyClub::active() || PlanLimits::reached(PlanLimit::Admins))
                     ->schema([
                         TextInput::make('name')->label('Naam')->required()->maxLength(255),
                         TextInput::make('email')->label('E-mail')->email()->required()->maxLength(255),
@@ -96,7 +97,8 @@ class ClubUserResource extends Resource
                             ->success()
                             ->send();
                     }),
-                PlanLimits::lockedAction(PlanLimit::Admins, 'inviteLocked', 'Uitnodigen'),
+                PlanLimits::lockedAction(PlanLimit::Admins, 'inviteLocked', 'Uitnodigen')
+                    ->hidden(fn (): bool => ReadOnlyClub::active()),
                 Action::make('invitations')
                     ->label(fn (): string => 'Openstaand ('.self::club()->invitations()->pending()->count().')')
                     ->icon('heroicon-o-clock')
@@ -128,6 +130,7 @@ class ClubUserResource extends Resource
                     }),
                 Action::make('committeePermissions')
                     ->label('Rechten '.mb_strtolower(ClubRole::PlanningCommittee->getLabel()))
+                    ->hidden(fn (): bool => ReadOnlyClub::active())
                     ->icon('heroicon-o-shield-check')
                     ->color('gray')
                     ->modalHeading('Wat mag de '.mb_strtolower(ClubRole::PlanningCommittee->getLabel()).'?')

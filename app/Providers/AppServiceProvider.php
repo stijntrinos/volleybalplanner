@@ -3,7 +3,11 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Support\Tenancy\ClubIsReadOnly;
 use App\Support\Tenancy\CurrentClub;
+use App\Support\Tenancy\ReadOnlyClub;
+use Filament\Notifications\Notification;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -13,8 +17,13 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Livewire\Livewire;
 use STS\FilamentImpersonate\Events\EnterImpersonation;
 use STS\FilamentImpersonate\Events\LeaveImpersonation;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Throwable;
+
+use function Livewire\on;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -46,8 +55,38 @@ class AppServiceProvider extends ServiceProvider
             return $this->app->isProduction() ? $password->uncompromised() : $password;
         });
 
-        // Platform admins may do everything in every club, without a club role.
-        Gate::before(fn (User $user): ?bool => $user->isPlatformAdmin() ? true : null);
+        // A read-only club refuses every write, also to platform admins (they
+        // extend the subscription in /admin). Otherwise platform admins may do
+        // everything in every club, without a club role.
+        Gate::before(function (User $user, string $ability): ?bool {
+            if (ReadOnlyClub::blocks($ability)) {
+                return false;
+            }
+
+            return $user->isPlatformAdmin() ? true : null;
+        });
+
+        // A write refused in read-only mode becomes a notification instead of
+        // a 403 modal over the planner. Only for actions: opening a page that
+        // is refused (a create form) stays a 403.
+        on('exception', function (mixed $target, Throwable $exception, callable $stopPropagation): void {
+            if (!Livewire::isLivewireRequest()) {
+                return;
+            }
+
+            $refused = $exception instanceof ClubIsReadOnly
+                || $exception instanceof AuthorizationException
+                || ($exception instanceof HttpExceptionInterface && $exception->getStatusCode() === 403);
+
+            if ($refused && ReadOnlyClub::active()) {
+                Notification::make()
+                    ->title(__('Alleen bekijken'))
+                    ->body((new ClubIsReadOnly)->getMessage())
+                    ->danger()
+                    ->send();
+                $stopPropagation();
+            }
+        });
 
         // Who acted as whom, and when: changes made while impersonating would
         // otherwise look like the club user's own.

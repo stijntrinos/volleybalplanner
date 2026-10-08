@@ -12,7 +12,9 @@ use App\Planner\Enums\DutyType;
 use App\Planner\Support\DateFormat;
 use App\Support\Tenancy\BelongsToClub;
 use Database\Factories\Planner\ChangeRequestFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -93,9 +95,10 @@ use Illuminate\Support\Carbon;
 class ChangeRequest extends Model
 {
     use BelongsToClub;
-
     /** @use HasFactory<ChangeRequestFactory> */
     use HasFactory;
+
+    use MassPrunable;
 
     protected $table = 'planner_change_requests';
 
@@ -106,6 +109,18 @@ class ChangeRequest extends Model
         'proposed_date', 'proposed_time',
         'status', 'note', 'handled_at', 'handled_by',
     ];
+
+    /**
+     * Requests hold the name, e-mail and phone of whoever asked (AVG: keep
+     * no longer than needed). A season later they are of no use: model:prune
+     * removes them for every club, so without the club scope.
+     *
+     * @return Builder<self>
+     */
+    public function prunable(): Builder
+    {
+        return static::withoutGlobalScope('club')->where('created_at', '<', now()->subYear());
+    }
 
     protected function casts(): array
     {

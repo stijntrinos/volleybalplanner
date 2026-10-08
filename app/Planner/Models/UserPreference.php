@@ -6,6 +6,7 @@ use App\Models\Club;
 use App\Models\User;
 use App\Planner\Enums\OverlapPolicy;
 use App\Support\Tenancy\BelongsToClub;
+use App\Support\Tenancy\WritableWhenReadOnly;
 use Database\Factories\Planner\UserPreferenceFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -58,7 +59,7 @@ use Illuminate\Support\Carbon;
  *
  * @mixin \Eloquent
  */
-class UserPreference extends Model
+class UserPreference extends Model implements WritableWhenReadOnly
 {
     use BelongsToClub;
 

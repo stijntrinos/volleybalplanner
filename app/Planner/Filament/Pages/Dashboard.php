@@ -11,6 +11,7 @@ use App\Planner\Filament\Widgets\UpcomingMatchDays;
 use App\Planner\Filament\Widgets\VersionBanner;
 use App\Planner\Jobs\SyncNevoboPlanningJob;
 use App\Support\Tenancy\CurrentClub;
+use App\Support\Tenancy\ReadOnlyClub;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Pages\Dashboard as BaseDashboard;
@@ -56,7 +57,7 @@ class Dashboard extends BaseDashboard
                 ->label(__('Nevobo nu vergelijken'))
                 ->icon(Heroicon::OutlinedArrowPath)
                 ->color('gray')
-                ->visible(fn (): bool => NevoboChanges::canAccess())
+                ->visible(fn (): bool => NevoboChanges::canAccess() && !ReadOnlyClub::active())
                 ->action(function (): void {
                     $club = app(CurrentClub::class)->get();
 
