@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Planner\Features\PlannerFeature;
 use Database\Factories\ClubFactory;
+use Filament\Models\Contracts\HasCurrentTenantLabel;
 use Filament\Models\Contracts\HasName;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -36,7 +37,7 @@ use Illuminate\Support\Carbon;
  *
  * @mixin \Eloquent
  */
-class Club extends Model implements HasName
+class Club extends Model implements HasCurrentTenantLabel, HasName
 {
     /** @use HasFactory<ClubFactory> */
     use HasFactory;
@@ -61,6 +62,17 @@ class Club extends Model implements HasName
     public function getFilamentName(): string
     {
         return $this->name;
+    }
+
+    /**
+     * Shown under the club name in the sidebar switcher. A volleyball season
+     * runs from August to July, like the Nevobo competition.
+     */
+    public function getCurrentTenantLabel(): string
+    {
+        $start = now()->month >= 8 ? now()->year : now()->year - 1;
+
+        return __('Seizoen :season', ['season' => $start.'-'.($start + 1)]);
     }
 
     /** @return BelongsToMany<User, $this> */

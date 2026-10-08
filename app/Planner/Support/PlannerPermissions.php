@@ -24,7 +24,10 @@ final class PlannerPermissions
     ];
 
     /** @var list<string> */
-    public const WIDGETS = ['PendingChanges', 'PendingAwayChanges', 'NewChangeRequests'];
+    public const WIDGETS = [
+        'PendingChanges', 'PendingAwayChanges', 'NewChangeRequests', 'VersionBanner', 'PlannerStats', 'DashboardAside',
+        'UpcomingMatchDays',
+    ];
 
     /** @return list<string> */
     public static function all(): array

@@ -9,10 +9,8 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -35,7 +33,6 @@ class ClubPanelProvider extends PanelProvider
             ->login()
             ->passwordReset()
             ->brandName('Volleybalplanner')
-            ->colors(['primary' => Color::Sky])
             ->spa()
             ->sidebarCollapsibleOnDesktop()
             ->maxContentWidth('full')
@@ -44,7 +41,6 @@ class ClubPanelProvider extends PanelProvider
                 SyncShieldTenant::class,
             ], isPersistent: true)
             ->discoverResources(in: app_path('Filament/Club/Resources'), for: 'App\\Filament\\Club\\Resources')
-            ->pages([Dashboard::class])
             ->plugin(PlannerPlugin::make())
             ->middleware([
                 EncryptCookies::class,

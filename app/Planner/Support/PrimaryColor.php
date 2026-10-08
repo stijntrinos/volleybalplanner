@@ -8,7 +8,7 @@ namespace App\Planner\Support;
  */
 final class PrimaryColor
 {
-    public const DEFAULT = '#0ea5e9';
+    public const DEFAULT = DesignTokens::BRAND;
 
     public static function from(?string $color): string
     {

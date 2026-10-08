@@ -35,7 +35,7 @@ return new class extends Migration
             $table->boolean('admin_override_external_error')->default(true);
             $table->json('team_name_patterns')->nullable();
             $table->string('logo_path')->nullable();
-            $table->string('primary_color')->nullable()->default('#0ea5e9');
+            $table->string('primary_color')->nullable()->default('#0B7F8A');
             $table->string('schedule_tagline')->nullable();
             $table->timestamps();
         });

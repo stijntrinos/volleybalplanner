@@ -24,7 +24,7 @@ class PlannerSettingTest extends TestCase
         $this->assertTrue($settings->is(PlannerSetting::current()));
         $this->assertSame($club->id, $settings->club_id);
         $this->assertSame([], $settings->team_name_patterns);
-        $this->assertSame('#0ea5e9', $settings->refresh()->primary_color);
+        $this->assertSame('#0B7F8A', $settings->refresh()->primary_color);
         $this->assertSame(15, $settings->buffer_minutes);
         $this->assertSame(1, PlannerSetting::withoutGlobalScope('club')->count());
     }

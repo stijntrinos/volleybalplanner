@@ -28,3 +28,7 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+/.snapshot.tgz
+/.vp.bundle
+/diensten-test-*.csv

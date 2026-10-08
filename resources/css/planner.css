@@ -4,13 +4,15 @@
  * Registered with ->viteTheme() in App\Planner\PlannerPlugin.
  */
 @import '../../vendor/filament/filament/resources/css/theme.css';
+@import './design-system.css';
 
 @source '../../app/Filament/**/*.php';
 @source '../../app/Planner/**/*.php';
 @source '../views/filament/**/*.blade.php';
 @source '../views/planner/**/*.blade.php';
 
-:root{--planner-primary:#0ea5e9}
+/* Volleybalplanner design system: tokens and Filament overrides. */
+:root{--planner-primary:#0B7F8A}
 
 /*
  * Day planner (HomeMatches).
@@ -417,3 +419,98 @@
 .planner-error-details-icon{margin-top:.125rem;width:1rem;height:1rem;flex-shrink:0;color:#9ca3af}
 
 /* ===== End of day planner styles. Other pages: add sections below with a header naming the page. ===== */
+
+/*
+ * Day planner in the Volleybalplanner design system. Overrides the colours
+ * above with the tokens of design-system.css: white cards with a hairline,
+ * teal court headings for the main hall, ink for the others, the hall duty
+ * column in the soft brand tint, trainings dashed. Dark mode follows from
+ * the tokens.
+ */
+.planner-shell{color:var(--vp-ink)}
+.planner-toolbar{border:1px solid var(--vp-line);border-radius:var(--vp-radius-lg);background:var(--vp-surface-raised);box-shadow:none;padding:10px 12px;top:72px}
+.planner-date-navigation{height:44px;border-color:var(--vp-line);border-radius:var(--vp-radius-md);background:var(--vp-surface-raised)}
+.planner-date-navigation>button{background:var(--vp-surface-raised);color:var(--vp-ink)}
+.planner-date-navigation>button:hover,.planner-date-picker:hover{background:var(--vp-brand-soft);color:var(--vp-brand-strong)}
+.planner-current-date{border-color:var(--vp-line)}
+.planner-current-date span{color:var(--vp-ink-muted);letter-spacing:.04em;font-size:11px}
+.planner-current-date input{font-size:15px;font-weight:600;color:var(--vp-ink)}
+.planner-today,.planner-unplanned-toggle,.planner-settings-trigger,.planner-search-trigger,.planner-unplanned-trigger{border-color:var(--vp-line);border-radius:var(--vp-radius-md);background:var(--vp-surface-raised);color:var(--vp-ink);font-weight:500}
+.planner-today:hover,.planner-unplanned-toggle:hover,.planner-settings-trigger:hover,.planner-search-trigger:hover,.planner-unplanned-trigger:hover,.planner-unplanned-trigger.is-active{border-color:var(--vp-brand-line);background:var(--vp-brand-soft);color:var(--vp-brand-strong)}
+.planner-unplanned-badge,.planner-search-active{background:var(--vp-warn);border-color:var(--vp-surface-raised)}
+.planner-settings-menu{border-color:var(--vp-line);border-radius:var(--vp-radius-lg);background:var(--vp-surface-raised)}
+.planner-settings-menu a:hover,.planner-settings-menu>button:hover{background:var(--vp-brand-soft);color:var(--vp-brand-strong)}
+
+.planner-hall-filter button{min-height:36px;padding:0 12px;border:1px solid var(--vp-brand-line);border-radius:var(--vp-radius-md);background:var(--vp-brand-soft);color:var(--vp-brand-strong);font-size:14px;font-weight:600}
+.planner-hall-filter button:before{width:8px;height:8px;background:var(--vp-brand)}
+.planner-hall-filter button.is-hidden{opacity:1;background:var(--vp-surface-raised);border-color:var(--vp-line);color:var(--vp-ink-muted)}
+.planner-hall-filter button.is-hidden:before{background:var(--vp-line)}
+.planner-hall-filter .planner-hall-count{background:var(--vp-surface-raised);color:inherit;border-radius:5px;font-size:12px;font-weight:600}
+.planner-chips span{border-radius:var(--vp-radius-sm)}
+
+.planner-scroll,.planner-unplanned{border-color:var(--vp-line);border-radius:var(--vp-radius-lg);background:var(--vp-surface-raised)}
+.planner-unplanned{background:var(--vp-surface)}
+.planner-unplanned-card{border-color:var(--vp-line);border-left:3px solid var(--vp-ink-muted);border-radius:var(--vp-radius-md);box-shadow:none}
+.planner-unplanned-card:hover{border-color:var(--vp-brand-line);border-left-color:var(--vp-brand);box-shadow:none}
+.planner-panel-title h3{color:var(--vp-ink);font-size:16px;font-weight:600}
+.planner-panel-title p{color:var(--vp-ink-muted)}
+.planner-panel-title>span{background:var(--vp-warn-soft);color:var(--vp-warn-ink)}
+.planner-time-header,.planner-time-axis{background:var(--vp-surface-raised);border-color:var(--vp-line-soft)}
+.planner-time-axis span{color:var(--vp-ink-muted);font-weight:500;font-variant-numeric:tabular-nums}
+.planner-headings{gap:0;padding:8px 0 6px;background:var(--vp-surface-raised)}
+.planner-heading{margin:0 4px;border:0;border-radius:var(--vp-radius-md);box-shadow:none;padding:0 10px}
+.planner-heading strong{font-size:14px;font-weight:600}
+.planner-heading span{font-size:12px;opacity:.85}
+.planner-heading-0{background:var(--vp-brand)}
+.planner-heading-1{background:#10293b}
+.planner-heading-2{background:#3a4c5a}
+.planner-heading-3{background:#08646d}
+.dark .planner-heading-1{background:#24405a}
+.planner-service-heading,.dark .planner-service-heading{background:#dde6eb!important;color:#10293b;border-left:0}
+.dark .planner-service-heading{background:#24405a!important;color:#f1f5f8}
+
+.planner-dropzone{border-color:var(--vp-line-soft);background-color:#fafbfc;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 71px,#e9eef1 71px,#e9eef1 72px)}
+.dark .planner-dropzone{background-color:#0e2231;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 71px,#1b3447 71px,#1b3447 72px)}
+.planner-dropzone.is-drop-target{background-color:var(--vp-brand-soft);box-shadow:inset 0 0 0 2px var(--vp-brand)}
+.planner-service-column,.dark .planner-service-column{border-left:1px solid var(--vp-line);background-color:var(--vp-surface);background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 71px,var(--vp-line-soft) 71px,var(--vp-line-soft) 72px)}
+
+.planner-card,.dark .planner-card{border:1px solid var(--vp-line);border-left:1px solid var(--vp-line);border-radius:var(--vp-radius-md);background:var(--vp-surface-raised);color:var(--vp-ink);box-shadow:none;padding:7px 9px}
+.planner-card:hover,.dark .planner-card:hover{border-color:var(--vp-brand-line);box-shadow:0 4px 12px rgb(16 41 59 / .1)}
+.planner-card>div:first-child strong{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+.planner-card>div:first-child span,.dark .planner-card>div:first-child span{color:var(--vp-ink-muted);font-size:12px}
+.planner-card b{font-size:14px;font-weight:600}
+.planner-card small,.dark .planner-card small{color:var(--vp-ink-muted);font-size:12px}
+.planner-card-meta{margin-top:auto;padding-top:4px}
+.planner-card-meta span,.dark .planner-card-meta span{font-size:11px;padding:1px 6px;border:1px solid var(--vp-line);border-radius:5px;background:var(--vp-surface)}
+.planner-card-meta button,.dark .planner-card-meta button{font-size:11px;font-weight:600;padding:0 6px;border:1px solid var(--vp-brand);border-radius:5px;background:var(--vp-surface-raised);color:var(--vp-brand-strong)}
+.planner-card.spans-two-fields,.dark .planner-card.spans-two-fields{border-color:var(--vp-brand)}
+.planner-card.is-overlapping,.dark .planner-card.is-overlapping,.planner-card.is-requested,.dark .planner-card.is-requested{background:var(--vp-warn-tint);border:1.5px solid var(--vp-warn);outline:0}
+.planner-card-meta .planner-overlap-badge,.dark .planner-card-meta .planner-overlap-badge{border-color:var(--vp-warn);background:var(--vp-warn);color:#fff}
+.planner-card.has-request,.dark .planner-card.has-request{background:#f5f3ff;border:1.5px solid #7c3aed}
+.dark .planner-card.has-request{background:#2e1065}
+.planner-service-card,.dark .planner-service-card{background:var(--vp-brand-soft);border-color:var(--vp-brand-line);color:var(--vp-ink)}
+.planner-service-card strong{font-size:14px}
+.planner-training-card,.dark .planner-training-card{background:var(--vp-surface);border:1px dashed var(--vp-input-line);color:var(--vp-ink-muted)}
+.planner-activity-card,.dark .planner-activity-card{background:var(--vp-warn-soft);border-color:#f2bd88;color:var(--vp-warn-ink)}
+.planner-volleystars-card,.dark .planner-volleystars-card{background:var(--vp-brand-soft);border:1px solid var(--vp-brand-line);border-left:3px solid var(--vp-brand)}
+.planner-readonly-notice{border-color:#f2bd88;border-radius:var(--vp-radius-md);background:var(--vp-warn-tint);color:var(--vp-warn-ink)}
+.planner-card.is-search-focus{outline-color:var(--vp-warn)}
+.planner-undo-toast{background:var(--vp-ink);border-radius:var(--vp-radius-md)}
+.planner-undo-toast button{color:#5fd0d3}
+
+/* Modals of the day planner: the burgundy of the original club colour becomes the brand. */
+.planner-match-modal,.planner-assistant,.planner-search-modal{border:1px solid var(--vp-line);border-radius:var(--vp-radius-lg);background:var(--vp-surface-raised);color:var(--vp-ink)}
+.planner-assistant{border-radius:0}
+.planner-duration button{border-color:var(--vp-line);border-radius:var(--vp-radius-sm);background:var(--vp-surface-raised);color:var(--vp-ink);font-weight:600}
+.planner-duration button.is-active,.dark .planner-duration button.is-active,.planner-match-modal-actions .is-primary,.dark .planner-match-modal-actions .is-primary{border-color:var(--vp-brand);background:var(--vp-brand);color:var(--vp-on-brand)}
+.planner-match-modal-actions button{border-radius:var(--vp-radius-md);font-weight:600}
+.planner-search-input{border-color:var(--vp-brand);box-shadow:0 0 0 3px rgb(11 127 138 / .15)}
+.planner-search-input button,.planner-search-result-date strong{color:var(--vp-brand)}
+.planner-search-result:hover{background:var(--vp-brand-soft)}
+.planner-assistant-results>article{border-color:var(--vp-brand-line);background:var(--vp-brand-soft);color:var(--vp-brand-strong)}
+.planner-assistant-results button{border-color:var(--vp-brand-line)}
+.planner-assistant-results button:last-child{background:var(--vp-brand);border-color:var(--vp-brand);color:var(--vp-on-brand)}
+.planner-own-slot>div>button{background:var(--vp-ink)}
+.planner-add-match{display:inline-flex;align-items:center;gap:6px;height:44px;padding:0 16px;border:0;border-radius:var(--vp-radius-md);background:var(--vp-brand);color:var(--vp-on-brand);font-weight:600;font-size:14px;white-space:nowrap}
+.planner-add-match:hover{background:var(--vp-brand-strong)}
+@media(max-width:640px){.planner-add-match span{position:absolute;left:-9999px}.planner-add-match{padding:0 12px}}

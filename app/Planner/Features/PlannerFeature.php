@@ -34,6 +34,12 @@ enum PlannerFeature: string implements HasLabel
         return __('planner.features.'.$this->value);
     }
 
+    /** What the module adds, shown when switching it on for a club. */
+    public function getDescription(): string
+    {
+        return __('planner.feature_descriptions.'.$this->value);
+    }
+
     /**
      * One message per selected feature whose requirement is not selected.
      *

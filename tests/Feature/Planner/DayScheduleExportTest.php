@@ -90,7 +90,7 @@ class DayScheduleExportTest extends TestCase
 
         $html = app(ExportService::class)->dayScheduleHtml($this->planning(), '2026-09-12');
 
-        $this->assertStringContainsString('--planner-primary: #0ea5e9;', $html);
+        $this->assertStringContainsString('--planner-primary: #0B7F8A;', $html);
         $this->assertStringNotContainsString('display:none', $html);
     }
 

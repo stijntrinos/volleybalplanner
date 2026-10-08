@@ -3,6 +3,7 @@
 namespace App\Filament\Platform\Widgets;
 
 use App\Models\Club;
+use App\Planner\Support\InitialsAvatarProvider;
 use Filament\Facades\Filament;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Collection;
@@ -19,7 +20,7 @@ class ClubsOverview extends Widget
 
     protected static bool $isLazy = false;
 
-    /** @return Collection<int, array{name: string, slug: string, active: bool, users: ?int, modules: non-negative-int, created: string, url: ?string}> */
+    /** @return Collection<int, array{name: string, slug: string, active: bool, users: ?int, modules: non-negative-int, created: string, url: ?string, avatar: string}> */
     public function getClubs(): Collection
     {
         $panel = Filament::getPanel('club');
@@ -37,6 +38,7 @@ class ClubsOverview extends Widget
                 'modules' => count($club->features ?? []),
                 'created' => $club->created_at?->format('d-m-Y') ?? '',
                 'url' => $panel->getUrl($club),
+                'avatar' => app(InitialsAvatarProvider::class)->get($club),
             ]);
     }
 }

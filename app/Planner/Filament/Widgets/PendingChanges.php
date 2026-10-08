@@ -29,7 +29,11 @@ class PendingChanges extends TableWidget
 
     protected static ?int $sort = 1;
 
-    protected int|string|array $columnSpan = 'full';
+    /** Rendered with the page: the dashboard is the first thing people see. */
+    protected static bool $isLazy = false;
+
+    /** @var array<string, int|string> */
+    protected int|string|array $columnSpan = ['default' => 'full', 'xl' => 2];
 
     public function table(Table $table): Table
     {

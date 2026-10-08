@@ -4,14 +4,18 @@ namespace App\Planner;
 
 use App\Planner\Filament\NavigationGroups;
 use App\Planner\Models\PlannerSetting;
+use App\Planner\Support\DesignTokens;
+use App\Planner\Support\InitialsAvatarProvider;
 use App\Planner\Support\PrimaryColor;
 use App\Support\Tenancy\CurrentClub;
 use Closure;
 use Filament\Contracts\Plugin;
+use Filament\Enums\UserMenuPosition;
 use Filament\Navigation\NavigationGroup;
 use Filament\Panel;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Vite;
 use Illuminate\Support\HtmlString;
 
@@ -32,6 +36,13 @@ class PlannerPlugin implements Plugin
     public function register(Panel $panel): void
     {
         $panel
+            // The Volleybalplanner design system: Outfit, the planner teal and
+            // the slate greys; planner.css carries the matching CSS variables.
+            ->font(DesignTokens::FONT)
+            ->colors(DesignTokens::palettes())
+            ->brandLogo(fn (): View => view('planner::filament.logo'))
+            ->defaultAvatarProvider(InitialsAvatarProvider::class)
+            ->userMenu(position: UserMenuPosition::Topbar)
             ->navigationGroups([
                 NavigationGroup::make(NavigationGroups::PLANNING)->label(__(NavigationGroups::PLANNING)),
                 NavigationGroup::make(NavigationGroups::INPUT)->label(__(NavigationGroups::INPUT)),
@@ -41,7 +52,10 @@ class PlannerPlugin implements Plugin
             ->discoverPages(in: app_path('Planner/Filament/Pages'), for: 'App\\Planner\\Filament\\Pages')
             ->discoverWidgets(in: app_path('Planner/Filament/Widgets'), for: 'App\\Planner\\Filament\\Widgets')
             // The club colour as --planner-primary, used by planner.css and the views.
-            ->renderHook(PanelsRenderHook::HEAD_END, fn (): HtmlString => $this->primaryColorStyle());
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): HtmlString => $this->primaryColorStyle())
+            // The bar with search, active planning and account sits above the
+            // content column, so the sidebar keeps the logo and club switcher.
+            ->renderHook(PanelsRenderHook::CONTENT_BEFORE, fn (): View => view('planner::filament.topbar-mount'));
 
         // planner.css is the panel theme (Filament theme + Tailwind utilities
         // of the planner views + the day planner styles); planner.js holds the

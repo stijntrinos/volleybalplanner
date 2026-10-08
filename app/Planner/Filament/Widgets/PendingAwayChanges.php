@@ -26,7 +26,10 @@ class PendingAwayChanges extends TableWidget
     /** An away match ends at none, final or cancelled; only these are still running. */
     public const OPEN_STATUSES = [AwayChangeStatus::InProgress, AwayChangeStatus::InDiscussion];
 
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 3;
+
+    /** Rendered with the page: the dashboard is the first thing people see. */
+    protected static bool $isLazy = false;
 
     protected int|string|array $columnSpan = 'full';
 
