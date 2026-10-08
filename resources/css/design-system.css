@@ -2102,3 +2102,46 @@ a.vp-day:hover {
 .vp-plan-summary li.is-locked::before {
     content: '–';
 }
+
+/* Club users: open invitations */
+.vp-invitations {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.vp-invitation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--vp-line);
+}
+
+.vp-invitation:last-child {
+    border-bottom: 0;
+}
+
+.vp-invitation div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 14px;
+    color: var(--vp-ink-muted);
+}
+
+.vp-invitation strong {
+    color: var(--vp-ink);
+}
+
+.vp-invitation small {
+    font-size: 12px;
+}
+
+.vp-invitation-empty {
+    color: var(--vp-ink-muted);
+    font-size: 14px;
+}

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Filament\Pages\Auth\EditAccount;
 use App\Models\User;
 use App\Planner\Filament\Widgets\AccountSecurityNotice;
+use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
@@ -96,5 +97,25 @@ class AccountPageTest extends TestCase
         $this->actingAs(User::factory()->platformAdmin()->create());
 
         $this->get('/admin/account')->assertOk()->assertSee('Mijn account');
+    }
+
+    public function test_passkeys_are_managed_after_confirming_the_password(): void
+    {
+        $user = $this->actingAsClubUser();
+        $user->forceFill(['password' => Hash::make('Mijn-wachtwoord-1')])->save();
+
+        Livewire::test(EditAccount::class)
+            ->assertSee('Bevestig eerst je wachtwoord')
+            ->callAction(TestAction::make('confirmPasswordForPasskeys')->schemaComponent('passkeyConfirm', schema: 'content'), data: ['password' => 'fout'])
+            ->assertHasActionErrors(['password']);
+        $this->assertNull(session('auth.password_confirmed_at'));
+
+        Livewire::test(EditAccount::class)
+            ->callAction(TestAction::make('confirmPasswordForPasskeys')->schemaComponent('passkeyConfirm', schema: 'content'), data: ['password' => 'Mijn-wachtwoord-1'])
+            ->assertHasNoActionErrors()
+            ->assertRedirect(EditAccount::getUrl());
+        $this->assertNotNull(session('auth.password_confirmed_at'));
+
+        Livewire::test(EditAccount::class)->assertDontSee('Bevestig eerst je wachtwoord');
     }
 }

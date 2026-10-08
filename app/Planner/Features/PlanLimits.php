@@ -20,7 +20,8 @@ class PlanLimits
             PlanLimit::Teams => Team::query()->count(),
             // Sporthallen the club plans in; away venues don't count.
             PlanLimit::Venues => Venue::query()->where('is_managed', true)->where('is_active', true)->count(),
-            PlanLimit::Admins => (int) app(CurrentClub::class)->get()?->users()->count(),
+            // Open invitations count too, or a club could invite past the limit.
+            PlanLimit::Admins => (int) app(CurrentClub::class)->get()?->seatsTaken(),
         };
     }
 

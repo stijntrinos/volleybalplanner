@@ -19,6 +19,7 @@ use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
@@ -89,7 +90,7 @@ class EditAccount extends Page implements HasForms
                     ]),
                 Section::make('Wachtwoord')
                     ->aside()
-                    ->description('Kies een sterk wachtwoord van minimaal 8 tekens. Laat leeg om het te houden.')
+                    ->description('Minimaal 8 tekens met hoofd- en kleine letters, een cijfer en een leesteken. Laat leeg om het te houden.')
                     ->schema([
                         TextInput::make('password')
                             ->label('Nieuw wachtwoord')
@@ -146,6 +147,8 @@ class EditAccount extends Page implements HasForms
         if (request()->hasSession() && array_key_exists('password', $data)) {
             request()->session()->put([
                 'password_hash_'.Filament::getAuthGuard() => $data['password'],
+                // The current password was just entered, so this counts as a confirmation.
+                'auth.password_confirmed_at' => time(),
             ]);
         }
 
@@ -173,9 +176,15 @@ class EditAccount extends Page implements HasForms
             Section::make('Passkeys')
                 ->aside()
                 ->description('Log in met je vingerafdruk, gezicht of apparaatpincode in plaats van je wachtwoord. Een passkey is gekoppeld aan dit apparaat of je wachtwoordbeheerder.')
-                ->schema([
-                    Livewire::make('filament-passkeys'),
-                ]),
+                // Adding or removing a passkey asks for the password first
+                // (laravel/passkeys' password.confirm); confirmed here, it
+                // stays unlocked for the password timeout.
+                ->schema($this->passkeysUnlocked()
+                    ? [Livewire::make('filament-passkeys')]
+                    : [
+                        Text::make('Bevestig eerst je wachtwoord. Zo kan iemand die toevallig in jouw sessie zit geen passkey aan je account koppelen.'),
+                        Actions::make([$this->confirmPasswordAction()])->key('passkeyConfirm'),
+                    ]),
         ];
 
         if (Filament::hasMultiFactorAuthentication()) {
@@ -193,6 +202,40 @@ class EditAccount extends Page implements HasForms
         }
 
         return $schema->components($components);
+    }
+
+    private function passkeysUnlocked(): bool
+    {
+        $confirmedAt = (int) session('auth.password_confirmed_at', 0);
+
+        return $confirmedAt > 0 && time() - $confirmedAt < (int) config('auth.password_timeout', 10800);
+    }
+
+    private function confirmPasswordAction(): Action
+    {
+        return Action::make('confirmPasswordForPasskeys')
+            ->label('Wachtwoord bevestigen')
+            ->icon('heroicon-o-lock-open')
+            ->modalHeading('Wachtwoord bevestigen')
+            ->modalDescription('Daarna kun je een tijdje passkeys toevoegen en verwijderen.')
+            ->modalWidth('md')
+            ->schema([
+                TextInput::make('password')
+                    ->label('Huidig wachtwoord')
+                    ->password()
+                    ->revealable()
+                    ->autocomplete('current-password')
+                    ->required()
+                    ->currentPassword(guard: Filament::getAuthGuard()),
+            ])
+            ->modalSubmitActionLabel('Bevestigen')
+            ->action(function (): void {
+                session()->put('auth.password_confirmed_at', time());
+
+                // The page sections are built once per load; reload so the
+                // passkey block replaces the confirm button straight away.
+                $this->redirect(static::getUrl(), navigate: true);
+            });
     }
 
     /** @return list<Action> */

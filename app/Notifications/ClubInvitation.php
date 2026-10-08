@@ -7,6 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Carbon;
 
 class ClubInvitation extends Notification implements ShouldQueue
 {
@@ -15,7 +16,8 @@ class ClubInvitation extends Notification implements ShouldQueue
     public function __construct(
         public Club $club,
         public string $url,
-        public bool $isNewUser,
+        public ?string $inviterName,
+        public Carbon $expiresAt,
     ) {}
 
     /** @return list<string> */
@@ -26,18 +28,13 @@ class ClubInvitation extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
-        if ($this->isNewUser) {
-            return (new MailMessage)
-                ->subject("Uitnodiging voor {$this->club->name} in ".config('app.name'))
-                ->greeting('Hallo!')
-                ->line("Je bent uitgenodigd voor {$this->club->name}. Stel je wachtwoord in om te beginnen.")
-                ->action('Wachtwoord instellen', $this->url);
-        }
+        $who = $this->inviterName ? "{$this->inviterName} nodigt je uit" : 'Je bent uitgenodigd';
 
         return (new MailMessage)
-            ->subject("Je hebt toegang tot {$this->club->name}")
+            ->subject("Uitnodiging voor {$this->club->name} in ".config('app.name'))
             ->greeting('Hallo!')
-            ->line("Je hebt nu toegang tot {$this->club->name} in ".config('app.name').'.')
-            ->action("Naar {$this->club->name}", $this->url);
+            ->line("{$who} om mee te plannen voor {$this->club->name} in ".config('app.name').'.')
+            ->action('Uitnodiging bekijken', $this->url)
+            ->line('De link werkt tot '.$this->expiresAt->translatedFormat('j F Y').'. Verwacht je deze uitnodiging niet, dan kun je deze e-mail negeren.');
     }
 }

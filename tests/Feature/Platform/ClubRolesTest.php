@@ -13,14 +13,17 @@ class ClubRolesTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_sync_roles_is_idempotent_and_creates_both_roles(): void
+    public function test_sync_roles_is_idempotent_with_a_committee_role_per_club(): void
     {
+        [$a, $b] = Club::factory()->count(2)->create();
+
         $this->artisan('planner:sync-roles')->assertSuccessful();
         $this->artisan('planner:sync-roles')->assertSuccessful();
 
-        $this->assertSame(2, Role::count());
-        $this->assertNotNull(Role::findByName('club_admin'));
-        $this->assertNotNull(Role::findByName('planning_committee'));
+        // One global club admin role plus a committee role for each club.
+        $this->assertSame(3, Role::count());
+        $this->assertNotNull(Role::query()->where('name', 'club_admin')->whereNull('club_id')->first());
+        $this->assertSame([$a->id, $b->id], Role::query()->where('name', 'planning_committee')->orderBy('club_id')->pluck('club_id')->all());
     }
 
     public function test_a_role_in_one_club_does_not_leak_to_another(): void

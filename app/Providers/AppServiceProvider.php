@@ -10,7 +10,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 use STS\FilamentImpersonate\Events\EnterImpersonation;
 use STS\FilamentImpersonate\Events\LeaveImpersonation;
 
@@ -31,6 +33,18 @@ class AppServiceProvider extends ServiceProvider
     {
         // An attribute missing from $fillable fails loudly instead of vanishing on save.
         Model::preventSilentlyDiscardingAttributes(!$this->app->isProduction());
+
+        if ($this->app->isProduction()) {
+            URL::forceScheme('https');
+        }
+
+        // As on the Aetos site: letters in both cases, a digit and a symbol,
+        // and in production not one that showed up in a known data breach.
+        Password::defaults(function (): Password {
+            $password = Password::min(8)->letters()->mixedCase()->numbers()->symbols();
+
+            return $this->app->isProduction() ? $password->uncompromised() : $password;
+        });
 
         // Platform admins may do everything in every club, without a club role.
         Gate::before(fn (User $user): ?bool => $user->isPlatformAdmin() ? true : null);

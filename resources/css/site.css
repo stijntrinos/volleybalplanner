@@ -1590,3 +1590,60 @@ body > main {
 
 }
 .notice span { display: block; }
+
+/* ---------- Invitation ---------- */
+
+.invitation {
+    padding-top: 72px;
+    padding-bottom: 72px;
+}
+
+.invitation-card {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.invitation-card .title {
+    font-size: 36px;
+}
+
+.invitation-card p {
+    margin: 0;
+}
+
+.invitation-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.invitation-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.invitation-decline {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink-muted);
+    font: inherit;
+    font-size: 14px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+@media (max-width: 720px) {
+    .invitation-card {
+        padding: 24px;
+    }
+
+    .invitation-card .title {
+        font-size: 28px;
+    }
+}

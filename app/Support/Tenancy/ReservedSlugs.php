@@ -15,5 +15,7 @@ final class ReservedSlugs
         'passkeys', 'user',
         // Pages of the public marketing site.
         'functies', 'prijzen', 'contact', 'demo', 'privacy', 'voorwaarden',
+        // Invitation links.
+        'uitnodiging',
     ];
 }

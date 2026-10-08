@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Planner\Features\PlanLimit;
 use App\Planner\Features\PlannerFeature;
+use App\Planner\Support\CommitteeRole;
 use Database\Factories\ClubFactory;
 use Filament\Models\Contracts\HasCurrentTenantLabel;
 use Filament\Models\Contracts\HasName;
@@ -12,7 +13,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use Spatie\Permission\Models\Role;
 
 /**
  * @property int $id
@@ -20,6 +23,7 @@ use Illuminate\Support\Carbon;
  * @property string $slug
  * @property bool $is_active
  * @property int|null $plan_id
+ * @property list<string>|null $committee_groups
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Collection<int, User> $users
@@ -44,7 +48,7 @@ class Club extends Model implements HasCurrentTenantLabel, HasName
     /** @use HasFactory<ClubFactory> */
     use HasFactory;
 
-    protected $fillable = ['name', 'slug', 'is_active', 'plan_id'];
+    protected $fillable = ['name', 'slug', 'is_active', 'plan_id', 'committee_groups'];
 
     protected $attributes = ['is_active' => true];
 
@@ -52,7 +56,14 @@ class Club extends Model implements HasCurrentTenantLabel, HasName
     {
         return [
             'is_active' => 'boolean',
+            'committee_groups' => 'array',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        // Every club has its own planning committee role.
+        static::created(fn (Club $club): Role => CommitteeRole::sync($club));
     }
 
     public function getRouteKeyName(): string
@@ -80,6 +91,18 @@ class Club extends Model implements HasCurrentTenantLabel, HasName
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class)->withTimestamps();
+    }
+
+    /** @return HasMany<Invitation, $this> */
+    public function invitations(): HasMany
+    {
+        return $this->hasMany(Invitation::class);
+    }
+
+    /** Members plus open invitations: what counts against the admin limit. */
+    public function seatsTaken(): int
+    {
+        return $this->users()->count() + $this->invitations()->pending()->count();
     }
 
     /** @return BelongsTo<Plan, $this> */

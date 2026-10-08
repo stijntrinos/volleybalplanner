@@ -8,10 +8,13 @@ use App\Models\User;
 use App\Planner\Features\PlanLimit;
 use App\Planner\Features\PlanLimits;
 use App\Planner\Support\ClubRole;
+use App\Planner\Support\CommitteeRole;
+use App\Planner\Support\PlannerPermissions;
 use App\Support\Tenancy\ClubInvitations;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -19,6 +22,7 @@ use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -83,11 +87,47 @@ class ClubUserResource extends Resource
                             ->default(ClubRole::PlanningCommittee->value),
                     ])
                     ->action(function (array $data): void {
-                        app(ClubInvitations::class)->invite(self::club(), $data['name'], $data['email'], self::role($data['role']));
+                        $invitation = app(ClubInvitations::class)->invite(self::club(), $data['name'], $data['email'], self::role($data['role']), auth()->user());
 
-                        Notification::make()->title('Uitnodiging verstuurd')->success()->send();
+                        Notification::make()
+                            ->title($invitation ? 'Uitnodiging verstuurd' : 'Rol bijgewerkt')
+                            ->body($invitation ? 'Na acceptatie staat '.$invitation->name.' in de lijst.' : 'Deze persoon was al lid van de club.')
+                            ->success()
+                            ->send();
                     }),
                 PlanLimits::lockedAction(PlanLimit::Admins, 'inviteLocked', 'Uitnodigen'),
+                Action::make('invitations')
+                    ->label(fn (): string => 'Openstaand ('.self::club()->invitations()->pending()->count().')')
+                    ->icon('heroicon-o-clock')
+                    ->color('gray')
+                    ->visible(fn (): bool => self::club()->invitations()->pending()->exists())
+                    ->modalHeading('Openstaande uitnodigingen')
+                    ->modalDescription('Deze mensen zijn uitgenodigd maar hebben nog niet geaccepteerd. Ze tellen mee voor het aantal beheerders van je pakket.')
+                    ->modalContent(fn (): View => view('filament.club.pending-invitations', [
+                        'invitations' => self::club()->invitations()->pending()->latest()->get(),
+                    ]))
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Sluiten'),
+                Action::make('committeePermissions')
+                    ->label('Rechten '.mb_strtolower(ClubRole::PlanningCommittee->getLabel()))
+                    ->icon('heroicon-o-shield-check')
+                    ->color('gray')
+                    ->modalHeading('Wat mag de '.mb_strtolower(ClubRole::PlanningCommittee->getLabel()).'?')
+                    ->modalDescription('Clubbeheerders mogen altijd alles. Zet hier aan wat leden van de '.mb_strtolower(ClubRole::PlanningCommittee->getLabel()).' mogen zien en doen.')
+                    ->fillForm(fn (): array => ['groups' => CommitteeRole::groups(self::club())])
+                    ->schema([
+                        CheckboxList::make('groups')
+                            ->hiddenLabel()
+                            ->options(collect(PlannerPermissions::groups())->mapWithKeys(fn (string $group): array => [$group => __('planner.permission_groups.'.$group)])->all())
+                            ->descriptions(collect(PlannerPermissions::groups())->mapWithKeys(fn (string $group): array => [$group => __('planner.permission_group_descriptions.'.$group)])->all())
+                            ->bulkToggleable(),
+                    ])
+                    ->modalSubmitActionLabel('Opslaan')
+                    ->action(function (array $data): void {
+                        CommitteeRole::update(self::club(), array_values((array) ($data['groups'] ?? [])));
+
+                        Notification::make()->title('Rechten opgeslagen')->success()->send();
+                    }),
             ])
             ->recordActions([
                 Action::make('changeRole')

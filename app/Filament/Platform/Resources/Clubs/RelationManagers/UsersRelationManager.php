@@ -43,9 +43,9 @@ class UsersRelationManager extends RelationManager
                         TextInput::make('email')->label('E-mail')->email()->required()->maxLength(255),
                     ])
                     ->action(function (array $data) use ($club): void {
-                        app(ClubInvitations::class)->invite($club, $data['name'], $data['email'], ClubRole::ClubAdmin);
+                        $invitation = app(ClubInvitations::class)->invite($club, $data['name'], $data['email'], ClubRole::ClubAdmin, auth()->user());
 
-                        Notification::make()->title('Uitnodiging verstuurd')->success()->send();
+                        Notification::make()->title($invitation ? 'Uitnodiging verstuurd' : 'Rol bijgewerkt')->success()->send();
                     }),
             ])
             ->recordActions([
