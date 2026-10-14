@@ -78,6 +78,24 @@ class SettingsPageTest extends TestCase
         $this->assertSame([['team' => 'HS 5', 'allowed' => ['DS 1', 'HS 1']]], array_values($data['duty_rules']['referee_requirements']));
     }
 
+    public function test_competition_rules_are_typed_day_month_and_stored_month_day(): void
+    {
+        $this->filledForm()
+            ->set('data.youth_spring_start', '01-01')
+            ->set('data.youth_spring_end', '30-04')
+            ->set('data.internal_senior_deadline', '01-03')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $saved = PlannerSetting::current()->fresh();
+        $this->assertSame(['01-01', '04-30', '03-01'], [$saved->youth_spring_start, $saved->youth_spring_end, $saved->internal_senior_deadline]);
+        $this->assertSame('30-04', Livewire::test(Settings::class)->get('data.youth_spring_end'));
+
+        $this->filledForm()->set('data.youth_spring_end', '31-13')->call('save')->assertHasErrors(['data.youth_spring_end']);
+        $this->filledForm()->set('data.internal_senior_deadline', '')->call('save')->assertHasNoErrors();
+        $this->assertNull(PlannerSetting::current()->fresh()->internal_senior_deadline);
+    }
+
     public function test_an_emptied_list_stays_empty(): void
     {
         PlannerSetting::current()->update(['duty_rules' => ['no_referee' => ['DS 10']]]);

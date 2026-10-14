@@ -80,7 +80,7 @@ class ConflictEngineOccupancyTest extends TestCase
         $this->assertNull(collect($this->check('2026-09-19', '11:00'))->firstWhere('type', ConflictEngine::TYPE_TRAINING));
     }
 
-    public function test_a_hall_activity_on_the_same_court_gives_a_warning(): void
+    public function test_a_hall_activity_blocks_the_court(): void
     {
         Activity::factory()->create([
             'version_id' => $this->version->id, 'date' => '2026-09-19',
@@ -91,7 +91,7 @@ class ConflictEngineOccupancyTest extends TestCase
         $finding = collect($this->check('2026-09-19', '11:00'))->firstWhere('type', ConflictEngine::TYPE_ACTIVITY);
 
         $this->assertNotNull($finding);
-        $this->assertSame(ConflictEngine::LEVEL_WARNING, $finding['level']);
+        $this->assertSame(ConflictEngine::LEVEL_CONFLICT, $finding['level']);
         $this->assertStringContainsString('Sinterklaasfeest', $finding['message']);
     }
 

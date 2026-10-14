@@ -49,6 +49,14 @@ class MatchOverviewTest extends TestCase
         return route('planner.public.matches', ['club' => $this->club]);
     }
 
+    public function test_the_home_team_referee_license_is_shown_with_the_referee(): void
+    {
+        $team = Team::factory()->create(['code' => 'DS 1', 'referee_license' => 'V4']);
+        $this->match(['date' => '2026-09-12', 'time' => '19:30', 'home_team_id' => $team->id, 'referee' => 'HS 2']);
+
+        Livewire::test(MatchOverview::class)->assertSee('(min. V4)');
+    }
+
     public function test_the_page_shows_matches_and_all_duties_from_the_published_planning(): void
     {
         $venue = Venue::factory()->create(['name' => 'Sporthal De Laar', 'city' => 'Arnhem']);

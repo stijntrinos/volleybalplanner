@@ -35,6 +35,7 @@ class Settings extends Page implements HasForms
     private const SETTING_FIELDS = [
         'main_venue_id',
         'season_start', 'season_end', 'competition_start', 'competition_end',
+        'youth_spring_start', 'youth_spring_end', 'internal_senior_deadline',
         'training_period_start', 'training_period_end',
         'buffer_minutes', 'cache_ttl_minutes', 'admin_override_external_error',
         'points_referee_duty', 'points_scorer_duty', 'points_hall_duty', 'points_volleystars',

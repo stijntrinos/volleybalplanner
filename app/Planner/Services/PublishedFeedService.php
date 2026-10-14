@@ -30,7 +30,7 @@ class PublishedFeedService
         return $version->matches()->where('match_type', MatchType::Home)
             ->whereNotNull('date')->whereNotNull('time')
             ->when($date, fn ($query) => $query->whereDate('date', $date))
-            ->with(['venue', 'court'])->orderBy('date')->orderBy('time')->get();
+            ->with(['venue', 'court', 'homeTeam'])->orderBy('date')->orderBy('time')->get();
     }
 
     /** @param Collection<int, FixtureMatch> $matches */
@@ -47,7 +47,8 @@ class PublishedFeedService
             $itemTitle = "{$match->date->toDateString()} {$time} · {$match->home_team_name} vs {$match->away_team_name} — {$match->venue?->name} {$match->court?->name}"
                 .($changed ? ' ['.__('GEWIJZIGD').']' : '');
             $details = __('Wedstrijdcode').": {$match->match_code} | ".__('Poule').': '.($match->pool ?: '-')
-                .' | '.__('Status').': '.($changed ? __('gewijzigd') : __('gepland'));
+                .' | '.__('Status').': '.($changed ? __('gewijzigd') : __('gepland'))
+                .($match->homeTeam?->referee_license ? ' | '.__('Fluitlicentie').': '.__('minimaal').' '.$match->homeTeam->referee_license : '');
 
             return '<item><title>'.$this->escape($itemTitle).'</title><description>'.$this->escape($details).'</description><pubDate>'
                 .$match->date->copy()->setTimeFromTimeString($time)->toRfc2822String().'</pubDate><guid isPermaLink="false">match-'.$match->id.'</guid></item>';
@@ -74,14 +75,14 @@ class PublishedFeedService
         $from = today()->toDateString();
         $items = collect();
         $matches = $version->matches()->where('match_type', MatchType::Home)->whereDate('date', '>=', $from)
-            ->whereNotNull('time')->with(['venue', 'court'])->get();
+            ->whereNotNull('time')->with(['venue', 'court', 'homeTeam'])->get();
         foreach ($matches as $match) {
             $items->push([
                 'type' => 'match', 'id' => $match->id, 'date' => $match->date->toDateString(),
                 'time' => substr((string) $match->time, 0, 5), 'venue' => $match->venue?->name,
                 'court' => $match->court?->name, 'title' => "{$match->home_team_name} – {$match->away_team_name}",
                 'fields' => [
-                    'referee' => $match->referee, 'scorer' => $match->scorer,
+                    'referee' => $match->referee, 'referee_license' => $match->homeTeam?->referee_license, 'scorer' => $match->scorer,
                     'match_code' => $match->match_code, 'home_team' => $match->home_team_name,
                     'away_team' => $match->away_team_name,
                 ],

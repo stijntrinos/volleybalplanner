@@ -4,6 +4,7 @@ namespace Tests\Feature\Planner;
 
 use App\Planner\Models\Court;
 use App\Planner\Models\FixtureMatch;
+use App\Planner\Models\PlannerSetting;
 use App\Planner\Models\ScheduleVersion;
 use App\Planner\Models\Team;
 use App\Planner\Models\Venue;
@@ -96,5 +97,61 @@ class ProposalFinderTest extends TestCase
         $this->assertEmpty(
             array_intersect($skip, collect($second)->map(fn (array $p): string => $p['date'].' '.$p['time'])->all()),
         );
+    }
+
+    public function test_a_youth_match_stays_in_its_half_of_the_season(): void
+    {
+        $this->competitionRules(['youth_spring_start' => '01-01', 'youth_spring_end' => '04-30']);
+        $year = now()->year + 1;
+        $autumn = $this->proposalsFor('JA 1', 'DYNAMO JA 1', 'Orion JA 1', "{$year}-12-05");
+        $spring = $this->proposalsFor('MB 2', 'DYNAMO MB 2', 'Orion MB 1', "{$year}-01-09");
+
+        $this->assertNotEmpty($autumn);
+        $this->assertTrue(collect($autumn)->every(fn (array $p): bool => $p['date'] <= "{$year}-12-31"));
+        $this->assertNotEmpty($spring);
+        $this->assertTrue(collect($spring)->every(fn (array $p): bool => $p['date'] >= "{$year}-01-01" && $p['date'] < "{$year}-05-01"));
+    }
+
+    public function test_an_internal_senior_match_lies_before_the_deadline(): void
+    {
+        $this->competitionRules(['internal_senior_deadline' => '03-01']);
+        $year = now()->year + 1;
+        $internal = $this->proposalsFor('HS 2', 'DYNAMO HS 2', 'DYNAMO HS 3', "{$year}-02-13", awayCode: 'HS 3');
+        $regular = $this->proposalsFor('HS 2', 'DYNAMO HS 2', 'Orion HS 1', "{$year}-02-13");
+
+        $this->assertNotEmpty($internal);
+        $this->assertTrue(collect($internal)->every(fn (array $p): bool => $p['date'] < "{$year}-03-01"));
+        $this->assertTrue(collect($regular)->contains(fn (array $p): bool => $p['date'] >= "{$year}-03-01"));
+    }
+
+    public function test_without_rules_youth_and_internal_matches_are_not_limited(): void
+    {
+        $this->competitionRules([]);
+        $year = now()->year + 1;
+
+        $this->assertTrue(collect($this->proposalsFor('JA 1', 'DYNAMO JA 1', 'Orion JA 1', "{$year}-12-05"))
+            ->contains(fn (array $p): bool => $p['date'] >= ($year + 1).'-01-01'));
+        $this->assertTrue(collect($this->proposalsFor('HS 2', 'DYNAMO HS 2', 'DYNAMO HS 3', "{$year}-02-13", awayCode: 'HS 3'))
+            ->contains(fn (array $p): bool => $p['date'] >= "{$year}-03-01"));
+    }
+
+    /** @param array<string, string> $rules */
+    private function competitionRules(array $rules): void
+    {
+        PlannerSetting::current()->update(['team_name_patterns' => ['DYNAMO'], ...$rules]);
+    }
+
+    /** @return list<array<string, mixed>> */
+    private function proposalsFor(string $code, string $home, string $away, string $date, ?string $awayCode = null): array
+    {
+        $team = Team::query()->firstWhere('code', $code) ?? Team::factory()->create(['code' => $code]);
+        $awayTeam = $awayCode ? (Team::query()->firstWhere('code', $awayCode) ?? Team::factory()->create(['code' => $awayCode])) : null;
+        $match = FixtureMatch::factory()->create([
+            'version_id' => $this->version->id, 'home_team_id' => $team->id, 'away_team_id' => $awayTeam?->id,
+            'home_team_name' => $home, 'away_team_name' => $away, 'date' => $date, 'time' => '10:00',
+            'venue_id' => $this->venue->id, 'court_id' => $this->court->id,
+        ]);
+
+        return app(ProposalFinder::class)->find($match, $this->venue->id, $this->court->id, limit: 60);
     }
 }

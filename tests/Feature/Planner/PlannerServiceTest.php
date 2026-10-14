@@ -80,6 +80,21 @@ class PlannerServiceTest extends TestCase
         $this->assertSame([$this->venue->id], $data['default_venues'], 'A venue with only a training should not be open.');
     }
 
+    public function test_a_disabled_court_with_a_training_stays_in_the_timetable(): void
+    {
+        Court::factory()->create(['venue_id' => $this->venue->id, 'name' => '4', 'is_active' => false]);
+        Court::factory()->create(['venue_id' => $this->venue->id, 'name' => '5', 'is_active' => false]);
+        Training::factory()->create([
+            'venue_id' => $this->venue->id, 'weekday' => 'donderdag', 'start_time' => '19:30', 'end_time' => '21:30', 'court' => 4,
+        ]);
+
+        $data = $this->service()->dayData($this->version, '2026-09-10');
+
+        $courts = array_column($data['venues'][0]['courts'], 'name');
+        $this->assertContains('4', $courts, 'Court 4 has a training, so it belongs in the timetable.');
+        $this->assertNotContains('5', $courts, 'A disabled court without a training stays hidden.');
+    }
+
     public function test_a_closed_venue_shows_no_trainings(): void
     {
         $open = Venue::factory()->create(['name' => 'Open zaal']);

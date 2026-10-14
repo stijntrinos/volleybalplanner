@@ -29,6 +29,9 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $season_end
  * @property Carbon|null $competition_start
  * @property Carbon|null $competition_end
+ * @property string|null $youth_spring_start recurring MM-DD; set = youth matches stay in their half of the season
+ * @property string|null $youth_spring_end recurring MM-DD, last day of the youth spring series
+ * @property string|null $internal_senior_deadline recurring MM-DD; matches between two own senior teams before this day
  * @property Carbon|null $training_period_start
  * @property Carbon|null $training_period_end
  * @property int $buffer_minutes
@@ -102,7 +105,8 @@ class PlannerSetting extends Model
     public const HALL_DUTY_WEEKDAYS_DEFAULT = [6, 0];
 
     protected $fillable = [
-        'main_venue_id', 'season_start', 'season_end', 'competition_start', 'competition_end', 'buffer_minutes',
+        'main_venue_id', 'season_start', 'season_end', 'competition_start', 'competition_end',
+        'youth_spring_start', 'youth_spring_end', 'internal_senior_deadline', 'buffer_minutes',
         'cache_ttl_minutes', 'admin_override_external_error', 'training_period_start',
         'training_period_end', 'points_referee_duty', 'points_scorer_duty', 'points_hall_duty', 'points_volleystars',
         'schedule_footer', 'duty_rules', 'hall_duty_weekdays', 'hall_duty_exceptions', 'team_group_order',

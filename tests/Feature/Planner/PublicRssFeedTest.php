@@ -8,6 +8,7 @@ use App\Planner\Features\PlannerFeature;
 use App\Planner\Models\Court;
 use App\Planner\Models\FixtureMatch;
 use App\Planner\Models\ScheduleVersion;
+use App\Planner\Models\Team;
 use App\Planner\Models\Venue;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithClubs;
@@ -53,6 +54,21 @@ class PublicRssFeedTest extends TestCase
         $this->get("/{$club->slug}/rss/sporthal/de%20laar")->assertOk()->assertSee('ABC1');
         $this->get("/{$club->slug}/rss/sporthal/elders")->assertOk()->assertDontSee('ABC1');
         $this->get("/{$club->slug}/rss")->assertOk()->assertSee('ABC1')->assertHeader('Cache-Control', 'no-store, private');
+    }
+
+    public function test_the_feeds_show_the_home_team_referee_license(): void
+    {
+        $club = $this->useClub($this->createClub());
+        $venue = Venue::factory()->create(['name' => 'De Laar']);
+        $team = Team::factory()->create(['code' => 'HS 1', 'referee_license' => 'R2.2']);
+        $version = ScheduleVersion::factory()->create(['status' => ScheduleVersionStatus::Published, 'is_published' => true]);
+        FixtureMatch::factory()->create([
+            'version_id' => $version->id, 'date' => '2026-09-08', 'time' => '20:00',
+            'venue_id' => $venue->id, 'home_team_id' => $team->id, 'match_code' => 'LIC1',
+        ]);
+
+        $this->get("/{$club->slug}/rss")->assertOk()->assertSee('<planner:referee_license>R2.2</planner:referee_license>', false);
+        $this->get("/{$club->slug}/rss/thuis")->assertOk()->assertSee('Fluitlicentie: minimaal R2.2');
     }
 
     public function test_the_team_feed_matches_the_code_as_a_whole_word(): void

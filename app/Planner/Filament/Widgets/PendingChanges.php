@@ -63,7 +63,7 @@ class PendingChanges extends TableWidget
                 TextColumn::make('home_team_name')
                     ->label(__('Wedstrijd'))
                     ->state(fn (FixtureMatch $record): string => trim($record->home_team_name.' - '.$record->away_team_name, ' -'))
-                    ->description(fn (FixtureMatch $record): ?string => $record->match_code)
+                    ->description(fn (FixtureMatch $record): string => $record->match_code)
                     ->wrap()
                     ->searchable(['home_team_name', 'away_team_name', 'match_code']),
 

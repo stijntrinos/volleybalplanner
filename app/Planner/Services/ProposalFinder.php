@@ -4,6 +4,8 @@ namespace App\Planner\Services;
 
 use App\Planner\Models\FixtureMatch;
 use App\Planner\Models\PlannerSetting;
+use App\Planner\Support\ClubTeamMatcher;
+use App\Planner\Support\TeamCode;
 use Carbon\CarbonImmutable;
 
 /**
@@ -32,6 +34,7 @@ class ProposalFinder
         $base = CarbonImmutable::parse($match->date ?? $match->original_date ?? now());
         $from = $settings->competition_start ? CarbonImmutable::parse($settings->competition_start) : $base->subWeeks(12);
         $until = $settings->competition_end ? CarbonImmutable::parse($settings->competition_end) : $base->addWeeks(12);
+        [$from, $until] = $this->competitionRules($match, $settings, $base, $from, $until);
         $originalTime = substr((string) ($match->time ?: $match->original_time ?: '10:00'), 0, 5);
         $teamPreference = $match->homeTeam?->default_time
             ? substr((string) $match->homeTeam->default_time, 0, 5)
@@ -112,5 +115,65 @@ class ProposalFinder
         }
 
         return $results;
+    }
+
+    /**
+     * The club's competition rules narrow the search window. Youth plays a
+     * competition per half of the season, so a match from the autumn series
+     * can't move to spring and vice versa; a match between two of the club's
+     * own senior teams must be played before the internal deadline.
+     *
+     * @return array{0: CarbonImmutable, 1: CarbonImmutable}
+     */
+    private function competitionRules(FixtureMatch $match, PlannerSetting $settings, CarbonImmutable $base, CarbonImmutable $from, CarbonImmutable $until): array
+    {
+        $categories = collect([$match->homeTeam?->code, $match->awayTeam?->code])
+            ->filter()
+            ->map(fn (string $code): string => TeamCode::category($code))
+            ->reject(fn (string $category): bool => $category === TeamCode::CATEGORY_OTHER);
+        if ($categories->isEmpty()) {
+            return [$from, $until];
+        }
+
+        $seniors = ['men', 'women'];
+        // The season runs from summer to summer; its spring lies in the next calendar year.
+        $springYear = $base->month >= 7 ? $base->year + 1 : $base->year;
+        $isYouth = $categories->every(fn (string $category): bool => !in_array($category, $seniors, true));
+
+        if ($isYouth && $settings->youth_spring_start) {
+            $springStart = $this->recurring($settings->youth_spring_start, $springYear);
+            $springEnd = $settings->youth_spring_end ? $this->recurring($settings->youth_spring_end, $springYear) : null;
+
+            if ($base->lessThan($springStart)) {
+                return [$from, $until->min($springStart->subDay())];
+            }
+            // After the spring series (summer) there is no half left to keep to.
+            if (!$springEnd || $base->lessThanOrEqualTo($springEnd)) {
+                return [$from->max($springStart), $springEnd ? $until->min($springEnd) : $until];
+            }
+
+            return [$from, $until];
+        }
+
+        $matcher = ClubTeamMatcher::forCurrentClub();
+        $isInternalSeniors = !$isYouth
+            && $settings->internal_senior_deadline
+            && $categories->count() === 2
+            && $categories->every(fn (string $category): bool => in_array($category, $seniors, true))
+            && $matcher->isOwnTeam($match->home_team_name ?: $match->homeTeam?->name)
+            && $matcher->isOwnTeam($match->away_team_name ?: $match->awayTeam?->name);
+        if ($isInternalSeniors) {
+            return [$from, $until->min($this->recurring($settings->internal_senior_deadline, $springYear)->subDay())];
+        }
+
+        return [$from, $until];
+    }
+
+    /** A stored "MM-DD" rule date in the given year. */
+    private function recurring(string $monthDay, int $year): CarbonImmutable
+    {
+        [$month, $day] = array_map('intval', explode('-', $monthDay));
+
+        return CarbonImmutable::create($year, $month, $day)->startOfDay();
     }
 }

@@ -116,7 +116,8 @@
 .planner-grid{min-width:calc(68px + var(--planner-columns) * 200px);grid-template-columns:68px 1fr}
 .planner-headings,.planner-fields{grid-template-columns:repeat(var(--planner-columns),minmax(200px,1fr))}}
 .planner-card.spans-two-fields{right:auto;width:calc(200% - 10px);z-index:7}
-.planner-activity-card{background:#fef3c7;border-color:#fcd34d;border-left-color:#f59e0b;cursor:default}
+.planner-activity-card{background:repeating-linear-gradient(135deg,#fef3c7 0 8px,#fde68a 8px 16px);border-color:#fcd34d;border-left-color:#f59e0b;cursor:pointer;text-align:left}
+.planner-activity-card.is-hall-wide{z-index:4;opacity:.92}
 /* A training gives way to a match, so it belongs behind it; with the same
    z-index the training drawn later covered the match. */
 .planner-training-card{background:#e5e7eb;border-color:#cbd5e1;border-left-color:#64748b;cursor:default;z-index:2}
@@ -491,7 +492,7 @@
 .planner-service-card,.dark .planner-service-card{background:var(--vp-brand-soft);border-color:var(--vp-brand-line);color:var(--vp-ink)}
 .planner-service-card strong{font-size:14px}
 .planner-training-card,.dark .planner-training-card{background:var(--vp-surface);border:1px dashed var(--vp-input-line);color:var(--vp-ink-muted)}
-.planner-activity-card,.dark .planner-activity-card{background:var(--vp-warn-soft);border-color:#f2bd88;color:var(--vp-warn-ink)}
+.planner-activity-card,.dark .planner-activity-card{background:repeating-linear-gradient(135deg,var(--vp-warn-soft) 0 8px,var(--vp-warn-tint) 8px 16px);border-color:#f2bd88;color:var(--vp-warn-ink)}
 .planner-volleystars-card,.dark .planner-volleystars-card{background:var(--vp-brand-soft);border:1px solid var(--vp-brand-line);border-left:3px solid var(--vp-brand)}
 .planner-readonly-notice{border-color:#f2bd88;border-radius:var(--vp-radius-md);background:var(--vp-warn-tint);color:var(--vp-warn-ink)}
 .planner-card.is-search-focus{outline-color:var(--vp-warn)}

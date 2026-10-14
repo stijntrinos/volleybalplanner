@@ -134,6 +134,17 @@ trait BuildsSettingsTabs
                         DatePicker::make('competition_start')->label(__('Start competitie'))->native(false)->displayFormat('d-m-Y'),
                         DatePicker::make('competition_end')->label(__('Einde competitie'))->native(false)->displayFormat('d-m-Y')->afterOrEqual('competition_start'),
                     ])->columns(2),
+                Section::make(__('Competitieregels voor verplaatsen'))
+                    ->description(__('Houdt voorstellen van de planningsassistent binnen wat de bond toestaat. Een leeg veld betekent: geen regel. Datums gelden elk seizoen (dag-maand).'))
+                    ->icon(Heroicon::OutlinedScale)
+                    ->schema([
+                        self::recurringDate('youth_spring_start', __('Jeugd: start voorjaarsreeks'))
+                            ->helperText(__('Jeugdwedstrijden blijven in hun eigen seizoenshelft: een wedstrijd uit de najaarsreeks gaat niet naar het voorjaar en andersom. Bijvoorbeeld 01-01.')),
+                        self::recurringDate('youth_spring_end', __('Jeugd: einde voorjaarsreeks'))
+                            ->helperText(__('Laatste dag van de voorjaarsreeks voor de jeugd. Bijvoorbeeld 30-04.')),
+                        self::recurringDate('internal_senior_deadline', __('Onderlinge seniorenwedstrijden vóór'))
+                            ->helperText(__('Een wedstrijd tussen twee eigen seniorenteams moet voor deze dag gespeeld zijn. Bijvoorbeeld 01-03.')),
+                    ])->columns(3),
                 Section::make(__('Hoofdsporthal'))
                     ->description(__('De zaal waar de club normaal speelt. Staat er op een dag geen enkele thuiswedstrijd, dan toont de dagplanning deze zaal zodat je meteen kunt inplannen.'))
                     ->icon(Heroicon::OutlinedHome)
@@ -403,5 +414,20 @@ trait BuildsSettingsTabs
                             ->columnSpanFull(),
                     ])->columns(2),
             ]);
+    }
+
+    /**
+     * A day-month field stored as "MM-DD", shown and typed as "DD-MM".
+     */
+    private static function recurringDate(string $name, string $label): TextInput
+    {
+        return TextInput::make($name)
+            ->label($label)
+            ->placeholder(__('dd-mm'))
+            ->maxLength(5)
+            ->regex('/^(0[1-9]|[12]\d|3[01])-(0[1-9]|1[0-2])$/')
+            ->validationMessages(['regex' => __('Gebruik dag-maand, bijvoorbeeld 01-03.')])
+            ->formatStateUsing(fn (?string $state): ?string => $state ? implode('-', array_reverse(explode('-', $state))) : null)
+            ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? implode('-', array_reverse(explode('-', $state))) : null);
     }
 }

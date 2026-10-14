@@ -69,6 +69,9 @@
                             <span class="whitespace-nowrap">
                                 <span class="text-gray-500">{{ __('Fluiten') }}</span>
                                 <span class="{{ filled($match->referee) ? 'font-medium text-gray-900' : 'text-amber-700' }}">{{ $match->referee ?: __('niet ingedeeld') }}</span>
+                                @if ($match->homeTeam?->referee_license)
+                                    <span class="text-gray-500" title="{{ __('Minimale licentie om deze wedstrijd te fluiten') }}">({{ __('min.') }} {{ $match->homeTeam->referee_license }})</span>
+                                @endif
                             </span>
                             <span class="whitespace-nowrap">
                                 <span class="text-gray-500">{{ __('Tellen') }}</span>

@@ -257,23 +257,9 @@ class ConflictEngine
             }
         }
 
-        foreach ($this->data->activitiesOn($match->version_id, $date) as $activity) {
-            if ((int) $activity->venue_id !== $venueId || !$activity->start_time) {
-                continue;
-            }
-            if ($activity->court_id && !in_array((int) $activity->court_id, $courtIds, true)) {
-                continue;
-            }
-            $activityDuration = $activity->end_time
-                ? $this->minutes($activity->end_time) - $this->minutes($activity->start_time)
-                : 60;
-            if ($activityDuration > 0 && $this->overlaps($time, $duration, $activity->start_time, $activityDuration)) {
-                $findings[] = [
-                    'level' => self::LEVEL_WARNING, 'type' => self::TYPE_ACTIVITY,
-                    'message' => __('Er staat een zaalactiviteit gepland: :title.', ['title' => $activity->title ?: __('zonder titel')]),
-                ];
-            }
-        }
+        $findings = [...$findings, ...ActivityConflicts::findings(
+            $this->data->activitiesOn($match->version_id, $date), $venueId, $courtIds, $time, $duration,
+        )];
 
         $involved = collect($this->detectTeams((string) $match->home_team_name, $teams))
             ->merge($this->detectTeams((string) $match->away_team_name, $teams))->unique();

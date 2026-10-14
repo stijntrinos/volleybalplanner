@@ -126,6 +126,13 @@ class TeamForm
                                     ->label(__('Nevobo levert scheidsrechter'))
                                     ->helperText(__('Vult bij thuiswedstrijden automatisch Nevobo in.'))
                                     ->default(false),
+
+                                Select::make('referee_license')
+                                    ->label(__('Minimale fluitlicentie'))
+                                    ->options(collect(Team::REFEREE_LICENSES)->mapWithKeys(fn (string $description, string $code): array => [$code => $code.' - '.__($description)])->all())
+                                    ->native(false)
+                                    ->placeholder(__('Geen eis'))
+                                    ->helperText(__('De licentie die je minimaal nodig hebt om een thuiswedstrijd van dit team te fluiten. Staat in de RSS-feed en op de publieke wedstrijdpagina.')),
                             ]),
                         Section::make(__('Meenemen in verdelingen'))
                             ->description(__('Deze keuzes bepalen in welke gezamenlijke taakverdelingen het team voorkomt.'))

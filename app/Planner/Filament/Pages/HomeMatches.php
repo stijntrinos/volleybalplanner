@@ -8,6 +8,7 @@ use App\Planner\Filament\Concerns\HasVersionSelection;
 use App\Planner\Filament\NavigationGroups;
 use App\Planner\Filament\Pages\Concerns\AuthorizesMatches;
 use App\Planner\Filament\Pages\Concerns\ExportsDayOverview;
+use App\Planner\Filament\Pages\Concerns\ManagesActivityModal;
 use App\Planner\Filament\Pages\Concerns\ManagesMatchModal;
 use App\Planner\Filament\Pages\Concerns\ManagesPlanningAssistant;
 use App\Planner\Filament\Pages\Concerns\ManagesVolleystarsModal;
@@ -33,7 +34,7 @@ use UnitEnum;
 /**
  * The day planner: one match day of one schedule version as a timetable per
  * venue and court, with drag and drop, the planning assistant and the
- * match / Volleystars modals.
+ * match / activity / Volleystars modals.
  *
  * @property-read array<string, string> $volleystarsRoles
  * @property-read Collection<int, string> $modalCourts
@@ -46,6 +47,7 @@ class HomeMatches extends Page
         ExportsDayOverview,
         HasPlannerPage,
         HasVersionSelection,
+        ManagesActivityModal,
         ManagesMatchModal,
         ManagesPlanningAssistant,
         ManagesVolleystarsModal,

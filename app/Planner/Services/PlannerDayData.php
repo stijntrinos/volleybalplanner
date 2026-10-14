@@ -9,6 +9,7 @@ use App\Planner\Features\PlannerFeature;
 use App\Planner\Models\ActivityColor;
 use App\Planner\Models\Availability;
 use App\Planner\Models\CalendarEvent;
+use App\Planner\Models\Court;
 use App\Planner\Models\FixtureMatch;
 use App\Planner\Models\PlannerSetting;
 use App\Planner\Models\ScheduleVersion;
@@ -76,6 +77,7 @@ class PlannerDayData
         $dutyVenueIds = $hallDuties->pluck('venue_id')
             ->merge($volleystars->pluck('venue_id'))
             ->merge($proposals->pluck('provisional_venue_id'))
+            ->merge($activities->pluck('venue_id'))
             ->filter()->unique();
         $venueIds = $playVenueIds
             ->merge($trainings->pluck('venue_id')->filter())
@@ -89,7 +91,7 @@ class PlannerDayData
         }
         $venues = Venue::query()
             ->where('is_active', true)
-            ->with(['courts' => fn ($query) => $query->where('is_active', true)])
+            ->with('courts')
             ->when(
                 $venueIds->isNotEmpty(),
                 fn ($query) => $query->whereIn('id', $venueIds),
@@ -128,7 +130,14 @@ class PlannerDayData
             'venues' => $venues->map(fn (Venue $venue): array => [
                 'id' => $venue->id,
                 'name' => $venue->name,
-                'courts' => $venue->courts->map->only(['id', 'name'])->values()->all(),
+                // A disabled court stays while a training uses it that day. A
+                // training hangs on the court number, and without a column it
+                // silently disappeared from the timetable.
+                'courts' => $venue->courts
+                    ->filter(fn (Court $court): bool => $court->is_active || $trainings
+                        ->where('venue_id', $venue->id)
+                        ->contains(fn ($training): bool => (string) data_get($training, 'court') === (string) $court->name))
+                    ->map->only(['id', 'name'])->values()->all(),
                 'rental_window' => $this->rentalWindow($venue->id, $date, $availability),
                 'matches' => $playVenueIds->contains($venue->id)
                     ? $matches->where('match_type', MatchType::Home)->where('venue_id', $venue->id)->count()

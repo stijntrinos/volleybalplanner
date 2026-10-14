@@ -182,7 +182,7 @@ class MatchOverview extends Component
             ->leftJoin('planner_venues as overview_venues', 'planner_matches.venue_id', '=', 'overview_venues.id')
             ->leftJoin('planner_courts as overview_courts', 'planner_matches.court_id', '=', 'overview_courts.id')
             ->select('planner_matches.*')
-            ->with(['venue', 'court', 'secondCourt'])
+            ->with(['venue', 'court', 'secondCourt', 'homeTeam'])
             ->orderBy('planner_matches.date')
             ->orderBy('planner_matches.time')
             ->orderBy('overview_venues.name')

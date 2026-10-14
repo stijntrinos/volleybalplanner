@@ -29,6 +29,7 @@ use Illuminate\Support\Carbon;
  * @property bool $plays_on_two_courts
  * @property bool $scores_own_match
  * @property bool $provides_referee
+ * @property string|null $referee_license
  * @property bool $nevobo_referee
  * @property bool $has_duties
  * @property bool $include_in_duties
@@ -98,16 +99,31 @@ class Team extends Model
     public const PLANNER_COLUMNS = [
         'id', 'club_id', 'code', 'name', 'source', 'default_weekday', 'default_time',
         'default_venue_id', 'default_court', 'default_match_duration',
-        'plays_on_two_courts', 'scores_own_match', 'provides_referee',
+        'plays_on_two_courts', 'scores_own_match', 'provides_referee', 'referee_license',
         'nevobo_referee', 'has_duties', 'include_in_duties', 'volunteers', 'include_volunteers',
         'volunteer_points_used', 'volunteer_points_earned', 'volunteer_points_percentage',
         'locker_room_category',
     ];
 
+    /**
+     * The Nevobo referee licences from low to high, with what they allow. A
+     * team picks the licence a referee needs at minimum for its home matches.
+     *
+     * @var array<string, string>
+     */
+    public const REFEREE_LICENSES = [
+        'V6' => 'Scheidsrechter t/m 3e klasse',
+        'V4' => 'Scheidsrechter t/m 1e klasse',
+        'R2.2' => 'Tweede scheidsrechter t/m 3e divisie',
+        'R2' => 'Scheidsrechter t/m promotieklasse',
+        'R1' => 'Scheidsrechter t/m 3e divisie',
+        'N3' => 'Scheidsrechter t/m 2e divisie',
+    ];
+
     protected $fillable = [
         'code', 'name', 'source', 'default_weekday', 'default_time',
         'default_venue_id', 'default_court', 'default_match_duration',
-        'plays_on_two_courts', 'scores_own_match', 'provides_referee', 'nevobo_referee', 'has_duties',
+        'plays_on_two_courts', 'scores_own_match', 'provides_referee', 'referee_license', 'nevobo_referee', 'has_duties',
         'include_in_duties', 'volunteers', 'include_volunteers', 'volunteer_points_used', 'volunteer_points_earned',
         'volunteer_points_percentage', 'locker_room_category',
     ];

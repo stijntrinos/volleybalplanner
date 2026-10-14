@@ -100,8 +100,15 @@
                                 </div>
                             </article>
                         @endforeach
-                        @foreach (collect($day['activities'] ?? [])->where('court_id', $court['id']) as $activity)
-                            <article class="planner-card planner-activity-card" style="top: {{ $timetable::top($activity['start_time']) }}px; height: {{ $timetable::heightFrom($activity['start_time'], $activity['end_time']) }}px"><strong>{{ $activity['title'] }}</strong><small>{{ substr($activity['start_time'], 0, 5) }}@if ($activity['end_time'])–{{ substr($activity['end_time'], 0, 5) }}@endif</small></article>
+                        {{-- An activity without a court applies to the whole venue and
+                             then spans all courts, like Volleystars. --}}
+                        @foreach (collect($day['activities'] ?? [])->filter(fn ($activity) => $activity['court_id'] == $court['id'] || ($activity['court_id'] === null && $activity['venue_id'] == $venue['id'] && $courtIndex === 0)) as $activity)
+                            @php
+                                $isHallWide = $activity['court_id'] === null;
+                            @endphp
+                            <button type="button" @class(['planner-card planner-activity-card', 'is-hall-wide' => $isHallWide])
+                                wire:click="openActivity({{ $activity['id'] }})" title="{{ __('Geblokkeerd: hier kan geen wedstrijd worden ingepland') }}"
+                                style="top: {{ $timetable::top($activity['start_time']) }}px; height: {{ $timetable::heightFrom($activity['start_time'], $activity['end_time']) }}px;@if ($isHallWide) width: calc({{ count($venue['courts']) }} * 100% - 10px); right: auto;@endif"><strong>{{ $activity['title'] }}</strong><small>{{ substr($activity['start_time'], 0, 5) }}@if ($activity['end_time'])–{{ substr($activity['end_time'], 0, 5) }}@endif · {{ $isHallWide ? __('hele zaal') : __('geblokkeerd') }}</small></button>
                         @endforeach
                         @foreach (collect($day['trainings'] ?? [])->where('venue_id', $venue['id'])->filter(fn ($training) => (string) $training['court'] === (string) $court['name']) as $training)
                             <article class="planner-card planner-training-card" style="top: {{ $timetable::top($training['start_time']) }}px; height: {{ $timetable::heightBetween($training['start_time'], $training['end_time']) }}px"><strong>{{ $training['team']['code'] ?? __('Training') }}</strong><small>{{ substr($training['start_time'], 0, 5) }}–{{ substr($training['end_time'], 0, 5) }}</small></article>

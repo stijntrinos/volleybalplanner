@@ -72,6 +72,7 @@
         </div>
 
         @include('planner::filament.pages.home-matches.match-modal')
+        @include('planner::filament.pages.home-matches.activity-modal')
         @include('planner::filament.pages.home-matches.volleystars-modal')
         @include('planner::filament.pages.home-matches.confirmation')
         @include('planner::filament.pages.home-matches.assistant')

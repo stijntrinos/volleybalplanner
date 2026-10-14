@@ -69,6 +69,11 @@
                 <span>{{ __('Wedstrijd toevoegen') }}</span>
             </button>
         @endif
+        @if ($editable && auth()->user()?->can('Create:Activity'))
+            <button type="button" class="planner-settings-trigger" wire:click="openNewActivity" aria-label="{{ __('Activiteit toevoegen') }}" title="{{ __('Activiteit toevoegen, bijvoorbeeld om een veld te blokkeren') }}">
+                <x-filament::icon icon="heroicon-o-no-symbol" class="planner-icon" />
+            </button>
+        @endif
         @if ($versionId)
             <div class="planner-export" x-data="{ open: false }" @click.outside="open = false">
                 <button type="button" class="planner-settings-trigger" @click="open = ! open" :aria-expanded="open" aria-label="{{ __('Dagschema exporteren') }}" title="{{ __('Dagschema exporteren') }}">
