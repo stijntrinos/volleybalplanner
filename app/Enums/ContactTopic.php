@@ -12,6 +12,8 @@ enum ContactTopic: string implements HasLabel
     case Quote = 'offerte';
     // Sent from the upgrade prompt inside the planner, never from the site.
     case Upgrade = 'upgrade';
+    // Sent from the subscription banner or page when the period (almost) ended.
+    case Renewal = 'verlenging';
 
     /** @return list<self> the topics a visitor of the public site can choose */
     public static function publicCases(): array
@@ -26,6 +28,7 @@ enum ContactTopic: string implements HasLabel
             self::Question => 'Een vraag stellen',
             self::Quote => 'Offerte voor groot pakket',
             self::Upgrade => 'Upgrade van pakket',
+            self::Renewal => 'Verlenging abonnement',
         };
     }
 
@@ -37,6 +40,7 @@ enum ContactTopic: string implements HasLabel
             self::Question => 'Vraag versturen',
             self::Quote => 'Offerte aanvragen',
             self::Upgrade => 'Upgrade aanvragen',
+            self::Renewal => 'Verlenging aanvragen',
         };
     }
 }

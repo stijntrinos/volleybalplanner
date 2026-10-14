@@ -523,3 +523,8 @@
     .planner-toolbar-primary .planner-date-navigation .planner-current-date { flex: 1; min-width: 0; }
     .planner-toolbar-primary .planner-version { min-width: 0; flex: 1 1 0; }
 }
+
+/* The match modal's fields; disabled as a whole when the planning is read-only. */
+.planner-match-fields{display:contents;border:0;margin:0;padding:0;min-width:0}
+.planner-match-fields:disabled :is(input,select,textarea,button){cursor:default}
+.planner-match-fields:disabled .planner-duration button.is-active{opacity:.85}

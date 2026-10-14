@@ -73,6 +73,8 @@ class Subscription extends Page
         return [
             'plan' => $club->plan,
             'period' => self::period($club),
+            // Ended or about to end: extending is the first thing to offer.
+            'renewal' => $club->subscriptionNotice(),
             // On the largest plan there is nothing to upgrade to.
             'canUpgrade' => $club->plan ? $club->plan->nextPlan() !== null : Plan::query()->exists(),
             'limits' => array_map(fn (PlanLimit $limit): array => [

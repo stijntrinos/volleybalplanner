@@ -35,7 +35,7 @@
             <x-filament::section :heading="__('Geen wedstrijden op deze dag')" :description="__('Gebruik de pijlen om naar een wedstrijddag te gaan.')" />
         @endif
 
-        @if ($versionId && ! $editable)
+        @if ($versionId && ! $editable && ! \App\Support\Tenancy\ReadOnlyClub::active())
             <div class="planner-readonly-notice">{{ __('Deze planning is gepubliceerd en daarom alleen-lezen. Maak of selecteer een conceptversie om wedstrijden te verplaatsen.') }}</div>
         @endif
 

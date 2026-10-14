@@ -2,7 +2,10 @@
 
 namespace Tests\Feature\Planner;
 
+use App\Enums\ContactTopic;
+use App\Livewire\PlanUpgradePrompt;
 use App\Models\Club;
+use App\Models\ContactRequest;
 use App\Planner\Enums\ScheduleVersionStatus;
 use App\Planner\Filament\Pages\HomeMatches;
 use App\Planner\Filament\Resources\Teams\TeamResource;
@@ -112,6 +115,48 @@ class ReadOnlyClubTest extends TestCase
             ->assertNotified('Alleen bekijken');
 
         $this->assertNull($match->refresh()->venue_id);
+    }
+
+    public function test_the_planner_shows_matches_read_only_and_greyed_out(): void
+    {
+        $club = $this->createClub();
+        $this->actingAsClubUser(ClubRole::ClubAdmin, $club);
+        $version = ScheduleVersion::factory()->create(['status' => ScheduleVersionStatus::Draft]);
+        $venue = Venue::factory()->create();
+        $court = Court::factory()->create(['venue_id' => $venue->id]);
+        $match = FixtureMatch::factory()->create(['version_id' => $version->id, 'date' => '2026-09-19', 'time' => '19:30', 'venue_id' => $venue->id, 'court_id' => $court->id]);
+        $club->update(['trial_ends_at' => today()->subWeek()]);
+
+        Livewire::test(HomeMatches::class)
+            ->set('versionId', $version->id)
+            ->set('date', '2026-09-19')
+            ->assertSee('is-readonly', false)
+            ->assertDontSee(__('Verplaatsingsassistent'))
+            ->call('openMatch', $match->id)
+            ->assertSee('Wedstrijd bekijken')
+            ->assertDontSee('Opslaan');
+
+        $this->get('/app/'.$club->slug)->assertSee('vp-read-only-tint', false);
+        // Where the subscription is handled, the page keeps its colour.
+        $this->get('/app/'.$club->slug.'/abonnement')->assertOk()
+            ->assertDontSee('vp-read-only-tint', false)
+            ->assertSee('Verlenging aanvragen');
+    }
+
+    public function test_a_club_admin_requests_the_renewal(): void
+    {
+        $club = $this->expiredClub();
+        $this->actingAsClubUser(ClubRole::ClubAdmin, $club);
+
+        Livewire::test(PlanUpgradePrompt::class)
+            ->call('show', null, null, true)
+            ->assertSee('Abonnement verlengen')
+            ->call('requestUpgrade')
+            ->assertSet('requested', true);
+
+        $request = ContactRequest::query()->sole();
+        $this->assertSame(ContactTopic::Renewal, $request->topic);
+        $this->assertStringContainsString('Het abonnement is afgelopen', $request->message);
     }
 
     public function test_own_preferences_can_still_be_saved(): void

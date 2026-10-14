@@ -63,10 +63,12 @@
                 <span class="planner-unplanned-badge">{{ count($day['to_plan'] ?? []) }}</span>
             @endif
         </button>
-        <button type="button" class="planner-add-match" wire:click="openNewMatch" title="{{ __('Wedstrijd toevoegen') }}">
-            <x-filament::icon icon="heroicon-o-plus" class="planner-icon-sm" />
-            <span>{{ __('Wedstrijd toevoegen') }}</span>
-        </button>
+        @if ($editable)
+            <button type="button" class="planner-add-match" wire:click="openNewMatch" title="{{ __('Wedstrijd toevoegen') }}">
+                <x-filament::icon icon="heroicon-o-plus" class="planner-icon-sm" />
+                <span>{{ __('Wedstrijd toevoegen') }}</span>
+            </button>
+        @endif
         @if ($versionId)
             <div class="planner-export" x-data="{ open: false }" @click.outside="open = false">
                 <button type="button" class="planner-settings-trigger" @click="open = ! open" :aria-expanded="open" aria-label="{{ __('Dagschema exporteren') }}" title="{{ __('Dagschema exporteren') }}">

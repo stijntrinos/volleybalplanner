@@ -1,16 +1,21 @@
 <div
     x-data
-    x-on:planner-upgrade.window="$wire.show($event.detail?.feature ?? null, $event.detail?.limit ?? null)"
+    x-on:planner-upgrade.window="$wire.show($event.detail?.feature ?? null, $event.detail?.limit ?? null, $event.detail?.renew ?? false)"
 >
     <x-filament::modal
         :id="\App\Livewire\PlanUpgradePrompt::MODAL"
         width="lg"
-        :icon="$module || $cap ? 'heroicon-o-lock-closed' : 'heroicon-o-arrow-up-circle'"
+        :icon="$renew ? 'heroicon-o-calendar-days' : ($module || $cap ? 'heroicon-o-lock-closed' : 'heroicon-o-arrow-up-circle')"
         icon-color="primary"
-        :heading="$module ? __(':module zit niet in je pakket', ['module' => $module->getLabel()]) : ($cap ? __('Je zit aan de limiet van je pakket') : __('Naar een groter pakket'))"
+        :heading="$renew ? __('Abonnement verlengen') : ($module ? __(':module zit niet in je pakket', ['module' => $module->getLabel()]) : ($cap ? __('Je zit aan de limiet van je pakket') : __('Naar een groter pakket')))"
     >
         <div class="vp-upgrade">
-            @if ($module)
+            @if ($renew)
+                <p>
+                    @if ($renewal){{ $renewal['message'] }} @endif
+                    {{ __('Vraag de verlenging aan, dan nemen we contact met je op. Zodra het abonnement verlengd is, kun je meteen weer alles wijzigen.') }}
+                </p>
+            @elseif ($module)
                 <p>{{ $module->getDescription() }}</p>
             @elseif ($limitMessage)
                 <p>{{ $limitMessage }} {{ __('Bestaande gegevens blijven gewoon staan; alleen toevoegen kan niet meer.') }}</p>
@@ -20,7 +25,7 @@
                 <div class="vp-upgrade-plan">
                     <div class="vp-upgrade-plan-head">
                         <div>
-                            <span class="vp-upgrade-kicker">{{ $club?->planName() ? __('Van :from naar', ['from' => $club->planName()]) : __('Beschikbaar in') }}</span>
+                            <span class="vp-upgrade-kicker">{{ $renew ? __('Jullie pakket') : ($club?->planName() ? __('Van :from naar', ['from' => $club->planName()]) : __('Beschikbaar in')) }}</span>
                             <strong>{{ $target->name }}</strong>
                         </div>
                         <span class="vp-upgrade-price">
@@ -56,8 +61,8 @@
 
         <x-slot name="footerActions">
             @unless ($requested)
-                <x-filament::button wire:click="requestUpgrade" wire:loading.attr="disabled" icon="heroicon-m-arrow-up-circle">
-                    {{ $target ? __('Upgrade naar :plan aanvragen', ['plan' => $target->name]) : __('Contact opnemen') }}
+                <x-filament::button wire:click="requestUpgrade" wire:loading.attr="disabled" :icon="$renew ? 'heroicon-m-paper-airplane' : 'heroicon-m-arrow-up-circle'">
+                    {{ $renew ? __('Verlenging aanvragen') : ($target ? __('Upgrade naar :plan aanvragen', ['plan' => $target->name]) : __('Contact opnemen')) }}
                 </x-filament::button>
             @endunless
             <x-filament::button tag="a" :href="route('site.pricing')" target="_blank" color="gray">

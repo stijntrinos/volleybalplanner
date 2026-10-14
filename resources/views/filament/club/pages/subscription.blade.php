@@ -18,6 +18,11 @@
                 <x-filament::button color="gray" tag="a" :href="route('site.pricing')" target="_blank" icon="heroicon-m-arrow-top-right-on-square" icon-position="after">
                     {{ __('Pakketten vergelijken') }}
                 </x-filament::button>
+                @if ($renewal)
+                    <x-filament::button x-data x-on:click="$dispatch('planner-upgrade', { renew: true })" icon="heroicon-m-calendar-days" :color="$renewal['tone'] === 'danger' ? 'danger' : 'primary'">
+                        {{ __('Verlenging aanvragen') }}
+                    </x-filament::button>
+                @endif
                 @if ($canUpgrade)
                     <x-filament::button x-data x-on:click="$dispatch('planner-upgrade', {})" icon="heroicon-m-arrow-up-circle">
                         {{ __('Upgrade aanvragen') }}

@@ -18,6 +18,7 @@ use App\Planner\Models\UserPreference;
 use App\Planner\Models\Venue;
 use App\Planner\Support\Weekday;
 use App\Support\Tenancy\CurrentClub;
+use App\Support\Tenancy\ReadOnlyClub;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 
@@ -98,7 +99,8 @@ class PlannerDayData
 
         return [
             'date' => $date,
-            'editable' => $version->isDraft(),
+            // A published version, or a club in read-only mode: look, don't touch.
+            'editable' => $version->isDraft() && !ReadOnlyClub::active(),
             'matches' => $matches->map(fn (FixtureMatch $match): array => [
                 'id' => $match->id, 'code' => $match->match_code, 'time' => FixtureMatch::shortTime($match->time),
                 'duration_minutes' => $match->duration_minutes,

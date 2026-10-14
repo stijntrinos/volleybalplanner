@@ -20,7 +20,9 @@ use Livewire\Component;
 /**
  * The pop-up behind every locked module and every limit in the club panel:
  * which plan unlocks it, and a button that asks us for the upgrade. Opened
- * with a window event: planner-upgrade {feature} or {limit}.
+ * with a window event: planner-upgrade {feature} or {limit}. With {renew}
+ * it asks for extending the current plan instead (subscription ended or
+ * about to end).
  */
 class PlanUpgradePrompt extends Component
 {
@@ -29,6 +31,8 @@ class PlanUpgradePrompt extends Component
     public ?string $feature = null;
 
     public ?string $limit = null;
+
+    public bool $renew = false;
 
     public bool $requested = false;
 
@@ -41,8 +45,9 @@ class PlanUpgradePrompt extends Component
         $this->clubId = $tenant instanceof Club ? (int) $tenant->getKey() : null;
     }
 
-    public function show(?string $feature = null, ?string $limit = null): void
+    public function show(?string $feature = null, ?string $limit = null, bool $renew = false): void
     {
+        $this->renew = $renew;
         $this->feature = PlannerFeature::tryFrom((string) $feature)?->value;
         $this->limit = $this->feature ? null : PlanLimit::tryFrom((string) $limit)?->value;
         $this->requested = false;
@@ -60,27 +65,44 @@ class PlanUpgradePrompt extends Component
         }
 
         // One request per club per hour is plenty; a double click sends one.
-        if (RateLimiter::tooManyAttempts('plan-upgrade:'.$club->id, 1)) {
+        $key = ($this->renew ? 'plan-renewal:' : 'plan-upgrade:').$club->id;
+        if (RateLimiter::tooManyAttempts($key, 1)) {
             $this->requested = true;
 
             return;
         }
-        RateLimiter::hit('plan-upgrade:'.$club->id, 3600);
+        RateLimiter::hit($key, 3600);
+
+        if ($this->renew) {
+            $this->send($club, $user, ContactTopic::Renewal, [
+                'Pakket: '.($club->planName() ?? 'geen'),
+                'Status: '.($club->subscriptionNotice()['message'] ?? 'loopt'),
+                'Werkruimte: '.Filament::getPanel('club')->getUrl($club),
+            ]);
+
+            return;
+        }
 
         $target = $this->targetPlan($club);
+        $this->send($club, $user, ContactTopic::Upgrade, [
+            'Huidig pakket: '.($club->planName() ?? 'geen'),
+            'Gewenst pakket: '.($target->name ?? 'onbekend'),
+            'Aanleiding: '.$this->subject(),
+            'Werkruimte: '.Filament::getPanel('club')->getUrl($club),
+        ]);
+    }
+
+    /** @param  list<string>  $lines */
+    private function send(Club $club, User $user, ContactTopic $topic, array $lines): void
+    {
         $request = ContactRequest::create([
-            'topic' => ContactTopic::Upgrade,
+            'topic' => $topic,
             'name' => $user->name,
             'club' => $club->name,
             'email' => $user->email,
             'teams' => null,
             'venues' => null,
-            'message' => implode("\n", [
-                'Huidig pakket: '.($club->planName() ?? 'geen'),
-                'Gewenst pakket: '.($target->name ?? 'onbekend'),
-                'Aanleiding: '.$this->subject(),
-                'Werkruimte: '.Filament::getPanel('club')->getUrl($club),
-            ]),
+            'message' => implode("\n", $lines),
         ]);
 
         if (filled($recipient = config('site.contact_recipient'))) {
@@ -102,7 +124,8 @@ class PlanUpgradePrompt extends Component
             'cap' => $limit,
             'limitMessage' => $limit && $club?->planLimit($limit) !== null ? $limit->reachedMessage($club->planLimit($limit)) : null,
             'subject' => $this->subject(),
-            'target' => $club ? $this->targetPlan($club) : null,
+            'target' => $club ? ($this->renew ? $club->plan : $this->targetPlan($club)) : null,
+            'renewal' => $this->renew ? $club?->subscriptionNotice() : null,
             'replyDays' => config('site.reply_within_days'),
         ]);
     }

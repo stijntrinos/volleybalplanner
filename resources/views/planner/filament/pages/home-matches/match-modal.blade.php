@@ -1,13 +1,15 @@
 @if ($modalMatchId !== null && ($modalMatchId === 0 || $this->modalMatch))
-    <div class="planner-assistant-backdrop" wire:click.self="closeMatch" wire:keydown.escape.window="closeMatch" role="dialog" aria-modal="true" aria-label="{{ __('Wedstrijd bewerken') }}">
+    <div class="planner-assistant-backdrop" wire:click.self="closeMatch" wire:keydown.escape.window="closeMatch" role="dialog" aria-modal="true" aria-label="{{ $editable ? __('Wedstrijd bewerken') : __('Wedstrijd bekijken') }}">
         <form class="planner-match-modal" wire:submit="saveMatch">
             <div class="planner-assistant-header">
                 <div>
-                    <h2>{{ $modalMatchId === 0 ? __('Nieuwe wedstrijd') : __('Wedstrijd bewerken') }}</h2>
+                    <h2>{{ $modalMatchId === 0 ? __('Nieuwe wedstrijd') : ($editable ? __('Wedstrijd bewerken') : __('Wedstrijd bekijken')) }}</h2>
                     <p>{{ $modalMatchId === 0 ? __('Datum: :date', ['date' => $modalDate]) : $this->modalMatch->venue?->name.' · '.__('veld :court', ['court' => $this->modalMatch->court?->name]) }}</p>
                 </div>
                 <button type="button" wire:click="closeMatch" aria-label="{{ __('Sluiten') }}">×</button>
             </div>
+            {{-- Read-only (published version or read-only club): every field disabled. --}}
+            <fieldset class="planner-match-fields" @disabled(! $editable)>
             <div class="planner-match-form-grid">
                 <label>
                     <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Sporthal') }}</span>
@@ -79,13 +81,14 @@
                 <x-filament::input.checkbox :checked="(bool) $modalSecondCourtId" x-on:change="$wire.setTwoCourts($event.target.checked)" />
                 <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Gebruikt twee velden') }}<small>{{ __('De wedstrijd beslaat veld 1 en 2') }}</small></span>
             </label>
+            </fieldset>
             @if ($errors->any())<div class="planner-form-errors">{{ $errors->first() }}</div>@endif
             <div class="planner-match-modal-actions">
                 @if ($editable && $modalMatchId !== 0)
                     <button type="button" class="is-danger" wire:click="deleteMatch" wire:confirm="{{ __('Deze wedstrijd definitief uit deze conceptplanning verwijderen?') }}">{{ __('Verwijderen') }}</button>
                 @endif
                 <span></span>
-                <button type="button" wire:click="closeMatch">{{ __('Annuleren') }}</button>
+                <button type="button" wire:click="closeMatch">{{ $editable ? __('Annuleren') : __('Sluiten') }}</button>
                 @if ($editable)<button type="submit" class="is-primary">{{ $modalMatchId === 0 ? __('Toevoegen') : __('Opslaan') }}</button>@endif
             </div>
         </form>

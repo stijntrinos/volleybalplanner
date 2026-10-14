@@ -2148,6 +2148,9 @@ a.vp-day:hover {
 
 /* Subscription period notice above the content (club admins). */
 .vp-subscription-banner {
+    position: relative;
+    /* Above the read-only veil (21), so it keeps its colour. */
+    z-index: 22;
     margin: 16px 24px 0;
     border-color: var(--vp-warn);
     background: var(--vp-warn-soft);
@@ -2156,6 +2159,34 @@ a.vp-day:hover {
 
 .vp-subscription-banner .vp-banner-link {
     color: var(--vp-warn-ink);
+}
+
+button.vp-banner-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/*
+ * Read-only mode: a grey veil over the page. backdrop-filter on an overlay
+ * (instead of filter on the page) keeps fixed modals and toasts positioned
+ * and in colour; clicks pass through to the (refused) controls below.
+ */
+.fi-main {
+    position: relative;
+}
+
+.vp-read-only-tint {
+    position: absolute;
+    inset: 0;
+    /* Above the planner's sticky headers (20), below the top bar (25), modals and toasts. */
+    z-index: 21;
+    pointer-events: none;
+    -webkit-backdrop-filter: grayscale(1);
+    backdrop-filter: grayscale(1);
 }
 
 .vp-subscription-banner.is-danger {
