@@ -63,7 +63,7 @@
             <x-filament::button tag="a" :href="route('site.pricing')" target="_blank" color="gray">
                 {{ __('Pakketten vergelijken') }}
             </x-filament::button>
-            <x-filament::button color="gray" x-on:click="$dispatch('close-modal', { id: @js(\App\Livewire\PlanUpgradePrompt::MODAL) })">
+            <x-filament::button color="gray" x-on:click="$dispatch('close-modal', { id: '{{ \App\Livewire\PlanUpgradePrompt::MODAL }}' })">
                 {{ __('Sluiten') }}
             </x-filament::button>
         </x-slot>

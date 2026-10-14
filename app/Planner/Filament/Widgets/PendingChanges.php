@@ -12,6 +12,7 @@ use App\Planner\Filament\Widgets\Concerns\ResolvesWidgetVersion;
 use App\Planner\Models\FixtureMatch;
 use App\Planner\Services\PlannerService;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -54,22 +55,17 @@ class PendingChanges extends TableWidget
                     ->label(__('Datum'))
                     ->date('d-m-Y')
                     ->placeholder(__('Nog geen datum'))
+                    ->description(fn (FixtureMatch $record): ?string => $record->time ? FixtureMatch::shortTime($record->time) : null)
                     ->sortable(),
 
-                TextColumn::make('time')
-                    ->label(__('Tijd'))
-                    ->formatStateUsing(fn (?string $state): string => $state ? substr($state, 0, 5) : '—'),
-
-                TextColumn::make('match_code')
-                    ->label(__('Code'))
-                    ->searchable(),
-
                 // For an away match the opponent is the home team in the row, so
-                // both teams are shown side by side.
+                // both teams are shown side by side; the code sits underneath.
                 TextColumn::make('home_team_name')
                     ->label(__('Wedstrijd'))
                     ->state(fn (FixtureMatch $record): string => trim($record->home_team_name.' - '.$record->away_team_name, ' -'))
-                    ->searchable(['home_team_name', 'away_team_name']),
+                    ->description(fn (FixtureMatch $record): ?string => $record->match_code)
+                    ->wrap()
+                    ->searchable(['home_team_name', 'away_team_name', 'match_code']),
 
                 TextColumn::make('match_type')
                     ->label(__('Type'))
@@ -80,6 +76,7 @@ class PendingChanges extends TableWidget
                 TextColumn::make('change_status')
                     ->label(__('Status'))
                     ->badge()
+                    ->wrap()
                     ->color(fn (FixtureMatch $record): string => $record->nevobo_change_status === NevoboChangeStatus::Conflict ? 'danger' : 'warning')
                     ->description(fn (FixtureMatch $record): ?string => match (true) {
                         (bool) $record->nevobo_changed_at => $this->nevoboSummary($record),
@@ -97,30 +94,38 @@ class PendingChanges extends TableWidget
                     }),
             ])
             ->recordActions([
-                Action::make('acceptNevobo')
-                    ->label(__('Nevobo overnemen'))
-                    ->icon('heroicon-m-arrow-down-on-square')
-                    ->requiresConfirmation()
-                    ->modalDescription(__('De planning van deze wedstrijd wordt vervangen door wat Nevobo doorgeeft.'))
-                    ->authorize(fn (FixtureMatch $record): bool => auth()->user()?->can('update', $record) ?? false)
-                    ->visible(fn (FixtureMatch $record): bool => $record->nevobo_change_status === NevoboChangeStatus::Conflict)
-                    ->action(function (FixtureMatch $record): void {
-                        app(PlannerService::class)->acceptNevoboChange($record, auth()->id());
-                        Notification::make()->title(__('Wijziging van Nevobo overgenomen'))->success()->send();
-                    }),
+                // One compact button: the table shares the row with the sync column.
+                ActionGroup::make([
+                    Action::make('acceptNevobo')
+                        ->label(__('Nevobo overnemen'))
+                        ->icon('heroicon-m-arrow-down-on-square')
+                        ->requiresConfirmation()
+                        ->modalDescription(__('De planning van deze wedstrijd wordt vervangen door wat Nevobo doorgeeft.'))
+                        ->authorize(fn (FixtureMatch $record): bool => auth()->user()?->can('update', $record) ?? false)
+                        ->visible(fn (FixtureMatch $record): bool => $record->nevobo_change_status === NevoboChangeStatus::Conflict)
+                        ->action(function (FixtureMatch $record): void {
+                            app(PlannerService::class)->acceptNevoboChange($record, auth()->id());
+                            Notification::make()->title(__('Wijziging van Nevobo overgenomen'))->success()->send();
+                        }),
 
-                Action::make('ignoreNevobo')
-                    ->label(fn (FixtureMatch $record): string => $record->nevobo_change_status === NevoboChangeStatus::Conflict
-                        ? __('Eigen planning houden')
-                        : __('Gezien'))
-                    ->icon('heroicon-m-check')
-                    ->color('gray')
-                    ->authorize(fn (FixtureMatch $record): bool => auth()->user()?->can('update', $record) ?? false)
-                    ->visible(fn (FixtureMatch $record): bool => in_array($record->nevobo_change_status, NevoboChangeStatus::open(), true))
-                    ->action(function (FixtureMatch $record): void {
-                        app(PlannerService::class)->ignoreNevoboChange($record, auth()->id());
-                        Notification::make()->title(__('Verwerkt'))->success()->send();
-                    }),
+                    Action::make('ignoreNevobo')
+                        ->label(fn (FixtureMatch $record): string => $record->nevobo_change_status === NevoboChangeStatus::Conflict
+                            ? __('Eigen planning houden')
+                            : __('Gezien'))
+                        ->icon('heroicon-m-check')
+                        ->color('gray')
+                        ->authorize(fn (FixtureMatch $record): bool => auth()->user()?->can('update', $record) ?? false)
+                        ->visible(fn (FixtureMatch $record): bool => in_array($record->nevobo_change_status, NevoboChangeStatus::open(), true))
+                        ->action(function (FixtureMatch $record): void {
+                            app(PlannerService::class)->ignoreNevoboChange($record, auth()->id());
+                            Notification::make()->title(__('Verwerkt'))->success()->send();
+                        }),
+                ])
+                    ->label(__('Beslissen'))
+                    ->icon('heroicon-m-chevron-down')
+                    ->button()
+                    ->size('sm')
+                    ->color('gray'),
             ])
             ->defaultSort('date');
     }
