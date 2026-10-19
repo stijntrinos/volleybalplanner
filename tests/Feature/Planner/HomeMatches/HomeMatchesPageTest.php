@@ -17,6 +17,7 @@ use App\Planner\Models\Venue;
 use App\Planner\Models\VolleystarsBlock;
 use App\Planner\Support\ClubRole;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Vite;
 use Tests\Concerns\InteractsWithClubs;
 use Tests\TestCase;
 
@@ -87,6 +88,8 @@ class HomeMatchesPageTest extends TestCase
         if (!is_file(public_path('build/manifest.json'))) {
             $this->markTestSkipped('Run `npm run build` to check the asset registration.');
         }
+        // A running `npm run dev` would serve the assets from the dev server.
+        Vite::useHotFile(storage_path('framework/testing/no-vite-hot-file'));
         $club = $this->createClub([]);
         $this->actingAsClubUser(ClubRole::PlanningCommittee, $club);
         ScheduleVersion::factory()->create();
