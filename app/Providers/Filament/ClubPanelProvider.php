@@ -57,7 +57,13 @@ class ClubPanelProvider extends PanelProvider
                 'profile' => fn (Action $action): Action => $action
                     ->label('Mijn account')
                     ->icon('heroicon-m-user-circle')
-                    ->url(fn (): string => EditAccount::getUrl()),
+                    // Pages outside a club (error pages, the MFA set-up) render this menu
+                    // too; the account page lives under a club, so fall back to the user's.
+                    ->url(function (): string {
+                        $club = Filament::getTenant() ?? Filament::auth()->user()?->getDefaultTenant(Filament::getCurrentOrDefaultPanel());
+
+                        return $club ? EditAccount::getUrl(tenant: $club) : url('/app');
+                    }),
             ])
             ->brandName('Volleybalplanner')
             ->spa()
