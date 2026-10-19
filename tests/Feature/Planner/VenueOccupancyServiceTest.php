@@ -72,6 +72,39 @@ class VenueOccupancyServiceTest extends TestCase
         $this->assertSame(VenueOccupancyService::STATUS_CONFLICT, $this->firstRow()['status']);
     }
 
+    public function test_rental_per_court_counts_for_the_matches_on_that_court(): void
+    {
+        $this->rental('2026-10-02', '18:30', '22:30', $this->court);
+        $this->match('2026-10-02', '19:00');
+
+        $row = $this->firstRow();
+
+        $this->assertSame('18:30', $row['available_from']);
+        $this->assertSame('22:30', $row['available_until']);
+        $this->assertSame(VenueOccupancyService::STATUS_AVAILABLE, $row['status']);
+    }
+
+    public function test_rental_of_another_court_says_nothing_about_the_match(): void
+    {
+        $otherCourt = Court::factory()->create(['venue_id' => $this->venue->id, 'name' => '2']);
+        $this->rental('2026-10-02', '18:30', '22:30', $otherCourt);
+        $this->match('2026-10-02', '19:00');
+
+        $this->assertSame(VenueOccupancyService::STATUS_UNKNOWN, $this->firstRow()['status']);
+    }
+
+    public function test_a_closed_venue_wins_over_the_rental_of_a_court(): void
+    {
+        $this->rental('2026-12-11', '18:30', '22:30', $this->court);
+        Availability::create([
+            'venue_id' => $this->venue->id, 'scope' => AvailabilityScope::Date, 'date' => '2026-12-11',
+            'status' => AvailabilityStatus::Closed, 'note' => 'Evenement',
+        ]);
+        $this->match('2026-12-11', '19:00');
+
+        $this->assertSame(VenueOccupancyService::STATUS_CONFLICT, $this->firstRow('2026-12-11', '2026-12-11')['status']);
+    }
+
     public function test_a_day_without_recorded_availability_stands_out(): void
     {
         $this->match('2026-10-10', '09:00');
@@ -171,10 +204,10 @@ class VenueOccupancyServiceTest extends TestCase
         $this->assertSame(['Middachtensingel', 'Bakenhof'], array_column($overview['venues'], 'venue'));
     }
 
-    private function rental(string $date, string $from, string $until): void
+    private function rental(string $date, string $from, string $until, ?Court $court = null): void
     {
         Availability::create([
-            'venue_id' => $this->venue->id, 'scope' => AvailabilityScope::Date, 'date' => $date,
+            'venue_id' => $this->venue->id, 'court_id' => $court?->id, 'scope' => AvailabilityScope::Date, 'date' => $date,
             'start_time' => $from, 'end_time' => $until, 'status' => AvailabilityStatus::Available,
         ]);
     }

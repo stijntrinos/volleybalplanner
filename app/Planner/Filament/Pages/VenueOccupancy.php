@@ -299,8 +299,11 @@ class VenueOccupancy extends Page
         $version = $this->versionId ? ScheduleVersion::find($this->versionId) : null;
         $first = $version?->matches()->whereNotNull('date')->min('date');
         $last = $version?->matches()->whereNotNull('date')->max('date');
+        // From today to the end of the season: what has been played needs no
+        // checking. If the whole season lies behind us, show it anyway.
+        $seasonOver = $last && CarbonImmutable::parse($last)->isBefore(today());
 
-        $this->fromDate = CarbonImmutable::parse($first ?: now())->format(DateFormat::DATE);
+        $this->fromDate = CarbonImmutable::parse($seasonOver ? $first : now())->format(DateFormat::DATE);
         $this->toDate = CarbonImmutable::parse($last ?: now()->addMonths(9))->format(DateFormat::DATE);
     }
 

@@ -20,6 +20,22 @@ class VenueOccupancyPageTest extends TestCase
 {
     use InteractsWithClubs, RefreshDatabase;
 
+    public function test_the_period_starts_today_unless_the_season_is_over(): void
+    {
+        $this->actingAsClubUser();
+        $this->travelTo('2026-10-19 12:00');
+        $version = ScheduleVersion::factory()->create();
+        FixtureMatch::factory()->create(['version_id' => $version->id, 'date' => '2026-09-05', 'match_type' => MatchType::Home]);
+        FixtureMatch::factory()->create(['version_id' => $version->id, 'date' => '2027-04-24', 'match_type' => MatchType::Home]);
+
+        $page = Livewire::test(VenueOccupancy::class)->set('versionId', $version->id);
+        $this->assertSame(['19-10-2026', '24-04-2027'], [$page->get('fromDate'), $page->get('toDate')]);
+
+        $this->travelTo('2027-06-01 12:00');
+        $page = Livewire::test(VenueOccupancy::class)->set('versionId', $version->id);
+        $this->assertSame(['05-09-2026', '24-04-2027'], [$page->get('fromDate'), $page->get('toDate')]);
+    }
+
     public function test_a_quick_filter_sets_the_statuses_and_recognises_itself(): void
     {
         $page = new VenueOccupancy;

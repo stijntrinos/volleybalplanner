@@ -37,7 +37,7 @@ class DutiesDashboard extends Page
 
     protected static string|UnitEnum|null $navigationGroup = NavigationGroups::PLANNING;
 
-    protected static ?int $navigationSort = 7;
+    protected static ?int $navigationSort = 8;
 
     protected string $view = 'planner::filament.pages.duties-dashboard';
 

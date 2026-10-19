@@ -188,10 +188,7 @@ class VenueOccupancyService
     {
         $onDay = $onDay->sortBy(fn (FixtureMatch $m): string => (string) $m->time)->values();
 
-        $venueRule = collect($applicable)
-            ->filter(fn (Availability $r): bool => $r->court_id === null)
-            ->sortByDesc(fn (Availability $r): int => $this->conflicts->scopeWeight($r))
-            ->first();
+        $venueRule = $this->decisiveRule($onDay, $applicable);
 
         $first = $onDay->first();
         $last = $onDay->last();
@@ -232,6 +229,39 @@ class VenueOccupancyService
     }
 
     /** @param Collection<int, FixtureMatch> $onDay */
+    /**
+     * The same precedence as the conflict check: a closed venue applies to all
+     * its courts, otherwise a rule for a single court wins. Rental is often
+     * recorded per court; looking only at venue rules showed those days as
+     * "no availability given".
+     *
+     * @param  ModelCollection<int, FixtureMatch>  $onDay
+     * @param  list<Availability>  $applicable
+     */
+    private function decisiveRule(ModelCollection $onDay, array $applicable): ?Availability
+    {
+        $byScope = fn (Collection $rules): ?Availability => $rules
+            ->sortByDesc(fn (Availability $r): int => $this->conflicts->scopeWeight($r))
+            ->first();
+
+        [$courtRules, $venueRules] = collect($applicable)->partition(fn (Availability $r): bool => $r->court_id !== null);
+        $venueRule = $byScope($venueRules);
+
+        if ($venueRule?->status === AvailabilityStatus::Closed || $courtRules->isEmpty()) {
+            return $venueRule;
+        }
+
+        // Without matches every court rule says something about the day; with
+        // matches only those of the courts that are played on.
+        if ($onDay->isEmpty()) {
+            return $byScope($courtRules);
+        }
+
+        $playedCourts = $onDay->flatMap(fn (FixtureMatch $m): array => array_filter([$m->court_id, $m->second_court_id]))->unique();
+
+        return $byScope($courtRules->filter(fn (Availability $r): bool => $playedCourts->contains($r->court_id))) ?? $venueRule;
+    }
+
     private function status(?Availability $rule, Collection $onDay, ?FixtureMatch $first, ?string $endOfLast): string
     {
         if (!$rule instanceof Availability) {

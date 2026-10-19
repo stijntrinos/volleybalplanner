@@ -39,9 +39,9 @@ class ActivityResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPuzzlePiece;
 
-    protected static string|UnitEnum|null $navigationGroup = NavigationGroups::MASTER_DATA;
+    protected static string|UnitEnum|null $navigationGroup = NavigationGroups::PLANNING;
 
-    protected static ?int $navigationSort = 25;
+    protected static ?int $navigationSort = 7;
 
     public static function getNavigationLabel(): string
     {
