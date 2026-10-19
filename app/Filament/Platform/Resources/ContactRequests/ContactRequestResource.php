@@ -4,10 +4,14 @@ namespace App\Filament\Platform\Resources\ContactRequests;
 
 use App\Enums\ContactTopic;
 use App\Filament\Platform\Resources\ContactRequests\Pages\ListContactRequests;
+use App\Models\Club;
 use App\Models\ContactRequest;
+use App\Models\User;
+use App\Support\Demo\DemoClubs;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
+use Filament\Facades\Filament;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -63,6 +67,10 @@ class ContactRequestResource extends Resource
             TextEntry::make('venues')->label('Aantal sporthallen')->placeholder('—'),
             TextEntry::make('message')->label('Bericht')->placeholder('Geen bericht')->columnSpanFull(),
             TextEntry::make('handled_at')->label('Afgehandeld')->dateTime('d-m-Y H:i')->placeholder('Nog niet'),
+            TextEntry::make('demoClub.name')
+                ->label(__('Democlub'))
+                ->visible(fn (ContactRequest $record): bool => $record->demoClub !== null)
+                ->url(fn (ContactRequest $record): ?string => $record->demoClub ? self::clubUrl($record->demoClub) : null, shouldOpenInNewTab: true),
         ])->columns(2);
     }
 
@@ -70,6 +78,7 @@ class ContactRequestResource extends Resource
     {
         return $table
             ->defaultSort('created_at', 'desc')
+            ->modifyQueryUsing(fn (Builder $query) => $query->with('demoClub'))
             ->columns([
                 TextColumn::make('created_at')->label('Binnengekomen')->dateTime('d-m-Y H:i')->sortable(),
                 TextColumn::make('topic')->label('Onderwerp')->badge(),
@@ -97,6 +106,8 @@ class ContactRequestResource extends Resource
             ])
             ->recordActions([
                 ViewAction::make(),
+                self::createDemoAction(),
+                self::openDemoAction(),
                 Action::make('handle')
                     ->label('Afgehandeld')
                     ->icon(Heroicon::OutlinedCheck)
@@ -114,6 +125,55 @@ class ContactRequestResource extends Resource
             ])
             ->emptyStateHeading('Geen aanvragen')
             ->emptyStateDescription('Demo- en contactaanvragen van de website komen hier binnen.');
+    }
+
+    /** Makes a demo club for a demo request (DemoClubs) and invites the requester. */
+    public static function createDemoAction(): Action
+    {
+        return Action::make('createDemo')
+            ->label(__('Demo aanmaken'))
+            ->icon(Heroicon::OutlinedSparkles)
+            ->color('primary')
+            ->visible(fn (ContactRequest $record): bool => $record->isDemoRequest() && $record->demo_club_id === null)
+            ->requiresConfirmation()
+            ->modalHeading(__('Demo aanmaken'))
+            ->modalDescription(fn (ContactRequest $record): string => __(
+                'Er wordt een democlub ":club" aangemaakt op het grootste pakket, met voorbeelddata en een proefperiode van :days dagen. :email krijgt een uitnodiging als clubbeheerder en de aanvraag wordt afgehandeld. Na de proefperiode staat de demo in leesstand; :prune dagen later wordt hij verwijderd, tenzij je hem omzet naar klant.',
+                [
+                    'club' => __(':name (demo)', ['name' => trim($record->club) !== '' ? trim($record->club) : $record->name]),
+                    'days' => (int) config('planner.demo.trial_days', 14),
+                    'email' => $record->email,
+                    'prune' => (int) config('planner.demo.prune_after_days', 30),
+                ],
+            ))
+            ->modalSubmitActionLabel(__('Demo aanmaken'))
+            ->action(function (ContactRequest $record): void {
+                $user = auth()->user();
+                $club = app(DemoClubs::class)->createFor($record, $user instanceof User ? $user : null);
+
+                Notification::make()
+                    ->title(__('Demo aangemaakt'))
+                    ->body(__(':club staat klaar; de uitnodiging is verstuurd naar :email.', ['club' => $club->name, 'email' => $record->email]))
+                    ->success()
+                    ->send();
+            });
+    }
+
+    /** Opens the demo club made from the request. */
+    public static function openDemoAction(): Action
+    {
+        return Action::make('openDemo')
+            ->label(__('Naar demo'))
+            ->icon(Heroicon::OutlinedArrowTopRightOnSquare)
+            ->color('gray')
+            ->visible(fn (ContactRequest $record): bool => $record->demoClub !== null)
+            ->url(fn (ContactRequest $record): ?string => $record->demoClub ? self::clubUrl($record->demoClub) : null)
+            ->openUrlInNewTab();
+    }
+
+    private static function clubUrl(Club $club): string
+    {
+        return Filament::getPanel('club')->getUrl($club);
     }
 
     public static function getPages(): array

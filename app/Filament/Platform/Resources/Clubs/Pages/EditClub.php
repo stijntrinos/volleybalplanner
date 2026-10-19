@@ -14,6 +14,7 @@ class EditClub extends EditRecord
     {
         return [
             ClubResource::openClubAction(),
+            ClubResource::convertDemoAction(),
             DeleteAction::make(),
         ];
     }

@@ -11,3 +11,6 @@ Schedule::command('model:prune', ['--model' => [Invitation::class, ChangeRequest
 
 // The activity log keeps a year (activitylog.clean_after_days).
 Schedule::command('activitylog:clean')->dailyAt('03:30');
+
+// Demo clubs go a while after their trial ended (planner.demo.prune_after_days).
+Schedule::command('platform:prune-demo-clubs')->dailyAt('03:45');

@@ -4,6 +4,7 @@ namespace App\Planner\Support;
 
 use App\Models\Club;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\PermissionRegistrar;
 
 /**
  * Removes a club's planner data before the database runs its own cascade.
@@ -13,6 +14,9 @@ use Illuminate\Support\Facades\DB;
  * deliberate (a venue in use must not silently disappear) but it makes the
  * cascade fail when the whole club is deleted. Deleting in dependency order
  * keeps the protection and lets a club go.
+ *
+ * Role assignments are scoped to the club (permission teams) without a
+ * foreign key, so they and the club's own committee role go here too.
  */
 final class ClubDataPurger
 {
@@ -45,6 +49,22 @@ final class ClubDataPurger
             foreach (self::TABLES as $table) {
                 DB::table($table)->where('club_id', $club->getKey())->delete();
             }
+
+            $this->purgeRoles($club);
         });
+
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+    }
+
+    private function purgeRoles(Club $club): void
+    {
+        /** @var array{roles: string, model_has_roles: string, model_has_permissions: string} $tables */
+        $tables = config('permission.table_names');
+        $teamColumn = (string) config('permission.column_names.team_foreign_key', 'club_id');
+
+        DB::table($tables['model_has_roles'])->where($teamColumn, $club->getKey())->delete();
+        DB::table($tables['model_has_permissions'])->where($teamColumn, $club->getKey())->delete();
+        // role_has_permissions cascades on the role.
+        DB::table($tables['roles'])->where($teamColumn, $club->getKey())->delete();
     }
 }

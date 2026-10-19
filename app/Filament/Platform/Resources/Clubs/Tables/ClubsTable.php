@@ -7,6 +7,7 @@ use App\Models\Club;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class ClubsTable
@@ -16,6 +17,14 @@ class ClubsTable
         return $table
             ->columns([
                 TextColumn::make('name')->label('Naam')->searchable()->sortable(),
+                TextColumn::make('is_demo')
+                    ->label(__('Soort'))
+                    ->badge()
+                    ->state(fn (Club $record): ?string => $record->is_demo ? __('Demo') : null)
+                    ->color('info')
+                    ->description(fn (Club $record): ?string => $record->is_demo && $record->trial_ends_at
+                        ? __('Proef tot :date', ['date' => $record->trial_ends_at->format('d-m-Y')])
+                        : null),
                 TextColumn::make('slug')->label('Slug')->searchable(),
                 TextColumn::make('plan.name')->label('Pakket')->badge()->color('gray')->placeholder('Geen pakket')->sortable(),
                 TextColumn::make('subscription_ends_at')
@@ -30,8 +39,12 @@ class ClubsTable
                 TextColumn::make('created_at')->label('Aangemaakt')->dateTime('d-m-Y')->sortable(),
             ])
             ->defaultSort('name')
+            ->filters([
+                TernaryFilter::make('is_demo')->label(__('Demo')),
+            ])
             ->recordActions([
                 ClubResource::openClubAction(),
+                ClubResource::convertDemoAction(),
                 EditAction::make(),
             ]);
     }

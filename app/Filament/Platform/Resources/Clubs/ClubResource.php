@@ -12,6 +12,7 @@ use App\Models\Club;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -63,5 +64,24 @@ class ClubResource extends Resource
             ->icon('heroicon-o-arrow-top-right-on-square')
             ->url(fn (Club $record): string => Filament::getPanel('club')->getUrl($record))
             ->openUrlInNewTab();
+    }
+
+    /**
+     * A demo that became a customer: it is no longer pruned. Name, slug,
+     * plan and subscription are then edited as for any club.
+     */
+    public static function convertDemoAction(): Action
+    {
+        return Action::make('convertDemo')
+            ->label(__('Omzetten naar klant'))
+            ->icon(Heroicon::OutlinedCheckBadge)
+            ->color('success')
+            ->visible(fn (Club $record): bool => $record->is_demo)
+            ->requiresConfirmation()
+            ->modalDescription(__('De club is dan geen demo meer en wordt niet automatisch verwijderd. Pas daarna naam, slug, pakket en abonnement aan.'))
+            ->action(function (Club $record): void {
+                $record->update(['is_demo' => false]);
+                Notification::make()->title(__('Omgezet naar klant'))->success()->send();
+            });
     }
 }

@@ -8,6 +8,7 @@ use App\Planner\Support\CommitteeRole;
 use Database\Factories\ClubFactory;
 use Filament\Models\Contracts\HasCurrentTenantLabel;
 use Filament\Models\Contracts\HasName;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,6 +23,7 @@ use Spatie\Permission\Models\Role;
  * @property string $name
  * @property string $slug
  * @property bool $is_active
+ * @property bool $is_demo
  * @property int|null $plan_id
  * @property list<string>|null $committee_groups
  * @property bool $require_strong_auth
@@ -52,14 +54,15 @@ class Club extends Model implements HasCurrentTenantLabel, HasName
     /** @use HasFactory<ClubFactory> */
     use HasFactory;
 
-    protected $fillable = ['name', 'slug', 'is_active', 'plan_id', 'committee_groups', 'require_strong_auth', 'trial_ends_at', 'subscription_starts_at', 'subscription_ends_at'];
+    protected $fillable = ['name', 'slug', 'is_active', 'is_demo', 'plan_id', 'committee_groups', 'require_strong_auth', 'trial_ends_at', 'subscription_starts_at', 'subscription_ends_at'];
 
-    protected $attributes = ['is_active' => true];
+    protected $attributes = ['is_active' => true, 'is_demo' => false];
 
     protected function casts(): array
     {
         return [
             'is_active' => 'boolean',
+            'is_demo' => 'boolean',
             'committee_groups' => 'array',
             'require_strong_auth' => 'boolean',
             'trial_ends_at' => 'date',
@@ -111,6 +114,19 @@ class Club extends Model implements HasCurrentTenantLabel, HasName
     public function seatsTaken(): int
     {
         return $this->users()->count() + $this->invitations()->pending()->count();
+    }
+
+    /**
+     * Demo clubs whose trial ended long enough ago to be deleted
+     * (platform:prune-demo-clubs).
+     *
+     * @param  Builder<self>  $query
+     */
+    public function scopeExpiredDemo(Builder $query, int $daysAfterTrial): void
+    {
+        $query->where('is_demo', true)
+            ->whereNotNull('trial_ends_at')
+            ->whereDate('trial_ends_at', '<', now()->startOfDay()->subDays($daysAfterTrial));
     }
 
     /** @return BelongsTo<Plan, $this> */
