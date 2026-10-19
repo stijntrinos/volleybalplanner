@@ -1,0 +1,146 @@
+{
+    "@context": "/contexts/Team",
+    "@id": "/competitie/teams",
+    "@type": "hydra:Collection",
+    "hydra:totalItems": 8,
+    "hydra:member": [
+        {
+            "@id": "/competitie/teams/cnh8q1u/heren/1",
+            "@type": "Team",
+            "uuid": "26a277be-c3ce-48e5-93e0-6a62408df421",
+            "seizoen": "/seizoenen/2026-2027",
+            "vereniging": "/relatiebeheer/verenigingen/cnh8q1u",
+            "volgnummer": 1,
+            "naam": "AETOS HS 1",
+            "standpositietekst": "1e in Heren Derde divisie C",
+            "pushberichtTopics": {
+                "wedstrijdwijzigingen": "wedstrijdwijzigingen-team-cnh8q1u-hs-1",
+                "resultaten": "wedstrijduitslagen-team-cnh8q1u-hs-1",
+                "resultatenPoule": "wedstrijduitslagen-team-cnh8q1u-hs-1-poule"
+            },
+            "sortableRank": "005-01",
+            "_links": {
+                "download_programma_rss": {
+                    "href": "/export/team/CNH8Q1U/heren/1/programma.rss"
+                },
+                "download_programma_ics": {
+                    "href": "/export/team/CNH8Q1U/heren/1/programma.ics?versie=2026.10.14"
+                },
+                "download_programma_xlsx": {
+                    "href": "/export/team/CNH8Q1U/heren/1/programma.xlsx"
+                },
+                "download_resultaat_rss": {
+                    "href": "/export/team/CNH8Q1U/heren/1/resultaten.rss"
+                },
+                "download_resultaat_xlsx": {
+                    "href": "/export/team/CNH8Q1U/heren/1/resultaten.xlsx"
+                }
+            }
+        },
+        {
+            "@id": "/competitie/teams/cnh8q1u/dames/1",
+            "@type": "Team",
+            "uuid": "1b4df6b3-78ef-4f46-826c-d60fdd8e2f2c",
+            "seizoen": "/seizoenen/2026-2027",
+            "vereniging": "/relatiebeheer/verenigingen/cnh8q1u",
+            "volgnummer": 1,
+            "naam": "AETOS Plauti DS 1",
+            "standpositietekst": "3e in Dames Derde divisie C",
+            "pushberichtTopics": {
+                "wedstrijdwijzigingen": "wedstrijdwijzigingen-team-cnh8q1u-ds-1",
+                "resultaten": "wedstrijduitslagen-team-cnh8q1u-ds-1",
+                "resultatenPoule": "wedstrijduitslagen-team-cnh8q1u-ds-1-poule"
+            },
+            "sortableRank": "001-01",
+            "_links": {
+                "download_programma_rss": {
+                    "href": "/export/team/CNH8Q1U/dames/1/programma.rss"
+                },
+                "download_programma_ics": {
+                    "href": "/export/team/CNH8Q1U/dames/1/programma.ics?versie=2026.10.14"
+                },
+                "download_programma_xlsx": {
+                    "href": "/export/team/CNH8Q1U/dames/1/programma.xlsx"
+                },
+                "download_resultaat_rss": {
+                    "href": "/export/team/CNH8Q1U/dames/1/resultaten.rss"
+                },
+                "download_resultaat_xlsx": {
+                    "href": "/export/team/CNH8Q1U/dames/1/resultaten.xlsx"
+                }
+            }
+        },
+        {
+            "@id": "/competitie/teams/cnh8q1u/dames/11",
+            "@type": "Team",
+            "uuid": "9fce0dcb-b73a-470b-a673-93c2787bfa57",
+            "seizoen": "/seizoenen/2026-2027",
+            "vereniging": "/relatiebeheer/verenigingen/cnh8q1u",
+            "volgnummer": 11,
+            "naam": "AETOS DS 11",
+            "pushberichtTopics": {
+                "wedstrijdwijzigingen": "wedstrijdwijzigingen-team-cnh8q1u-ds-11",
+                "resultaten": "wedstrijduitslagen-team-cnh8q1u-ds-11",
+                "resultatenPoule": "wedstrijduitslagen-team-cnh8q1u-ds-11-poule"
+            },
+            "sortableRank": "001-11",
+            "_links": {
+                "download_programma_rss": {
+                    "href": "/export/team/CNH8Q1U/dames/11/programma.rss"
+                },
+                "download_programma_ics": {
+                    "href": "/export/team/CNH8Q1U/dames/11/programma.ics?versie=2026.10.14"
+                },
+                "download_programma_xlsx": {
+                    "href": "/export/team/CNH8Q1U/dames/11/programma.xlsx"
+                },
+                "download_resultaat_rss": {
+                    "href": "/export/team/CNH8Q1U/dames/11/resultaten.rss"
+                },
+                "download_resultaat_xlsx": {
+                    "href": "/export/team/CNH8Q1U/dames/11/resultaten.xlsx"
+                }
+            }
+        },
+        {
+            "@id": "/competitie/teams/cnh8q1u/meiden-a/1",
+            "@type": "Team",
+            "uuid": "458fd8ca-7b6d-40c9-ab9e-402b5d0754de",
+            "seizoen": "/seizoenen/2026-2027",
+            "vereniging": "/relatiebeheer/verenigingen/cnh8q1u",
+            "volgnummer": 1,
+            "naam": "AETOS MA 1",
+            "standpositietekst": "6e in Meiden A Hoofdklasse B Eerste helft",
+            "pushberichtTopics": {
+                "wedstrijdwijzigingen": "wedstrijdwijzigingen-team-cnh8q1u-ma-1",
+                "resultaten": "wedstrijduitslagen-team-cnh8q1u-ma-1",
+                "resultatenPoule": "wedstrijduitslagen-team-cnh8q1u-ma-1-poule"
+            },
+            "sortableRank": "010-01",
+            "_links": {
+                "download_programma_rss": {
+                    "href": "/export/team/CNH8Q1U/meiden-a/1/programma.rss"
+                },
+                "download_programma_ics": {
+                    "href": "/export/team/CNH8Q1U/meiden-a/1/programma.ics?versie=2026.10.14"
+                },
+                "download_programma_xlsx": {
+                    "href": "/export/team/CNH8Q1U/meiden-a/1/programma.xlsx"
+                },
+                "download_resultaat_rss": {
+                    "href": "/export/team/CNH8Q1U/meiden-a/1/resultaten.rss"
+                },
+                "download_resultaat_xlsx": {
+                    "href": "/export/team/CNH8Q1U/meiden-a/1/resultaten.xlsx"
+                }
+            }
+        }
+    ],
+    "hydra:view": {
+        "@id": "/competitie/teams?vereniging=%2Frelatiebeheer%2Fverenigingen%2Fcnh8q1u&page=1",
+        "@type": "hydra:PartialCollectionView",
+        "hydra:first": "/competitie/teams?vereniging=%2Frelatiebeheer%2Fverenigingen%2Fcnh8q1u&page=1",
+        "hydra:last": "/competitie/teams?vereniging=%2Frelatiebeheer%2Fverenigingen%2Fcnh8q1u&page=2",
+        "hydra:next": "/competitie/teams?vereniging=%2Frelatiebeheer%2Fverenigingen%2Fcnh8q1u&page=2"
+    }
+}

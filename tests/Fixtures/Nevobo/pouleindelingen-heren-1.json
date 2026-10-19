@@ -1,0 +1,71 @@
+{
+    "@context": "/contexts/Pouleindeling",
+    "@id": "/competitie/pouleindelingen",
+    "@type": "hydra:Collection",
+    "hydra:totalItems": 3,
+    "hydra:member": [
+        {
+            "@id": "/competitie/pouleindelingen/regio-oost/bekertoernooi-bekertoernooi-senioren-1/regio-oost-bh1a07-2/b",
+            "@type": "Pouleindeling",
+            "poule": "/competitie/poules/regio-oost/bekertoernooi-bekertoernooi-senioren-1/regio-oost-bh1a07-2",
+            "team": "/competitie/teams/cnh8q1u/heren/1",
+            "indelingsletter": "B",
+            "positie": 1,
+            "gespeeld": 2,
+            "punten": 6,
+            "wedstrijdenWinst": 2,
+            "wedstrijdenVerlies": 0,
+            "setsVoor": 6,
+            "setsTegen": 0,
+            "puntenVoor": 150,
+            "puntenTegen": 96,
+            "kampioen": false,
+            "pouleopmerkingen": [],
+            "omschrijving": "AETOS HS 1",
+            "virtueleStatus": "promotie"
+        },
+        {
+            "@id": "/competitie/pouleindelingen/regio-oost/bekertoernooi-bekertoernooi-senioren-1/regio-oost-bh2a-11/o",
+            "@type": "Pouleindeling",
+            "poule": "/competitie/poules/regio-oost/bekertoernooi-bekertoernooi-senioren-1/regio-oost-bh2a-11",
+            "team": "/competitie/teams/cnh8q1u/heren/1",
+            "indelingsletter": "O",
+            "gespeeld": 0,
+            "punten": 0,
+            "wedstrijdenWinst": 0,
+            "wedstrijdenVerlies": 0,
+            "setsVoor": 0,
+            "setsTegen": 0,
+            "puntenVoor": 0,
+            "puntenTegen": 0,
+            "kampioen": false,
+            "pouleopmerkingen": [],
+            "omschrijving": "AETOS HS 1",
+            "virtueleStatus": "promotiewedstrijden"
+        },
+        {
+            "@id": "/competitie/pouleindelingen/regio-oost/competitie-seniorencompetitie-2/regio-oost-3ch-2/i",
+            "@type": "Pouleindeling",
+            "poule": "/competitie/poules/regio-oost/competitie-seniorencompetitie-2/regio-oost-3ch-2",
+            "team": "/competitie/teams/cnh8q1u/heren/1",
+            "indelingsletter": "I",
+            "positie": 1,
+            "gespeeld": 3,
+            "punten": 14,
+            "wedstrijdenWinst": 3,
+            "wedstrijdenVerlies": 0,
+            "setsVoor": 11,
+            "setsTegen": 1,
+            "puntenVoor": 299,
+            "puntenTegen": 219,
+            "kampioen": false,
+            "pouleopmerkingen": [],
+            "omschrijving": "AETOS HS 1",
+            "virtueleStatus": "promotie"
+        }
+    ],
+    "hydra:view": {
+        "@id": "/competitie/pouleindelingen?team=%2Fcompetitie%2Fteams%2Fcnh8q1u%2Fheren%2F1",
+        "@type": "hydra:PartialCollectionView"
+    }
+}

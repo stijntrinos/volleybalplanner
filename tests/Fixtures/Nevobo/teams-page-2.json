@@ -1,0 +1,145 @@
+{
+    "@context": "/contexts/Team",
+    "@id": "/competitie/teams",
+    "@type": "hydra:Collection",
+    "hydra:totalItems": 8,
+    "hydra:member": [
+        {
+            "@id": "/competitie/teams/cnh8q1u/jongens-c/1",
+            "@type": "Team",
+            "uuid": "0c2aabe4-ebe9-454d-bc9d-7582dd377129",
+            "seizoen": "/seizoenen/2026-2027",
+            "vereniging": "/relatiebeheer/verenigingen/cnh8q1u",
+            "volgnummer": 1,
+            "naam": "AETOS JC 1",
+            "standpositietekst": "1e in C Jeugd 1e Klasse E Eerste helft",
+            "pushberichtTopics": {
+                "wedstrijdwijzigingen": "wedstrijdwijzigingen-team-cnh8q1u-jc-1",
+                "resultaten": "wedstrijduitslagen-team-cnh8q1u-jc-1",
+                "resultatenPoule": "wedstrijduitslagen-team-cnh8q1u-jc-1-poule"
+            },
+            "sortableRank": "017-01",
+            "_links": {
+                "download_programma_rss": {
+                    "href": "/export/team/CNH8Q1U/jongens-c/1/programma.rss"
+                },
+                "download_programma_ics": {
+                    "href": "/export/team/CNH8Q1U/jongens-c/1/programma.ics?versie=2026.10.14"
+                },
+                "download_programma_xlsx": {
+                    "href": "/export/team/CNH8Q1U/jongens-c/1/programma.xlsx"
+                },
+                "download_resultaat_rss": {
+                    "href": "/export/team/CNH8Q1U/jongens-c/1/resultaten.rss"
+                },
+                "download_resultaat_xlsx": {
+                    "href": "/export/team/CNH8Q1U/jongens-c/1/resultaten.xlsx"
+                }
+            }
+        },
+        {
+            "@id": "/competitie/teams/cnh8q1u/cmv-niveau-6/1",
+            "@type": "Team",
+            "uuid": "62fa6a6f-5a17-4a48-b65f-f944306f4604",
+            "seizoen": "/seizoenen/2026-2027",
+            "vereniging": "/relatiebeheer/verenigingen/cnh8q1u",
+            "volgnummer": 1,
+            "naam": "AETOS N6 1",
+            "pushberichtTopics": {
+                "wedstrijdwijzigingen": "wedstrijdwijzigingen-team-cnh8q1u-n6-1",
+                "resultaten": "wedstrijduitslagen-team-cnh8q1u-n6-1",
+                "resultatenPoule": "wedstrijduitslagen-team-cnh8q1u-n6-1-poule"
+            },
+            "sortableRank": "019-01",
+            "_links": {
+                "download_programma_rss": {
+                    "href": "/export/team/CNH8Q1U/cmv-niveau-6/1/programma.rss"
+                },
+                "download_programma_ics": {
+                    "href": "/export/team/CNH8Q1U/cmv-niveau-6/1/programma.ics?versie=2026.10.14"
+                },
+                "download_programma_xlsx": {
+                    "href": "/export/team/CNH8Q1U/cmv-niveau-6/1/programma.xlsx"
+                },
+                "download_resultaat_rss": {
+                    "href": "/export/team/CNH8Q1U/cmv-niveau-6/1/resultaten.rss"
+                },
+                "download_resultaat_xlsx": {
+                    "href": "/export/team/CNH8Q1U/cmv-niveau-6/1/resultaten.xlsx"
+                }
+            }
+        },
+        {
+            "@id": "/competitie/teams/cnh8q1u/mix-zitvolleybal/1",
+            "@type": "Team",
+            "uuid": "38bdfbea-a124-42ec-a086-0179f1b2df2e",
+            "seizoen": "/seizoenen/2026-2027",
+            "vereniging": "/relatiebeheer/verenigingen/cnh8q1u",
+            "volgnummer": 1,
+            "naam": "AETOS XZ 1",
+            "standpositietekst": "5e in Zitvolleybal Derde divisie eerste helft",
+            "pushberichtTopics": {
+                "wedstrijdwijzigingen": "wedstrijdwijzigingen-team-cnh8q1u-xz-1",
+                "resultaten": "wedstrijduitslagen-team-cnh8q1u-xz-1",
+                "resultatenPoule": "wedstrijduitslagen-team-cnh8q1u-xz-1-poule"
+            },
+            "sortableRank": "025-01",
+            "_links": {
+                "download_programma_rss": {
+                    "href": "/export/team/CNH8Q1U/mix-zitvolleybal/1/programma.rss"
+                },
+                "download_programma_ics": {
+                    "href": "/export/team/CNH8Q1U/mix-zitvolleybal/1/programma.ics?versie=2026.10.14"
+                },
+                "download_programma_xlsx": {
+                    "href": "/export/team/CNH8Q1U/mix-zitvolleybal/1/programma.xlsx"
+                },
+                "download_resultaat_rss": {
+                    "href": "/export/team/CNH8Q1U/mix-zitvolleybal/1/resultaten.rss"
+                },
+                "download_resultaat_xlsx": {
+                    "href": "/export/team/CNH8Q1U/mix-zitvolleybal/1/resultaten.xlsx"
+                }
+            }
+        },
+        {
+            "@id": "/competitie/teams/cnh8q1u/volley-stars-level-5/1",
+            "@type": "Team",
+            "uuid": "65f5de08-e1e2-4be9-b76a-1d2d63149a9e",
+            "seizoen": "/seizoenen/2026-2027",
+            "vereniging": "/relatiebeheer/verenigingen/cnh8q1u",
+            "volgnummer": 1,
+            "naam": "AETOS L5 1",
+            "pushberichtTopics": {
+                "wedstrijdwijzigingen": "wedstrijdwijzigingen-team-cnh8q1u-l5-1",
+                "resultaten": "wedstrijduitslagen-team-cnh8q1u-l5-1",
+                "resultatenPoule": "wedstrijduitslagen-team-cnh8q1u-l5-1-poule"
+            },
+            "sortableRank": "030-01",
+            "_links": {
+                "download_programma_rss": {
+                    "href": "/export/team/CNH8Q1U/volley-stars-level-5/1/programma.rss"
+                },
+                "download_programma_ics": {
+                    "href": "/export/team/CNH8Q1U/volley-stars-level-5/1/programma.ics?versie=2026.10.14"
+                },
+                "download_programma_xlsx": {
+                    "href": "/export/team/CNH8Q1U/volley-stars-level-5/1/programma.xlsx"
+                },
+                "download_resultaat_rss": {
+                    "href": "/export/team/CNH8Q1U/volley-stars-level-5/1/resultaten.rss"
+                },
+                "download_resultaat_xlsx": {
+                    "href": "/export/team/CNH8Q1U/volley-stars-level-5/1/resultaten.xlsx"
+                }
+            }
+        }
+    ],
+    "hydra:view": {
+        "@id": "/competitie/teams?vereniging=%2Frelatiebeheer%2Fverenigingen%2Fcnh8q1u&page=2",
+        "@type": "hydra:PartialCollectionView",
+        "hydra:first": "/competitie/teams?vereniging=%2Frelatiebeheer%2Fverenigingen%2Fcnh8q1u&page=1",
+        "hydra:last": "/competitie/teams?vereniging=%2Frelatiebeheer%2Fverenigingen%2Fcnh8q1u&page=2",
+        "hydra:previous": "/competitie/teams?vereniging=%2Frelatiebeheer%2Fverenigingen%2Fcnh8q1u&page=1"
+    }
+}

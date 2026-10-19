@@ -20,7 +20,7 @@ final class PlannerPermissions
     /** @var list<string> */
     public const PAGES = [
         'HomeMatches', 'AwayMatches', 'DutyPlanner', 'ImportPlanning', 'NevoboChanges', 'Settings', 'VenueOccupancy',
-        'DutiesDashboard', 'Exports',
+        'DutiesDashboard', 'Exports', 'NevoboLink',
     ];
 
     /** @var list<string> */
@@ -42,7 +42,7 @@ final class PlannerPermissions
         'versions' => ['models' => ['ScheduleVersion'], 'pages' => []],
         'imports' => ['models' => ['NevoboChange', 'TeamSource'], 'pages' => ['ImportPlanning', 'NevoboChanges']],
         'requests' => ['models' => ['ChangeRequest'], 'pages' => []],
-        'master_data' => ['models' => ['Team', 'Venue', 'Court', 'VenueAlias', 'Availability', 'CalendarEvent', 'Training'], 'pages' => []],
+        'master_data' => ['models' => ['Team', 'Venue', 'Court', 'VenueAlias', 'Availability', 'CalendarEvent', 'Training'], 'pages' => ['NevoboLink']],
         'settings' => ['models' => ['PlannerSetting'], 'pages' => ['Settings']],
         'exports' => ['models' => [], 'pages' => ['Exports']],
     ];

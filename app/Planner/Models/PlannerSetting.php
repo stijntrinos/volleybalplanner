@@ -47,6 +47,7 @@ use Illuminate\Support\Carbon;
  * @property array<array-key, mixed>|null $duty_rules
  * @property bool $admin_override_external_error
  * @property array<array-key, mixed>|null $team_name_patterns
+ * @property string|null $nevobo_club_code the Nevobo organisation code the club is linked to
  * @property string|null $logo_path
  * @property string|null $primary_color
  * @property string|null $schedule_tagline
@@ -111,7 +112,7 @@ class PlannerSetting extends Model
         'training_period_end', 'points_referee_duty', 'points_scorer_duty', 'points_hall_duty', 'points_volleystars',
         'schedule_footer', 'duty_rules', 'hall_duty_weekdays', 'hall_duty_exceptions', 'team_group_order',
         'requests_open', 'request_reasons', 'duty_request_reasons',
-        'team_name_patterns', 'logo_path', 'primary_color', 'schedule_tagline',
+        'team_name_patterns', 'nevobo_club_code', 'logo_path', 'primary_color', 'schedule_tagline',
     ];
 
     protected $attributes = [

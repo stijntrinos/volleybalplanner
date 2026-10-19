@@ -45,6 +45,7 @@ class ClubsTable
             ->recordActions([
                 ClubResource::openClubAction(),
                 ClubResource::convertDemoAction(),
+                ClubResource::linkNevoboAction(),
                 EditAction::make(),
             ]);
     }

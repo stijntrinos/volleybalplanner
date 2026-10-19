@@ -222,4 +222,26 @@ class NevoboRssServiceTest extends TestCase
         $this->assertSame('XC3K1-AD', $items[0]['code']);
         $this->assertTrue($items[0]['cancelled']);
     }
+
+    /**
+     * A team feed (/export/team/{club}/{type}/{n}/programma.rss), as set up by
+     * the Nevobo link, has no numeric date in the description: the date
+     * comes from pubDate and the match code from "Wedstrijd:".
+     */
+    public function test_a_team_programme_feed_is_parsed(): void
+    {
+        $xml = (string) file_get_contents(base_path('tests/Fixtures/Nevobo/team-programma.rss'));
+        $url = 'https://api.nevobo.nl/export/team/CNH8Q1U/heren/1/programma.rss';
+
+        $items = app(NevoboRssService::class)->parse($xml, $url);
+
+        $this->assertCount(3, $items);
+        $this->assertSame([
+            'code' => '3CH-IE', 'date' => '2026-11-21', 'time' => '17:00',
+            'home_team' => 'AETOS HS 1', 'away_team' => 'Scylla HS 2',
+            'location' => 'Sporthal Middachtensingel', 'pool' => null,
+            'source_url' => $url, 'cancelled' => false,
+        ], $items[2]);
+        $this->assertSame(['Volga HS 1', 'AETOS HS 1', '2026-10-31'], [$items[0]['home_team'], $items[0]['away_team'], $items[0]['date']]);
+    }
 }

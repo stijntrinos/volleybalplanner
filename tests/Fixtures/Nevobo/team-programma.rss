@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:nevobo="https://www.api.nevobo.nl/rss/">
+  <channel>
+    <title>RSS feed Nederlandse Volleybalbond</title>
+    <link>https://api.nevobo.nl/export/team/CNH8Q1U/heren/1/programma.rss</link>
+    <description>Wedstrijdprogramma van de Nederlandse volleybalcompetitie, georganiseerd door de Nederlandse Volleybalbond</description>
+    <lastBuildDate>Mon, 19 Oct 2026 17:17:58 +0200</lastBuildDate>
+    <atom:link href="https://api.nevobo.nl/export/team/CNH8Q1U/heren/1/programma.rss" rel="self" type="text/xml"/>
+    <item>
+      <title><![CDATA[31 okt 17:00: Volga HS 1 - AETOS HS 1]]></title>
+      <link>https://api.nevobo.nl/permalink/wedstrijd/1987416</link>
+      <guid>https://api.nevobo.nl/permalink/wedstrijd/1987416</guid>
+      <description><![CDATA[Wedstrijd: 50003CH   HI, Datum: zaterdag 31 oktober, 17:00, Speellocatie: de Pol, Pelgrimstraat 61, 7011BJ  Gaanderen]]></description>
+      <pubDate>Sat, 31 Oct 2026 17:00:00 +0100</pubDate>
+      <nevobo:status>gepland</nevobo:status>
+    </item>
+    <item>
+      <title><![CDATA[13 nov 19:00: VVH HS 2 - AETOS HS 1]]></title>
+      <link>https://api.nevobo.nl/permalink/wedstrijd/1987398</link>
+      <guid>https://api.nevobo.nl/permalink/wedstrijd/1987398</guid>
+      <description><![CDATA[Wedstrijd: 50003CH   FI, Datum: vrijdag 13 november, 19:00, Speellocatie: De Sypel, Parkweg 4, 3842AD  Harderwijk]]></description>
+      <pubDate>Fri, 13 Nov 2026 19:00:00 +0100</pubDate>
+      <nevobo:status>gepland</nevobo:status>
+    </item>
+    <item>
+      <title><![CDATA[21 nov 17:00: AETOS HS 1 - Scylla HS 2]]></title>
+      <link>https://api.nevobo.nl/permalink/wedstrijd/1987422</link>
+      <guid>https://api.nevobo.nl/permalink/wedstrijd/1987422</guid>
+      <description><![CDATA[Wedstrijd: 50003CH   IE, Datum: zaterdag 21 november, 17:00, Speellocatie: Sporthal Middachtensingel, Middachtensingel 4, 6825HN  Arnhem]]></description>
+      <pubDate>Sat, 21 Nov 2026 17:00:00 +0100</pubDate>
+      <nevobo:status>gepland</nevobo:status>
+    </item>
+  </channel>
+</rss>

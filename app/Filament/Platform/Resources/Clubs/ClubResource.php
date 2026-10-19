@@ -9,12 +9,14 @@ use App\Filament\Platform\Resources\Clubs\RelationManagers\UsersRelationManager;
 use App\Filament\Platform\Resources\Clubs\Schemas\ClubForm;
 use App\Filament\Platform\Resources\Clubs\Tables\ClubsTable;
 use App\Models\Club;
+use App\Planner\Filament\Support\NevoboLinkForm;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
@@ -82,6 +84,29 @@ class ClubResource extends Resource
             ->action(function (Club $record): void {
                 $record->update(['is_demo' => false]);
                 Notification::make()->title(__('Omgezet naar klant'))->success()->send();
+            });
+    }
+
+    /**
+     * Sets up a new customer's teams and Nevobo feeds in one go; the same
+     * flow as the club's own "Nevobo-koppeling" page.
+     */
+    public static function linkNevoboAction(): Action
+    {
+        return Action::make('linkNevobo')
+            ->label(__('Koppel aan Nevobo'))
+            ->icon(Heroicon::OutlinedLink)
+            ->color('gray')
+            ->modalHeading(fn (Club $record): string => __('Koppel :club aan de Nevobo', ['club' => $record->name]))
+            ->modalDescription(__('Zoek de vereniging, kies de teams en de planner maakt teams en feeds aan in deze club.'))
+            ->modalSubmitActionLabel(__('Koppelen'))
+            ->modalWidth(Width::FiveExtraLarge)
+            ->fillForm(fn (Club $record): array => NevoboLinkForm::initialState($record))
+            ->schema(fn (Club $record): array => NevoboLinkForm::components(fn (): Club => $record))
+            ->action(function (Club $record, array $data, Action $action): void {
+                if (NevoboLinkForm::submit($record, $data) === null) {
+                    $action->halt();
+                }
             });
     }
 }

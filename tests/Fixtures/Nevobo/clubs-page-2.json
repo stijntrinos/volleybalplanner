@@ -1,0 +1,101 @@
+{
+    "@context": "/contexts/Vereniging",
+    "@id": "/relatiebeheer/verenigingen",
+    "@type": "hydra:Collection",
+    "hydra:totalItems": 6,
+    "hydra:member": [
+        {
+            "@id": "/relatiebeheer/verenigingen/ckl5g6j",
+            "@type": "Vereniging",
+            "regio": "/regios/regio-noord",
+            "organisatiecode": "CKL5G6J",
+            "naam": "Volop'69",
+            "officielenaam": "Volop'69",
+            "vestigingsplaats": "Oude Pekela",
+            "gemeente": "Pekela",
+            "provincie": "Groningen",
+            "oprichting": "1969-09-24T00:00:00+01:00",
+            "_links": {
+                "logo_url": {
+                    "href": "//assets.nevobo.nl/organisatie/logo/CKL5G6J.jpg"
+                },
+                "download_stand_xlsx": {
+                    "href": "/export/vereniging/CKL5G6J/stand.xlsx"
+                },
+                "download_programma_rss": {
+                    "href": "/export/vereniging/CKL5G6J/programma.rss"
+                },
+                "download_programma_ics": {
+                    "href": "/export/vereniging/CKL5G6J/programma.ics?versie=2026.10.14"
+                },
+                "download_programma_xlsx": {
+                    "href": "/export/vereniging/CKL5G6J/programma.xlsx"
+                },
+                "download_resultaat_rss": {
+                    "href": "/export/vereniging/CKL5G6J/resultaten.rss"
+                },
+                "download_resultaat_xlsx": {
+                    "href": "/export/vereniging/CKL5G6J/resultaten.xlsx"
+                }
+            }
+        },
+        {
+            "@id": "/relatiebeheer/verenigingen/ckl5g7k",
+            "@type": "Vereniging",
+            "regio": "/regios/regio-noord",
+            "organisatiecode": "CKL5G7K",
+            "naam": "V.S.V. '74",
+            "officielenaam": "V.S.V. '74",
+            "vestigingsplaats": "Vlagtwedde",
+            "gemeente": "Westerwolde",
+            "provincie": "Groningen",
+            "oprichting": "1974-08-15T00:00:00+01:00",
+            "_links": {
+                "logo_url": {
+                    "href": "//assets.nevobo.nl/organisatie/logo/CKL5G7K.jpg"
+                },
+                "download_stand_xlsx": {
+                    "href": "/export/vereniging/CKL5G7K/stand.xlsx"
+                },
+                "download_programma_rss": {
+                    "href": "/export/vereniging/CKL5G7K/programma.rss"
+                },
+                "download_programma_ics": {
+                    "href": "/export/vereniging/CKL5G7K/programma.ics?versie=2026.10.14"
+                },
+                "download_programma_xlsx": {
+                    "href": "/export/vereniging/CKL5G7K/programma.xlsx"
+                },
+                "download_resultaat_rss": {
+                    "href": "/export/vereniging/CKL5G7K/resultaten.rss"
+                },
+                "download_resultaat_xlsx": {
+                    "href": "/export/vereniging/CKL5G7K/resultaten.xlsx"
+                }
+            }
+        },
+        {
+            "@id": "/relatiebeheer/verenigingen/cnh8q1u",
+            "@type": "Vereniging",
+            "regio": "/regios/regio-oost",
+            "organisatiecode": "CNH8Q1U",
+            "naam": "AETOS",
+            "officielenaam": "AVF VOLAR",
+            "vestigingsplaats": "Arnhem",
+            "gemeente": "Arnhem",
+            "provincie": "Gelderland",
+            "_links": {
+                "download_programma_rss": {
+                    "href": "/export/vereniging/CNH8Q1U/programma.rss"
+                }
+            }
+        }
+    ],
+    "hydra:view": {
+        "@id": "/relatiebeheer/verenigingen?page=2",
+        "@type": "hydra:PartialCollectionView",
+        "hydra:first": "/relatiebeheer/verenigingen?page=1",
+        "hydra:last": "/relatiebeheer/verenigingen?page=2",
+        "hydra:previous": "/relatiebeheer/verenigingen?page=1"
+    }
+}

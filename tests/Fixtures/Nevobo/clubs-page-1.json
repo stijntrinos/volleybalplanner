@@ -1,0 +1,121 @@
+{
+    "@context": "/contexts/Vereniging",
+    "@id": "/relatiebeheer/verenigingen",
+    "@type": "hydra:Collection",
+    "hydra:totalItems": 6,
+    "hydra:member": [
+        {
+            "@id": "/relatiebeheer/verenigingen/ckl5c67",
+            "@type": "Vereniging",
+            "regio": "/regios/regio-noord",
+            "organisatiecode": "CKL5C67",
+            "naam": "LSV",
+            "officielenaam": "LSV",
+            "vestigingsplaats": "Loppersum",
+            "gemeente": "Eemsdelta",
+            "provincie": "Groningen",
+            "oprichting": "1999-09-29T00:00:00+02:00",
+            "_links": {
+                "logo_url": {
+                    "href": "//assets.nevobo.nl/organisatie/logo/CKL5C67.jpg"
+                },
+                "download_stand_xlsx": {
+                    "href": "/export/vereniging/CKL5C67/stand.xlsx"
+                },
+                "download_programma_rss": {
+                    "href": "/export/vereniging/CKL5C67/programma.rss"
+                },
+                "download_programma_ics": {
+                    "href": "/export/vereniging/CKL5C67/programma.ics?versie=2026.10.14"
+                },
+                "download_programma_xlsx": {
+                    "href": "/export/vereniging/CKL5C67/programma.xlsx"
+                },
+                "download_resultaat_rss": {
+                    "href": "/export/vereniging/CKL5C67/resultaten.rss"
+                },
+                "download_resultaat_xlsx": {
+                    "href": "/export/vereniging/CKL5C67/resultaten.xlsx"
+                }
+            }
+        },
+        {
+            "@id": "/relatiebeheer/verenigingen/ckl5c78",
+            "@type": "Vereniging",
+            "regio": "/regios/regio-noord",
+            "organisatiecode": "CKL5C78",
+            "naam": "Memesa",
+            "officielenaam": "Memesa",
+            "vestigingsplaats": "Appingedam",
+            "gemeente": "Eemsdelta",
+            "provincie": "Groningen",
+            "oprichting": "2001-01-04T00:00:00+01:00",
+            "opheffing": "2015-07-01T00:00:00+02:00",
+            "_links": {
+                "logo_url": {
+                    "href": "//assets.nevobo.nl/organisatie/logo/CKL5C78.jpg"
+                },
+                "download_stand_xlsx": {
+                    "href": "/export/vereniging/CKL5C78/stand.xlsx"
+                },
+                "download_programma_rss": {
+                    "href": "/export/vereniging/CKL5C78/programma.rss"
+                },
+                "download_programma_ics": {
+                    "href": "/export/vereniging/CKL5C78/programma.ics?versie=2026.10.14"
+                },
+                "download_programma_xlsx": {
+                    "href": "/export/vereniging/CKL5C78/programma.xlsx"
+                },
+                "download_resultaat_rss": {
+                    "href": "/export/vereniging/CKL5C78/resultaten.rss"
+                },
+                "download_resultaat_xlsx": {
+                    "href": "/export/vereniging/CKL5C78/resultaten.xlsx"
+                }
+            }
+        },
+        {
+            "@id": "/relatiebeheer/verenigingen/ckl5c89",
+            "@type": "Vereniging",
+            "regio": "/regios/regio-noord",
+            "organisatiecode": "CKL5C89",
+            "naam": "DES",
+            "officielenaam": "DES",
+            "vestigingsplaats": "Ten Boer",
+            "gemeente": "Groningen",
+            "provincie": "Groningen",
+            "oprichting": "1951-06-18T00:00:00+01:00",
+            "_links": {
+                "logo_url": {
+                    "href": "//assets.nevobo.nl/organisatie/logo/CKL5C89.jpg"
+                },
+                "download_stand_xlsx": {
+                    "href": "/export/vereniging/CKL5C89/stand.xlsx"
+                },
+                "download_programma_rss": {
+                    "href": "/export/vereniging/CKL5C89/programma.rss"
+                },
+                "download_programma_ics": {
+                    "href": "/export/vereniging/CKL5C89/programma.ics?versie=2026.10.14"
+                },
+                "download_programma_xlsx": {
+                    "href": "/export/vereniging/CKL5C89/programma.xlsx"
+                },
+                "download_resultaat_rss": {
+                    "href": "/export/vereniging/CKL5C89/resultaten.rss"
+                },
+                "download_resultaat_xlsx": {
+                    "href": "/export/vereniging/CKL5C89/resultaten.xlsx"
+                }
+            }
+        }
+    ],
+    "hydra:view": {
+        "@id": "/relatiebeheer/verenigingen?page=1",
+        "@type": "hydra:PartialCollectionView",
+        "hydra:first": "/relatiebeheer/verenigingen?page=1",
+        "hydra:last": "/relatiebeheer/verenigingen?page=2",
+        "hydra:next": "/relatiebeheer/verenigingen?page=2"
+    }
+}
