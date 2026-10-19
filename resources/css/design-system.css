@@ -502,7 +502,7 @@
 .fi-ta-ctn,
 .fi-wi-widget > .fi-section,
 .fi-fo-tabs,
-.fi-sc-tabs,
+.fi-sc-tabs.fi-contained,
 .fi-tabs,
 .fi-fieldset,
 .fi-fo-repeater-item,
@@ -511,6 +511,20 @@
     background: var(--vp-surface-raised);
     box-shadow: none;
     border: 1px solid var(--vp-line);
+}
+
+/* One frame per tab group: list tabs are a loose pill bar, form tabs one card
+   whose tab bar is part of it instead of a second box inside. */
+.fi-sc-tabs:not(.fi-contained) {
+    border: 0;
+    background: transparent;
+}
+
+.fi-sc-tabs.fi-contained > .fi-tabs {
+    border: 0;
+    border-bottom: 1px solid var(--vp-line-soft);
+    border-radius: 0;
+    background: transparent;
 }
 
 .fi-section:not(.fi-section-not-contained):not(.fi-aside) > .fi-section-header {
