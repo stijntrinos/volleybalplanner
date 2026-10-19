@@ -43,7 +43,7 @@
     $publicItems = [
         ['Publiek wedstrijdprogramma', 'Alle thuiswedstrijden en diensten vanaf vandaag, per maand en per sporthal, met filters op team en zaal. Filters staan in de link, dus een team deelt zijn eigen overzicht.'],
         ['RSS-feeds voor app en schermen', 'Alles, alleen thuis, per sporthal, per team of per dag. Gewijzigde wedstrijden zijn herkenbaar gemarkeerd.'],
-        ['Programmaboekje', 'Het boekje voor een toernooi- of thuisdag haalt het dagschema uit de actieve planning: online te bladeren of als PDF.'],
+        ['Op je eigen clubsite', 'Wedstrijdprogramma en verzoekformulieren zijn met één regel in de clubsite in te voegen, zonder kop en voet, in de kleur van de club.'],
     ];
 
     $clubColours = ['#7A2E3A' => 'Bordeaux', '#1E5AA8' => 'Blauw', '#2F6B3A' => 'Groen', '#0B7F8A' => 'Teal'];
@@ -130,7 +130,7 @@
             <div class="flow-item is-public">
                 <span class="flow-kicker">Publiek</span>
                 <strong>Wat leden lezen</strong>
-                <p>Wedstrijdpagina, RSS-feeds, programmaboekje en verzoekformulieren lezen deze versie.</p>
+                <p>Wedstrijdpagina, RSS-feeds, dagschema en verzoekformulieren lezen deze versie.</p>
             </div>
         </div>
         <p class="footnote">De vorige actieve versie wordt bij publiceren automatisch gearchiveerd. Terugzetten naar concept of dupliceren kan altijd.</p>

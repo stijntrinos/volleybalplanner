@@ -72,8 +72,7 @@
             ['Publiek wedstrijdprogramma', 'Per maand en per sporthal, met filters die in de link staan.'],
             ['Verzoekformulieren', 'Vaste links voor wedstrijd verzetten en dienst wijzigen.'],
             ['RSS-feeds', 'Centraal, thuis, per sporthal, team of dag.'],
-            ['Teampagina’s', 'Live Nevobo-programma, stand en uitslagen per team.'],
-            ['Programmaboekje', 'Online bladeren en als PDF.'],
+            ['Insluiten op de clubsite', 'Wedstrijdprogramma en formulieren zonder kop en voet, in de clubkleur.'],
         ],
         'Stamdata & instellingen' => [
             ['Teams', 'Vaste speeldag, tijd en veld, CenterCourt, FTZ-deelname en punten.'],

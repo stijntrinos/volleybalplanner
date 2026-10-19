@@ -36,7 +36,7 @@ return new class extends Migration
             'is_featured' => true,
             'sort_order' => 2,
             'features' => ['away_matches', 'duties', 'volunteer_points', 'trainings', 'change_requests', 'rss_feeds', 'volleystars', 'locker_rooms'],
-            'highlights' => ['Tot drie sporthallen', 'Wijzigingsverzoeken via vaste links', 'RSS-feeds en teampagina’s', 'VolleyStars en kleedkamers', 'Eigen clubkleur en logo op exports'],
+            'highlights' => ['Tot drie sporthallen', 'Wijzigingsverzoeken via vaste links', 'RSS-feeds voor app en schermen', 'VolleyStars en kleedkamers', 'Eigen clubkleur en logo op exports'],
         ],
         [
             'name' => 'Groot',
@@ -48,7 +48,7 @@ return new class extends Migration
             'is_featured' => false,
             'sort_order' => 3,
             'features' => ['away_matches', 'duties', 'volunteer_points', 'trainings', 'change_requests', 'rss_feeds', 'volleystars', 'locker_rooms', 'sitting_volleyball'],
-            'highlights' => ['Onbeperkt teams en sporthallen', 'Zitvolleybal', 'Programmaboekje voor toernooidagen', 'Hulp bij de eerste import en inrichting', 'Voorrang bij support'],
+            'highlights' => ['Onbeperkt teams en sporthallen', 'Zitvolleybal', 'Onbeperkt beheerders', 'Hulp bij de eerste import en inrichting', 'Voorrang bij support'],
         ],
     ];
 
