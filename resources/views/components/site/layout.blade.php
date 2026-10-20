@@ -115,9 +115,11 @@
             <div class="footer-bottom">
                 <span>© {{ now()->year }} {{ $company ?: 'Volleybalplanner' }}</span>
                 <a href="{{ config('site.privacy_url') ?: route('site.privacy') }}">Privacyverklaring</a>
+                <a href="{{ route('site.cookies') }}">{{ __('Cookies en voorkeuren') }}</a>
                 <a href="{{ config('site.terms_url') ?: route('site.terms') }}">Algemene voorwaarden</a>
             </div>
         </div>
     </footer>
+    <x-site.cookie-consent />
 </body>
 </html>

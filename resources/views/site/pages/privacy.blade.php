@@ -26,10 +26,12 @@
         </ul>
 
         <h2>Waarvoor</h2>
-        <p>We gebruiken de gegevens om de planner te leveren en te beveiligen, om contact op te nemen over een aanvraag of abonnement, en om wettelijke verplichtingen na te komen. We verkopen geen gegevens en gebruiken ze niet voor advertenties. De site plaatst alleen cookies die nodig zijn om in te loggen en formulieren veilig te versturen.</p>
+        <p>We gebruiken de gegevens om de planner te leveren en te beveiligen, om contact op te nemen over een aanvraag of abonnement, en om wettelijke verplichtingen na te komen. We verkopen geen gegevens en gebruiken ze niet voor advertenties. De site plaatst noodzakelijke cookies om in te loggen en formulieren veilig te versturen. Alleen na jouw toestemming meten we bezoek aan de openbare website met onze eigen bezoekersstatistieken. Daarbij bewaren we de bezochte pagina, het tijdstip, het soort apparaat, de verwijzende website en een afgeschermde bezoekcode per dag. We slaan hiervoor geen IP-adres, accountgegevens of queryparameters op.</p>
+
+        <p>Je kunt je toestemming altijd aanpassen of intrekken via <a href="{{ route('site.cookies') }}">Cookies en voorkeuren</a>.</p>
 
         <h2>Hoe lang</h2>
-        <p>Accounts en planningsgegevens bewaren we zolang de vereniging klant is; daarna verwijderen we ze, tenzij de wet langer bewaren voorschrijft. Wijzigingsverzoeken (met naam, e-mail en telefoon van de aanvrager) verwijderen we automatisch na een jaar. Contactaanvragen verwijderen we een jaar na afhandeling en uiterlijk na twee jaar. Uitnodigingen verdwijnen een maand na verloop of acceptatie. Logbestanden en de activiteitenlog bewaren we maximaal een jaar.</p>
+        <p>Accounts en planningsgegevens bewaren we zolang de vereniging klant is; daarna verwijderen we ze, tenzij de wet langer bewaren voorschrijft. Wijzigingsverzoeken (met naam, e-mail en telefoon van de aanvrager) verwijderen we automatisch na een jaar. Contactaanvragen verwijderen we een jaar na afhandeling en uiterlijk na twee jaar. Uitnodigingen verdwijnen een maand na verloop of acceptatie. Logbestanden, de activiteitenlog en bezoekersstatistieken bewaren we maximaal een jaar.</p>
 
         <h2>Waar</h2>
         <p>{{ $hosting ? "De gegevens staan bij {$hosting}." : 'De gegevens staan bij een hostingpartij binnen de Europese Unie.' }} Met partijen die gegevens voor ons verwerken, zoals hosting en e-mailverzending, hebben we afspraken gemaakt die aan de AVG voldoen.</p>

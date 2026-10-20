@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\EditAccount;
 use App\Filament\Platform\Widgets\ClubsOverview;
+use App\Filament\Platform\Widgets\VisitorOverview;
 use App\Http\Middleware\RequireStrongAuthentication;
 use App\Planner\Support\DesignTokens;
 use App\Planner\Support\InitialsAvatarProvider;
@@ -73,7 +74,7 @@ class PlatformPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Platform/Resources'), for: 'App\\Filament\\Platform\\Resources')
             ->discoverPages(in: app_path('Filament/Platform/Pages'), for: 'App\\Filament\\Platform\\Pages')
             ->pages([Dashboard::class])
-            ->widgets([ClubsOverview::class])
+            ->widgets([VisitorOverview::class, ClubsOverview::class])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

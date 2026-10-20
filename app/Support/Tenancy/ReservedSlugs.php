@@ -14,7 +14,7 @@ final class ReservedSlugs
         // laravel/passkeys registers /passkeys/* and /user/passkeys.
         'passkeys', 'user',
         // Pages of the public marketing site.
-        'functies', 'prijzen', 'contact', 'demo', 'privacy', 'voorwaarden',
+        'functies', 'prijzen', 'contact', 'demo', 'privacy', 'voorwaarden', 'cookies',
         // Invitation links.
         'uitnodiging',
     ];
