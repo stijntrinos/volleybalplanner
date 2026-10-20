@@ -5,6 +5,7 @@
  */
 @import '../../vendor/filament/filament/resources/css/theme.css';
 @import './design-system.css';
+@import './analytics.css';
 
 @source '../../app/Filament/**/*.php';
 @source '../../app/Planner/**/*.php';

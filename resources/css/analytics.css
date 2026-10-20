@@ -1,0 +1,338 @@
+/*
+ * Visitor statistics on the platform panel (filament.platform.pages.analytics).
+ * Single-hue marks in the planner teal; text stays in the ink tokens.
+ */
+
+.vp-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.vp-stats-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.vp-segmented {
+    display: inline-flex;
+    padding: 3px;
+    gap: 2px;
+    background: var(--vp-surface-raised);
+    border: 1px solid var(--vp-line);
+    border-radius: var(--vp-radius-md);
+}
+
+.vp-segmented button {
+    padding: 5px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--vp-ink-muted);
+    border-radius: var(--vp-radius-sm);
+}
+
+.vp-segmented button:hover {
+    color: var(--vp-ink);
+    background: var(--vp-surface);
+}
+
+.vp-segmented button.is-active {
+    color: var(--vp-on-brand);
+    background: var(--vp-brand);
+}
+
+/* ---------- KPI tiles ---------- */
+
+.vp-stats-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.vp-stats-kpi {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 16px 18px;
+}
+
+.vp-stats-kpi-value {
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+}
+
+.vp-stats-change {
+    font-size: 13px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.vp-stats-change .vp-muted {
+    font-weight: 400;
+}
+
+.vp-stats-change.is-better {
+    color: var(--vp-brand-strong);
+}
+
+.vp-stats-change.is-worse {
+    color: var(--vp-warn-ink);
+}
+
+.vp-stats-change.is-neutral {
+    color: var(--vp-ink-muted);
+    font-weight: 400;
+}
+
+.vp-stats-hint {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--vp-ink-faint);
+}
+
+/* ---------- Panels ---------- */
+
+.vp-stats-panel {
+    padding: 18px 20px;
+    min-width: 0;
+}
+
+.vp-stats-panel-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+    font-size: 13px;
+}
+
+.vp-stats-panel-head h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--vp-ink);
+}
+
+.vp-stats-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 48px 16px;
+    text-align: center;
+    border: 1px dashed var(--vp-line);
+    border-radius: var(--vp-radius-md);
+}
+
+.vp-stats-empty-icon {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 6px;
+    color: var(--vp-ink-faint);
+}
+
+/* ---------- Bar chart: oldest day left, today right ---------- */
+
+.vp-chart {
+    position: relative;
+    height: 240px;
+    padding: 6px 0 26px 36px;
+}
+
+.vp-chart-grid {
+    position: absolute;
+    inset: 6px 0 26px 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.vp-chart-gridline {
+    position: relative;
+    border-top: 1px solid var(--vp-line-soft);
+}
+
+.vp-chart-gridline:last-child {
+    border-top-color: var(--vp-line);
+}
+
+.vp-chart-gridline span {
+    position: absolute;
+    right: calc(100% + 8px);
+    top: -8px;
+    font-size: 11px;
+    line-height: 16px;
+    color: var(--vp-ink-faint);
+    font-variant-numeric: tabular-nums;
+}
+
+.vp-chart-bars {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.vp-chart-day {
+    position: relative;
+    flex: 1;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    border-radius: 4px 4px 0 0;
+    cursor: default;
+}
+
+.vp-chart-day:hover,
+.vp-chart-day:focus-visible {
+    background: var(--vp-brand-soft);
+}
+
+.vp-chart-bar {
+    width: 100%;
+    max-width: 28px;
+    min-height: 2px;
+    background: var(--vp-brand);
+    border-radius: 4px 4px 0 0;
+}
+
+.vp-chart-bar.is-empty {
+    background: var(--vp-line);
+}
+
+.vp-chart-day:hover .vp-chart-bar:not(.is-empty) {
+    background: var(--vp-brand-strong);
+}
+
+.vp-chart-label {
+    position: absolute;
+    top: calc(100% + 6px);
+    font-size: 11px;
+    color: var(--vp-ink-faint);
+    white-space: nowrap;
+}
+
+.vp-chart-day:last-child .vp-chart-label {
+    right: 0;
+}
+
+.vp-chart-tip {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    z-index: 10;
+    display: none;
+    flex-direction: column;
+    gap: 1px;
+    padding: 8px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+    color: var(--vp-ink);
+    background: var(--vp-surface-raised);
+    border: 1px solid var(--vp-line);
+    border-radius: var(--vp-radius-md);
+    box-shadow: 0 8px 24px rgb(16 41 59 / 0.14);
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.vp-chart-day:nth-child(-n + 3) .vp-chart-tip {
+    left: 0;
+    transform: none;
+}
+
+.vp-chart-day:nth-last-child(-n + 3) .vp-chart-tip {
+    left: auto;
+    right: 0;
+    transform: none;
+}
+
+.vp-chart-day:hover .vp-chart-tip,
+.vp-chart-day:focus-visible .vp-chart-tip {
+    display: flex;
+}
+
+/* ---------- Ranked lists ---------- */
+
+.vp-stats-lists {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.vp-rank {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    font-size: 14px;
+    border-radius: var(--vp-radius-sm);
+}
+
+.vp-rank + .vp-rank {
+    margin-top: 4px;
+}
+
+.vp-rank-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    min-width: 3px;
+    background: var(--vp-brand-soft);
+    border-radius: var(--vp-radius-sm);
+}
+
+.vp-rank-label {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vp-rank-icon {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    color: var(--vp-ink-muted);
+}
+
+.vp-rank-value {
+    position: relative;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.vp-rank-share {
+    position: relative;
+    width: 3.2em;
+    text-align: right;
+    font-size: 13px;
+    color: var(--vp-ink-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.vp-stats-list-empty {
+    font-size: 14px;
+}
+
+.vp-stats-footnote {
+    font-size: 12px;
+    color: var(--vp-ink-faint);
+}
+
+@media (max-width: 640px) {
+    .vp-chart-label.is-minor {
+        display: none;
+    }
+}

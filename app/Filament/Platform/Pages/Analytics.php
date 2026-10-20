@@ -2,8 +2,7 @@
 
 namespace App\Filament\Platform\Pages;
 
-use App\Filament\Platform\Widgets\VisitorOverview;
-use App\Models\PageView;
+use App\Support\Analytics\VisitorStatistics;
 use BackedEnum;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Auth;
@@ -31,11 +30,6 @@ class Analytics extends Page
         return Auth::user()?->isPlatformAdmin() ?? false;
     }
 
-    protected function getHeaderWidgets(): array
-    {
-        return [VisitorOverview::class];
-    }
-
     /** @return array<string, mixed> */
     protected function getViewData(): array
     {
@@ -44,25 +38,86 @@ class Analytics extends Page
             '90' => 90,
             default => 30,
         };
-        $start = today()->subDays($days - 1);
-        $query = PageView::query()->whereBetween('viewed_at', [$start, now()]);
-        $daily = (clone $query)
-            ->selectRaw('DATE(viewed_at) as day, COUNT(*) as views, COUNT(DISTINCT visit_hash) as visits')
-            ->groupBy('day')->orderBy('day')->get()->keyBy('day');
-        $timeline = collect(range(0, $days - 1))->map(function (int $offset) use ($start, $daily): array {
-            $date = $start->copy()->addDays($offset);
-            $row = $daily->get($date->toDateString());
-
-            return ['date' => $date->format('d-m'), 'views' => (int) ($row?->views ?? 0), 'visits' => (int) ($row?->visits ?? 0)];
-        });
+        $statistics = new VisitorStatistics($days);
+        $totals = $statistics->totals();
+        $previous = $statistics->previousTotals();
+        $timeline = $statistics->timeline();
 
         return [
             'days' => $days,
+            'kpis' => $this->kpis($totals, $previous),
             'timeline' => $timeline,
-            'maxViews' => max(1, $timeline->max('views')),
-            'pages' => (clone $query)->selectRaw('path, COUNT(*) as views')->groupBy('path')->orderByDesc('views')->orderBy('path')->limit(10)->get(),
-            'referrers' => (clone $query)->selectRaw('referrer_host, COUNT(*) as views')->groupBy('referrer_host')->orderByDesc('views')->orderBy('referrer_host')->limit(10)->get(),
-            'devices' => (clone $query)->selectRaw('device_type, COUNT(*) as views')->groupBy('device_type')->orderByDesc('views')->get(),
+            'scaleMax' => $this->niceCeiling($timeline->max('visits')),
+            'labelEvery' => match ($days) {
+                7 => 1,
+                30 => 5,
+                default => 14,
+            },
+            'lists' => [
+                ['heading' => __('Populaire pagina’s'), 'rows' => $statistics->top('path'), 'column' => 'path'],
+                ['heading' => __('Herkomst'), 'rows' => $statistics->top('referrer_host'), 'column' => 'referrer_host'],
+                ['heading' => __('Apparaten'), 'rows' => $statistics->top('device_type', 3), 'column' => 'device_type'],
+            ],
         ];
+    }
+
+    /**
+     * @param  array{visits: int, views: int, single_page_visits: int}  $totals
+     * @param  array{visits: int, views: int, single_page_visits: int}  $previous
+     * @return list<array{label: string, value: string, change: ?float, higherIsBetter: bool, hint: string}>
+     */
+    private function kpis(array $totals, array $previous): array
+    {
+        $pagesPerVisit = fn (array $figures): float => $figures['visits'] > 0 ? $figures['views'] / $figures['visits'] : 0.0;
+        $singlePageShare = fn (array $figures): float => $figures['visits'] > 0 ? $figures['single_page_visits'] / $figures['visits'] : 0.0;
+        $change = fn (float $now, float $before): ?float => $before > 0 ? ($now - $before) / $before : null;
+
+        return [
+            [
+                'label' => __('Bezoeken'),
+                'value' => number_format($totals['visits'], 0, ',', '.'),
+                'change' => $change($totals['visits'], $previous['visits']),
+                'higherIsBetter' => true,
+                'hint' => __('Browsersessies per dag'),
+            ],
+            [
+                'label' => __('Paginaweergaven'),
+                'value' => number_format($totals['views'], 0, ',', '.'),
+                'change' => $change($totals['views'], $previous['views']),
+                'higherIsBetter' => true,
+                'hint' => __('Alle bekeken pagina’s'),
+            ],
+            [
+                'label' => __('Pagina’s per bezoek'),
+                'value' => number_format($pagesPerVisit($totals), 1, ',', '.'),
+                'change' => $change($pagesPerVisit($totals), $pagesPerVisit($previous)),
+                'higherIsBetter' => true,
+                'hint' => __('Gemiddeld per bezoek'),
+            ],
+            [
+                'label' => __('Eén pagina bekeken'),
+                'value' => number_format($singlePageShare($totals) * 100, 0, ',', '.').'%',
+                'change' => $change($singlePageShare($totals), $singlePageShare($previous)),
+                'higherIsBetter' => false,
+                'hint' => __('Bezoeken die na één pagina stopten'),
+            ],
+        ];
+    }
+
+    /** Rounds the chart's top up to a value whose half is a round gridline. */
+    private function niceCeiling(int $value): int
+    {
+        if ($value < 10) {
+            return max(4, $value + $value % 2);
+        }
+
+        $magnitude = 10 ** (int) floor(log10($value));
+        foreach ([1, 2, 3, 4, 5, 6, 8, 10] as $step) {
+            if ($step * $magnitude >= $value) {
+                return $step * $magnitude;
+            }
+        }
+
+        return 10 * $magnitude;
     }
 }

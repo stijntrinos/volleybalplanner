@@ -1,68 +1,106 @@
 <x-filament-panels::page>
-    <x-filament::section>
-        <x-slot name="heading">{{ __('Bezoek aan de openbare website') }}</x-slot>
-        <p>{{ __('Alleen bezoek met toestemming wordt gemeten. Bots en platformbeheerders tellen niet mee. Een bezoek is een browsersessie per dag; dit is geen telling van personen. De besloten planner valt buiten deze statistieken.') }}</p>
-        <div class="mt-4 max-w-xs">
-            <label for="analytics-period" class="mb-2 block text-sm font-medium">{{ __('Periode') }}</label>
-            <x-filament::input.wrapper>
-                <x-filament::input.select id="analytics-period" wire:model.live="period">
-                    <option value="7">{{ __('Afgelopen 7 dagen') }}</option>
-                    <option value="30">{{ __('Afgelopen 30 dagen') }}</option>
-                    <option value="90">{{ __('Afgelopen 90 dagen') }}</option>
-                </x-filament::input.select>
-            </x-filament::input.wrapper>
-        </div>
-    </x-filament::section>
-
-    <x-filament::section>
-        <x-slot name="heading">{{ __('Bezoek per dag') }}</x-slot>
-        @if ($timeline->sum('views') === 0)
-            <p>{{ __('Nog geen bezoekersstatistieken in deze periode. Zodra bezoekers statistieken toestaan, verschijnen de metingen hier.') }}</p>
-        @else
-            <div class="max-h-96 overflow-auto">
-                <table class="w-full text-sm">
-                    <caption class="sr-only">{{ __('Paginaweergaven en bezoeken per dag') }}</caption>
-                    <thead><tr class="text-left"><th class="p-2">{{ __('Dag') }}</th><th class="p-2">{{ __('Paginaweergaven') }}</th><th class="p-2">{{ __('Bezoeken') }}</th></tr></thead>
-                    <tbody>
-                        @foreach ($timeline as $day)
-                            <tr class="border-t border-gray-200 dark:border-gray-700">
-                                <th scope="row" class="p-2 text-left font-normal">{{ $day['date'] }}</th>
-                                <td class="p-2">
-                                    <div class="flex items-center gap-3">
-                                        <span class="w-10 shrink-0 tabular-nums">{{ $day['views'] }}</span>
-                                        <span aria-hidden="true" class="block h-3 rounded bg-primary-500" style="width: {{ round($day['views'] / $maxViews * 100) }}%; max-width: 20rem"></span>
-                                    </div>
-                                </td>
-                                <td class="p-2 tabular-nums">{{ $day['visits'] }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+    <div class="vp-stats">
+        <div class="vp-stats-toolbar">
+            <p class="vp-muted">{{ __('Bezoek aan de openbare website, vergeleken met de :days dagen ervoor.', ['days' => $days]) }}</p>
+            <div class="vp-segmented" role="group" aria-label="{{ __('Periode') }}">
+                @foreach ([7, 30, 90] as $option)
+                    <button type="button" wire:click="$set('period', '{{ $option }}')" aria-pressed="{{ $days === $option ? 'true' : 'false' }}"
+                            @class(['is-active' => $days === $option])>{{ __(':days dagen', ['days' => $option]) }}</button>
+                @endforeach
             </div>
-        @endif
-    </x-filament::section>
+        </div>
 
-    @foreach ([__('Populaire pagina’s') => [$pages, 'path'], __('Herkomst van paginaweergaven') => [$referrers, 'referrer_host'], __('Apparaten') => [$devices, 'device_type']] as $heading => [$rows, $column])
-        <x-filament::section :heading="$heading">
-            <table class="w-full text-sm">
-                <thead><tr class="text-left"><th class="p-2">{{ $heading }}</th><th class="p-2 text-right">{{ __('Paginaweergaven') }}</th></tr></thead>
-                <tbody>
-                    @forelse ($rows as $row)
-                        <tr class="border-t border-gray-200 dark:border-gray-700">
-                            <th scope="row" class="break-all p-2 text-left font-normal">
-                                @if ($column === 'device_type')
-                                    {{ match ($row->$column) { 'mobile' => __('Mobiel'), 'tablet' => __('Tablet'), default => __('Desktop') } }}
-                                @else
-                                    {{ $row->$column ?? __('Direct / intern / onbekend') }}
+        <div class="vp-stats-kpis">
+            @foreach ($kpis as $kpi)
+                <div class="vp-card vp-stats-kpi">
+                    <span class="vp-overline">{{ $kpi['label'] }}</span>
+                    <span class="vp-stats-kpi-value">{{ $kpi['value'] }}</span>
+                    @if ($kpi['change'] === null)
+                        <span class="vp-stats-change is-neutral">{{ __('Geen vergelijking') }}</span>
+                    @else
+                        @php($isBetter = $kpi['change'] == 0 ? null : ($kpi['change'] > 0) === $kpi['higherIsBetter'])
+                        <span @class(['vp-stats-change', 'is-better' => $isBetter === true, 'is-worse' => $isBetter === false, 'is-neutral' => $isBetter === null])>
+                            {{ $kpi['change'] > 0 ? '↑' : ($kpi['change'] < 0 ? '↓' : '→') }}
+                            {{ number_format(abs($kpi['change']) * 100, 0, ',', '.') }}%
+                            <span class="vp-muted">{{ __('t.o.v. vorige periode') }}</span>
+                        </span>
+                    @endif
+                    <span class="vp-stats-hint">{{ $kpi['hint'] }}</span>
+                </div>
+            @endforeach
+        </div>
+
+        <section class="vp-card vp-stats-panel">
+            <header class="vp-stats-panel-head">
+                <h2>{{ __('Bezoeken per dag') }}</h2>
+                <span class="vp-muted">{{ $timeline->first()['date']->translatedFormat('j M') }} – {{ __('vandaag') }}</span>
+            </header>
+
+            @if ($timeline->sum('views') === 0)
+                <div class="vp-stats-empty">
+                    <x-filament::icon icon="heroicon-o-chart-bar" class="vp-stats-empty-icon" />
+                    <strong>{{ __('Nog geen bezoek in deze periode') }}</strong>
+                    <span class="vp-muted">{{ __('Zodra bezoekers statistieken toestaan, verschijnen de metingen hier.') }}</span>
+                </div>
+            @else
+                <div class="vp-chart" style="--vp-chart-days: {{ $days }}">
+                    <div class="vp-chart-grid" aria-hidden="true">
+                        @foreach ([$scaleMax, $scaleMax / 2, 0] as $tick)
+                            <div class="vp-chart-gridline"><span>{{ number_format($tick, 0, ',', '.') }}</span></div>
+                        @endforeach
+                    </div>
+                    <div class="vp-chart-bars" role="list">
+                        @foreach ($timeline as $index => $day)
+                            @php($summary = $day['date']->translatedFormat('D j M').': '.trans_choice(':count bezoek|:count bezoeken', $day['visits']).', '.trans_choice(':count paginaweergave|:count paginaweergaven', $day['views']))
+                            <div class="vp-chart-day" role="listitem" tabindex="0" aria-label="{{ $summary }}">
+                                <span @class(['vp-chart-bar', 'is-empty' => $day['visits'] === 0]) style="height: {{ round($day['visits'] / $scaleMax * 100, 2) }}%"></span>
+                                <span class="vp-chart-tip" aria-hidden="true">
+                                    <strong>{{ $day['date']->translatedFormat('D j M') }}</strong>
+                                    <span>{{ trans_choice(':count bezoek|:count bezoeken', $day['visits']) }}</span>
+                                    <span class="vp-muted">{{ trans_choice(':count paginaweergave|:count paginaweergaven', $day['views']) }}</span>
+                                </span>
+                                @if (($days - 1 - $index) % $labelEvery === 0)
+                                    <span @class(['vp-chart-label', 'is-minor' => intdiv($days - 1 - $index, $labelEvery) % 2 === 1]) aria-hidden="true">{{ $index === $days - 1 ? __('vandaag') : $day['date']->translatedFormat($days === 7 ? 'D' : 'j M') }}</span>
                                 @endif
-                            </th>
-                            <td class="p-2 text-right tabular-nums">{{ $row->views }}</td>
-                        </tr>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+        </section>
+
+        <div class="vp-stats-lists">
+            @foreach ($lists as $list)
+                <section class="vp-card vp-stats-panel">
+                    <header class="vp-stats-panel-head">
+                        <h2>{{ $list['heading'] }}</h2>
+                        <span class="vp-muted">{{ __('weergaven') }}</span>
+                    </header>
+                    @forelse ($list['rows'] as $row)
+                        <div class="vp-rank">
+                            <span class="vp-rank-fill" style="width: calc((100% - 3.2em - 10px) * {{ round($row['views'] / $list['rows']->max('views'), 4) }})" aria-hidden="true"></span>
+                            <span class="vp-rank-label" title="{{ $row['label'] }}">
+                                @if ($list['column'] === 'device_type')
+                                    <x-filament::icon :icon="match ($row['label']) { 'mobile' => 'heroicon-o-device-phone-mobile', 'tablet' => 'heroicon-o-device-tablet', default => 'heroicon-o-computer-desktop' }" class="vp-rank-icon" />
+                                    {{ match ($row['label']) { 'mobile' => __('Mobiel'), 'tablet' => __('Tablet'), default => __('Desktop') } }}
+                                @elseif ($list['column'] === 'referrer_host')
+                                    {{ $row['label'] ?? __('Direct of onbekend') }}
+                                @else
+                                    {{ $row['label'] }}
+                                @endif
+                            </span>
+                            <span class="vp-rank-value">{{ number_format($row['views'], 0, ',', '.') }}</span>
+                            <span class="vp-rank-share">{{ number_format($row['share'] * 100, 0, ',', '.') }}%</span>
+                        </div>
                     @empty
-                        <tr><td colspan="2" class="p-2">{{ __('Nog geen metingen in deze periode.') }}</td></tr>
+                        <p class="vp-muted vp-stats-list-empty">{{ __('Nog geen metingen in deze periode.') }}</p>
                     @endforelse
-                </tbody>
-            </table>
-        </x-filament::section>
-    @endforeach
+                </section>
+            @endforeach
+        </div>
+
+        <p class="vp-stats-footnote">
+            {{ __('Alleen bezoek met toestemming wordt gemeten; bots en platformbeheerders tellen niet mee. Een bezoek is een browsersessie per dag, geen telling van personen. De besloten planner valt buiten deze statistieken.') }}
+        </p>
+    </div>
 </x-filament-panels::page>
