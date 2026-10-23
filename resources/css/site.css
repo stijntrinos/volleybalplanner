@@ -4,26 +4,27 @@
  */
 
 :root {
-    --surface: #f3f6f8;
+    --surface: #f3f6f7;
     --raised: #ffffff;
-    --line: #d5dee4;
-    --line-soft: #e9eef1;
-    --ink: #10293b;
-    --ink-muted: #4a5d6b;
-    --ink-faint: #7a8893;
-    --brand: #0b7f8a;
-    --brand-strong: #08646d;
-    --brand-soft: #e3f2f3;
-    --brand-line: #bfdde0;
-    --brand-night: #5fd0d3;
-    --night: #10293b;
-    --night-muted: #a9bcc9;
+    --line: #d6dfe3;
+    --line-soft: #e7edf0;
+    --ink: #15232c;
+    --ink-muted: #526672;
+    --ink-faint: #7d909a;
+    --brand: #2f4858;
+    --brand-strong: #213440;
+    --brand-soft: #ddfbef;
+    --brand-line: #b9f3db;
+    --brand-night: #ddfbef;
+    --night: #2f4858;
+    --night-line: #4d6a7b;
+    --night-muted: #c3d3db;
     --warn-soft: #fdf0e1;
     --warn-ink: #8a4b0f;
-    --input-line: #b8c4cc;
+    --input-line: #b6c4cb;
     --radius-sm: 6px;
     --radius-md: 8px;
-    --radius-lg: 14px;
+    --radius-lg: 12px;
 }
 
 *,
@@ -178,7 +179,7 @@ p {
 }
 
 .badge.muted {
-    background: #eef2f5;
+    background: #eef3f4;
     color: var(--ink-muted);
 }
 
@@ -230,23 +231,28 @@ p {
 
 .btn-night {
     background: var(--brand-night);
-    color: #0b1d2a;
+    color: var(--ink);
 }
 
 .btn-night:hover {
-    background: #7fdde0;
-    color: #0b1d2a;
+    background: #ffffff;
+    color: var(--ink);
 }
 
 .btn-night-outline {
-    border-color: #3a5367;
+    border-color: var(--night-line);
     color: #ffffff;
     font-weight: 500;
 }
 
 .btn-night-outline:hover {
-    border-color: #5c7a90;
+    border-color: var(--night-muted);
     color: #ffffff;
+}
+
+.btn-night:focus-visible,
+.btn-night-outline:focus-visible {
+    outline-color: var(--brand-night);
 }
 
 /* ---------- Header ---------- */
@@ -404,8 +410,26 @@ p {
 
 /* ---------- Sections ---------- */
 
+/* The home hero is the one slate surface of the site; the product mock-up
+   sits on it as a light screen. */
 .hero {
-    background: var(--raised);
+    background: var(--night);
+    color: #ffffff;
+}
+
+.hero .lead,
+.hero .hero-note {
+    color: var(--night-muted);
+}
+
+.hero .hero-note svg {
+    stroke: var(--brand-night);
+}
+
+.hero .mock {
+    color: var(--ink);
+    border-color: transparent;
+    box-shadow: 0 28px 60px rgb(13 23 29 / 35%);
 }
 
 .hero .wrap {
@@ -429,10 +453,10 @@ p {
     font-size: 13px;
     font-weight: 600;
     letter-spacing: 0.04em;
-    color: var(--brand-strong);
+    color: var(--ink);
     background: var(--brand-soft);
     padding: 6px 12px;
-    border-radius: var(--radius-sm);
+    border-radius: 999px;
 }
 
 .hero-text .lead {
@@ -455,9 +479,18 @@ p {
     color: var(--ink-muted);
 }
 
+/* Subpages open on the same slate as the home hero. */
 .page-intro {
-    background: var(--raised);
-    border-bottom: 1px solid var(--line);
+    background: var(--night);
+    color: #ffffff;
+}
+
+.page-intro .kicker {
+    color: var(--brand-night);
+}
+
+.page-intro .lead {
+    color: var(--night-muted);
 }
 
 .page-intro .wrap {
@@ -476,15 +509,16 @@ p {
     max-width: 680px;
 }
 
-.page-intro.centered {
-    background: transparent;
-    border: 0;
-}
-
 .page-intro.centered .wrap {
     align-items: center;
     text-align: center;
-    padding-bottom: 40px;
+    padding-bottom: 136px;
+}
+
+/* The plans rise into the slate intro of the pricing page. */
+.page-intro.centered + .wrap .plans {
+    position: relative;
+    margin-top: -88px;
 }
 
 .section {
@@ -798,7 +832,7 @@ p {
 }
 
 .mock-head.is-duty {
-    background: #dde6eb;
+    background: #dfe7ea;
     color: var(--ink);
 }
 
@@ -1087,6 +1121,7 @@ p {
 
 .plan.is-featured {
     border: 2px solid var(--brand);
+    box-shadow: 0 18px 40px rgb(21 35 44 / 18%);
 }
 
 .plan-head {
@@ -1192,7 +1227,7 @@ p {
 }
 
 .compare .is-featured {
-    background: #f3f9fa;
+    background: #f3fef9;
 }
 
 .faq {
@@ -1706,7 +1741,7 @@ body > main {
     overflow: auto;
     border-top: 1px solid var(--brand-line);
     background: var(--raised);
-    box-shadow: 0 -8px 30px rgb(16 41 59 / 10%);
+    box-shadow: 0 -8px 30px rgb(21 35 44 / 10%);
 }
 
 .cookie-banner-content {

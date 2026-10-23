@@ -1,5 +1,5 @@
 <x-filament-panels::page>
-    <div class="vp-stats">
+    <div class="vp-analytics">
         <div class="vp-stats-toolbar">
             <p class="vp-muted">{{ __('Bezoek aan de openbare website, vergeleken met de :days dagen ervoor.', ['days' => $days]) }}</p>
             <div class="vp-segmented" role="group" aria-label="{{ __('Periode') }}">

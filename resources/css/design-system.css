@@ -7,48 +7,62 @@
  */
 
 :root {
-    --vp-surface: #f3f6f8;
+    --vp-surface: #f3f6f7;
     --vp-surface-raised: #ffffff;
-    --vp-line: #d5dee4;
-    --vp-line-soft: #e9eef1;
-    --vp-ink: #10293b;
-    --vp-ink-muted: #4a5d6b;
-    --vp-ink-faint: #7a8893;
-    --vp-brand: #0b7f8a;
-    --vp-brand-strong: #08646d;
-    --vp-brand-soft: #e3f2f3;
-    --vp-brand-line: #bfdde0;
+    --vp-line: #d6dfe3;
+    --vp-line-soft: #e7edf0;
+    --vp-ink: #15232c;
+    --vp-ink-muted: #526672;
+    --vp-ink-faint: #7d909a;
+    --vp-brand: #2f4858;
+    --vp-brand-strong: #213440;
+    --vp-brand-soft: #ddfbef;
+    --vp-brand-line: #b9f3db;
     --vp-on-brand: #ffffff;
+    --vp-accent-ink: #187356;
+    --vp-rail: #2f4858;
+    --vp-rail-raised: #3a5566;
+    --vp-rail-line: #436070;
+    --vp-rail-ink: #ffffff;
+    --vp-rail-muted: #b4c6cf;
     --vp-warn: #c2570c;
     --vp-warn-ink: #8a4b0f;
     --vp-warn-soft: #fdf0e1;
     --vp-warn-tint: #fff8f0;
-    --vp-input-line: #b8c4cc;
+    --vp-input-line: #b6c4cb;
     --vp-radius-sm: 6px;
     --vp-radius-md: 8px;
-    --vp-radius-lg: 14px;
-    --vp-focus: 0 0 0 2px #ffffff, 0 0 0 4px #0b7f8a;
+    --vp-radius-lg: 12px;
+    --vp-shadow: 0 1px 2px rgb(21 35 44 / 0.04), 0 1px 1px rgb(21 35 44 / 0.03);
+    --vp-focus: 0 0 0 2px #ffffff, 0 0 0 4px #2f4858;
 }
 
 .dark {
-    --vp-surface: #0b1d2a;
-    --vp-surface-raised: #10293b;
-    --vp-line: #24405a;
-    --vp-line-soft: #1b3447;
-    --vp-ink: #f1f5f8;
-    --vp-ink-muted: #a9bcc9;
-    --vp-ink-faint: #7e95a6;
-    --vp-brand: #5fd0d3;
-    --vp-brand-strong: #7fdde0;
-    --vp-brand-soft: #164651;
-    --vp-brand-line: #1f5c66;
-    --vp-on-brand: #0b1d2a;
+    --vp-surface: #0d171d;
+    --vp-surface-raised: #15232c;
+    --vp-line: #2a3c47;
+    --vp-line-soft: #1f2e38;
+    --vp-ink: #eef4f2;
+    --vp-ink-muted: #a8bac2;
+    --vp-ink-faint: #7d909a;
+    --vp-brand: #b9f3db;
+    --vp-brand-strong: #ddfbef;
+    --vp-brand-soft: #1d3a37;
+    --vp-brand-line: #26504a;
+    --vp-on-brand: #15232c;
+    --vp-accent-ink: #b9f3db;
+    --vp-rail: #111c23;
+    --vp-rail-raised: #1b2a34;
+    --vp-rail-line: #23323c;
+    --vp-rail-ink: #eef4f2;
+    --vp-rail-muted: #8fa3ad;
     --vp-warn: #e7944c;
     --vp-warn-ink: #f2bd88;
     --vp-warn-soft: #3d2410;
     --vp-warn-tint: #2d1b0c;
-    --vp-input-line: #35506a;
-    --vp-focus: 0 0 0 2px #10293b, 0 0 0 4px #5fd0d3;
+    --vp-input-line: #3a505d;
+    --vp-shadow: none;
+    --vp-focus: 0 0 0 2px #15232c, 0 0 0 4px #b9f3db;
 }
 
 /* ---------- Base ---------- */
@@ -75,21 +89,26 @@
 
 /* ---------- Sidebar ---------- */
 
+/* The sidebar is the one dark slate surface of the panel: the brand colour
+   carries the navigation, mint marks where you are. */
 .fi-sidebar,
 .fi-sidebar.fi-sidebar-open {
-    background: var(--vp-surface-raised);
-    border-inline-end: 1px solid var(--vp-line);
+    background: var(--vp-rail);
+    border-inline-end: 1px solid var(--vp-rail-line);
     box-shadow: none;
+    color: var(--vp-rail-ink);
 }
 
 .fi-sidebar-header {
     height: auto;
-    padding: 16px 12px 0;
+    padding: 18px 12px 0;
     justify-content: flex-start;
+    background: var(--vp-rail);
+    box-shadow: none;
 }
 
 :not(.fi-body-has-topbar) .fi-sidebar-header {
-    padding: 16px 12px 0;
+    padding: 18px 12px 0;
 }
 
 :not(.fi-body-has-topbar) .fi-sidebar-header .fi-logo {
@@ -104,18 +123,36 @@
 }
 
 .vp-logo {
+    --vp-logo-cell: var(--vp-brand);
+    --vp-logo-ball: var(--vp-brand-soft);
+    --vp-logo-seam: var(--vp-brand);
+
     display: inline-flex;
     align-items: center;
     gap: 10px;
     color: var(--vp-ink);
 }
 
+.dark .vp-logo,
+.fi-sidebar .vp-logo {
+    --vp-logo-cell: #ddfbef;
+    --vp-logo-ball: transparent;
+    --vp-logo-seam: #ddfbef;
+
+    color: var(--vp-rail-ink);
+}
+
 .vp-logo-cell {
-    fill: var(--vp-ink);
+    fill: var(--vp-logo-cell);
 }
 
 .vp-logo-ball {
-    stroke: var(--vp-brand);
+    fill: var(--vp-logo-ball);
+    stroke: var(--vp-logo-seam);
+}
+
+.vp-logo-ball path {
+    fill: none;
 }
 
 .vp-logo-word {
@@ -130,7 +167,8 @@
 }
 
 .fi-sidebar-header-controls {
-    padding: 0 12px;
+    padding: 0 12px 10px;
+    background: var(--vp-rail);
 }
 
 .fi-sidebar-header-controls::after {
@@ -138,28 +176,29 @@
 }
 
 .fi-sidebar .fi-tenant-menu {
-    margin: 16px 0 0;
+    margin: 18px 0 0;
 }
 
 .fi-tenant-menu-trigger {
     min-height: 48px;
     padding: 6px 10px;
-    border: 1px solid var(--vp-line);
+    border: 1px solid var(--vp-rail-line);
     border-radius: var(--vp-radius-md);
-    background: var(--vp-surface);
+    background: var(--vp-rail-raised);
     justify-content: flex-start;
     gap: 10px;
 }
 
 .fi-tenant-menu-trigger:hover,
 .fi-tenant-menu-trigger:focus-visible {
-    background: var(--vp-surface);
-    border-color: var(--vp-input-line);
+    background: var(--vp-rail-raised);
+    border-color: var(--vp-rail-muted);
 }
 
 .fi-tenant-menu-trigger .fi-tenant-avatar {
     width: 30px;
     height: 30px;
+    box-shadow: 0 0 0 2px var(--vp-rail-line);
 }
 
 .fi-tenant-menu-trigger-text {
@@ -169,27 +208,27 @@
 .fi-tenant-menu-trigger-tenant-name {
     font-size: 14px;
     font-weight: 600;
-    color: var(--vp-ink);
+    color: var(--vp-rail-ink);
 }
 
 .fi-tenant-menu-trigger-current-tenant-label {
     font-size: 12px;
-    color: var(--vp-ink-muted);
+    color: var(--vp-rail-muted);
     order: 2;
 }
 
 .fi-tenant-menu-trigger .fi-icon {
-    color: var(--vp-ink-muted);
+    color: var(--vp-rail-muted);
 }
 
 .fi-sidebar-nav {
-    padding: 16px 12px 24px;
-    gap: 14px;
+    padding: 18px 12px 24px;
+    gap: 18px;
 }
 
 .fi-sidebar-nav-groups {
     margin: 0;
-    gap: 14px;
+    gap: 18px;
 }
 
 .fi-sidebar-group {
@@ -203,9 +242,13 @@
 .fi-sidebar-group-label {
     font-size: 12px;
     line-height: 18px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    color: var(--vp-ink-muted);
+    font-weight: 500;
+    color: var(--vp-rail-muted);
+}
+
+.fi-sidebar-group-btn .fi-icon,
+.fi-sidebar-group-collapse-btn {
+    color: var(--vp-rail-muted);
 }
 
 .fi-sidebar-group-items {
@@ -213,42 +256,54 @@
 }
 
 .fi-sidebar-item-btn {
+    position: relative;
     min-height: 36px;
     padding: 0 10px;
     border-radius: var(--vp-radius-md);
     justify-content: flex-start;
     gap: 10px;
-    color: var(--vp-ink);
+    color: var(--vp-rail-ink);
 }
 
 .fi-sidebar-item-btn > .fi-icon {
     width: 18px;
     height: 18px;
-    color: var(--vp-ink);
+    color: var(--vp-rail-muted);
 }
 
 .fi-sidebar-item-label {
     font-size: 14px;
     font-weight: 500;
-    color: var(--vp-ink);
+    color: var(--vp-rail-ink);
 }
 
 .fi-sidebar-item.fi-sidebar-item-has-url > .fi-sidebar-item-btn:hover,
 .fi-sidebar-item.fi-sidebar-item-has-url > .fi-sidebar-item-btn:focus-visible {
-    background: var(--vp-surface);
+    background: var(--vp-rail-raised);
 }
 
-.fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
-    background: var(--vp-brand-soft);
+.fi-sidebar-item.fi-sidebar-item-has-url > .fi-sidebar-item-btn:hover > .fi-icon {
+    color: var(--vp-rail-ink);
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn,
+.fi-sidebar-item.fi-active.fi-sidebar-item-has-url > .fi-sidebar-item-btn:hover {
+    background: #ddfbef;
 }
 
 .fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-icon,
 .fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-sidebar-item-label {
-    color: var(--vp-brand-strong);
+    color: #15232c;
 }
 
 .fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-sidebar-item-label {
     font-weight: 600;
+}
+
+.fi-sidebar .fi-sidebar-item-grouped-border-part,
+.fi-sidebar .fi-sidebar-item-grouped-border-part-not-first,
+.fi-sidebar .fi-sidebar-item-grouped-border-part-not-last {
+    background: var(--vp-rail-line);
 }
 
 .fi-sidebar-item-badge-ctn .fi-badge,
@@ -261,7 +316,31 @@
 
 .fi-sidebar-open-collapse-sidebar-btn,
 .fi-sidebar-close-collapse-sidebar-btn {
-    color: var(--vp-ink-muted);
+    color: var(--vp-rail-muted);
+}
+
+.fi-sidebar-open-collapse-sidebar-btn:hover,
+.fi-sidebar-close-collapse-sidebar-btn:hover {
+    background: var(--vp-rail-raised);
+    color: var(--vp-rail-ink);
+}
+
+.fi-sidebar :focus-visible {
+    box-shadow: 0 0 0 2px var(--vp-rail), 0 0 0 4px #ddfbef;
+}
+
+/* ---------- Sign-in pages ---------- */
+
+/* Login, password reset and MFA set-up: the white card on the slate of the
+   sidebar, so the first screen already carries the brand. */
+.fi-simple-layout {
+    background: var(--vp-rail);
+}
+
+.fi-simple-main {
+    border: 0;
+    border-radius: var(--vp-radius-lg);
+    box-shadow: 0 28px 60px rgb(13 23 29 / 0.3);
 }
 
 /* ---------- Topbar (planner::filament.topbar) ---------- */
@@ -766,7 +845,7 @@
 .fi-modal-window {
     border-radius: var(--vp-radius-lg);
     border: 1px solid var(--vp-line);
-    box-shadow: 0 16px 40px rgb(16 41 59 / 0.14);
+    box-shadow: 0 16px 40px rgb(21 35 44 / 0.14);
 }
 
 .fi-dropdown-list-item {
@@ -788,7 +867,7 @@
 .fi-no-notification {
     border-radius: var(--vp-radius-lg);
     border: 1px solid var(--vp-line);
-    box-shadow: 0 16px 40px rgb(16 41 59 / 0.14);
+    box-shadow: 0 16px 40px rgb(21 35 44 / 0.14);
 }
 
 /* ---------- Helpers for the planner's own views ---------- */
@@ -1291,7 +1370,7 @@ a.vp-day:hover {
     display: grid;
     place-items: center;
     padding: 1rem;
-    background: rgb(11 29 42 / 0.45);
+    background: rgb(13 23 29 / 0.45);
 }
 
 .away-modal {
@@ -1303,7 +1382,7 @@ a.vp-day:hover {
     border-radius: var(--vp-radius-lg);
     background: var(--vp-surface-raised);
     color: var(--vp-ink);
-    box-shadow: 0 24px 70px rgb(16 41 59 / 0.3);
+    box-shadow: 0 24px 70px rgb(21 35 44 / 0.3);
 }
 
 .away-modal-head {
@@ -1410,8 +1489,13 @@ a.vp-day:hover {
     text-transform: uppercase;
     padding: 2px 6px;
     border-radius: var(--vp-radius-sm);
-    background: var(--vp-ink);
-    color: var(--vp-surface-raised);
+    background: var(--vp-brand-soft);
+    color: var(--vp-brand-strong);
+}
+
+.fi-sidebar .vp-logo-tag {
+    background: #ddfbef;
+    color: #15232c;
 }
 
 .fi-sidebar:not(.fi-sidebar-open) .vp-logo-tag {
@@ -1489,16 +1573,17 @@ a.vp-day:hover {
 
 /* Sidebar user menu (platform panel keeps it in the sidebar). */
 .fi-sidebar-footer {
-    border-top: 1px solid var(--vp-line);
+    border-top: 1px solid var(--vp-rail-line);
     padding: 12px;
 }
 
 .fi-sidebar .fi-user-menu-trigger {
     border-radius: var(--vp-radius-md);
+    color: var(--vp-rail-ink);
 }
 
 .fi-sidebar .fi-user-menu-trigger:hover {
-    background: var(--vp-surface);
+    background: var(--vp-rail-raised);
 }
 
 /* Aside sections (forms such as club editing). */

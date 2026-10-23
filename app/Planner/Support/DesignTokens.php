@@ -11,15 +11,15 @@ final class DesignTokens
 {
     public const FONT = 'Outfit';
 
-    /** Planner teal: primary action, active state, links. */
-    public const BRAND = '#0B7F8A';
+    /** Slate: primary action, active state, links. */
+    public const BRAND = '#2F4858';
 
     /** @return array<string, array<int, string>> */
     public static function palettes(): array
     {
         return [
             'primary' => self::brand(),
-            'success' => self::brand(),
+            'success' => self::mint(),
             'gray' => self::gray(),
             'warning' => [
                 50 => '#FFF8F0',
@@ -55,17 +55,35 @@ final class DesignTokens
     private static function brand(): array
     {
         return [
-            50 => '#F0F9FA',
-            100 => '#E3F2F3',
-            200 => '#BFDDE0',
-            300 => '#9FDCE0',
-            400 => '#5FD0D3',
-            500 => '#2AA6AF',
-            600 => '#0B7F8A',
-            700 => '#08646D',
-            800 => '#0A5159',
-            900 => '#0B4046',
-            950 => '#072A2E',
+            50 => '#F1F5F7',
+            100 => '#E1EAEE',
+            200 => '#C3D3DB',
+            300 => '#9BB3C0',
+            400 => '#6E8C9D',
+            500 => '#4D6A7B',
+            600 => '#2F4858',
+            700 => '#283E4C',
+            800 => '#213440',
+            900 => '#1B2A34',
+            950 => '#111C23',
+        ];
+    }
+
+    /** @return array<int, string> */
+    private static function mint(): array
+    {
+        return [
+            50 => '#F3FEF9',
+            100 => '#DDFBEF',
+            200 => '#B9F3DB',
+            300 => '#86E6C0',
+            400 => '#4ED0A0',
+            500 => '#27B384',
+            600 => '#1A916A',
+            700 => '#187356',
+            800 => '#175C46',
+            900 => '#154C3B',
+            950 => '#072B21',
         ];
     }
 
@@ -73,17 +91,17 @@ final class DesignTokens
     private static function gray(): array
     {
         return [
-            50 => '#F3F6F8',
-            100 => '#E9EEF1',
-            200 => '#D5DEE4',
-            300 => '#B8C4CC',
-            400 => '#7A8893',
-            500 => '#4A5D6B',
-            600 => '#3A4C5A',
-            700 => '#2C3C4B',
-            800 => '#1C3041',
-            900 => '#10293B',
-            950 => '#0B1D2A',
+            50 => '#F3F6F7',
+            100 => '#E7EDF0',
+            200 => '#D6DFE3',
+            300 => '#B6C4CB',
+            400 => '#7D909A',
+            500 => '#526672',
+            600 => '#40535F',
+            700 => '#31424D',
+            800 => '#23323C',
+            900 => '#15232C',
+            950 => '#0D171D',
         ];
     }
 }

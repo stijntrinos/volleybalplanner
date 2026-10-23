@@ -46,7 +46,7 @@
         ['Op je eigen clubsite', 'Wedstrijdprogramma en verzoekformulieren zijn met één regel in de clubsite in te voegen, zonder kop en voet, in de kleur van de club.'],
     ];
 
-    $clubColours = ['#7A2E3A' => 'Bordeaux', '#1E5AA8' => 'Blauw', '#2F6B3A' => 'Groen', '#0B7F8A' => 'Teal'];
+    $clubColours = ['#2F4858' => 'Leisteen', '#7A2E3A' => 'Bordeaux', '#1E5AA8' => 'Blauw', '#2F6B3A' => 'Groen'];
 @endphp
 
 <x-site.layout>
@@ -57,11 +57,11 @@
                 <h1 class="display">Wedstrijdplanning zonder puzzelstress</h1>
                 <p class="lead">Eén rustige plek voor thuis- en uitwedstrijden, zaalbezetting, een eerlijke verdeling van fluiten, tellen en zaaldienst, en alles wat leden op de website zien.</p>
                 <div class="button-row">
-                    <a href="{{ route('site.contact') }}" class="btn btn-lg btn-primary">Demo aanvragen</a>
-                    <a href="{{ route('site.features') }}" class="btn btn-lg btn-outline">Bekijk alle functies</a>
+                    <a href="{{ route('site.contact') }}" class="btn btn-lg btn-night">Demo aanvragen</a>
+                    <a href="{{ route('site.features') }}" class="btn btn-lg btn-night-outline">Bekijk alle functies</a>
                 </div>
                 <div class="hero-note">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#0B7F8A" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8M4 4v4h4M4 13a8 8 0 0 0 14.3 4.9L20 16M20 20v-4h-4"></path></svg>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#2F4858" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8M4 4v4h4M4 13a8 8 0 0 0 14.3 4.9L20 16M20 20v-4h-4"></path></svg>
                     <span>Elke nacht gesynchroniseerd met de Nevobo</span>
                 </div>
             </div>
@@ -166,7 +166,7 @@
                     <li><x-site.check /><span>Zaalwacht en voettekst per export in te stellen</span></li>
                 </ul>
             </div>
-            <div class="card schedule-mock" style="--club: #7A2E3A" data-club-preview>
+            <div class="card schedule-mock" style="--club: {{ array_key_first($clubColours) }}" data-club-preview>
                 <div class="schedule-mock-head">
                     <span class="schedule-mock-logo">LOGO</span>
                     <div><strong>Sporthal De Haven</strong><small>Zaterdag 10-10-2026</small></div>
@@ -186,7 +186,7 @@
                 </div>
                 <div class="schedule-mock-credit">
                     <span>Gepland met</span>
-                    <x-site.mark :size="12" ink="#7A8893" ball="#7A8893" />
+                    <x-site.mark :size="12" ink="#7D909A" ball="none" />
                     <strong>Volleybalplanner</strong>
                 </div>
             </div>

@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class InitialsAvatarProvider implements AvatarProvider
 {
-    public const INK = '#10293B';
+    public const INK = '#15232C';
 
     public function get(Model $record): string
     {

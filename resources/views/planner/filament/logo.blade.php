@@ -1,4 +1,4 @@
-{{-- The "Rasterbal": a 2×2 calendar grid with one cell a volleyball, plus the wordmark. --}}
+{{-- The "Rasterbal": a 2×2 calendar grid with one cell a volleyball, plus the wordmark. Colours come from design-system.css. --}}
 <span class="vp-logo">
     <svg viewBox="0 0 48 48" width="26" height="26" aria-hidden="true" class="vp-logo-mark">
         <rect x="2" y="2" width="20" height="20" rx="5" class="vp-logo-cell"></rect>

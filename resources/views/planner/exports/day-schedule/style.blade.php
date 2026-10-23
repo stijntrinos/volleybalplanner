@@ -21,13 +21,13 @@
      */
     :root {
         --planner-primary: {{ $branding['primary_color'] }};
-        --ink: #10293b;
-        --ink-muted: #4a5d6b;
-        --ink-faint: #7a8893;
-        --surface: #f3f6f8;
+        --ink: #15232c;
+        --ink-muted: #526672;
+        --ink-faint: #7d909a;
+        --surface: #f3f6f7;
         --raised: #ffffff;
-        --line: #d5dee4;
-        --empty: #e9eef1;
+        --line: #d6dfe3;
+        --empty: #e7edf0;
         --radius: 10px;
     }
 

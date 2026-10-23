@@ -19,6 +19,7 @@ use App\Planner\Models\ScheduleVersion;
 use App\Planner\Models\Team;
 use App\Planner\Models\Training;
 use App\Planner\Models\Venue;
+use App\Planner\Support\DesignTokens;
 use App\Support\Tenancy\CurrentClub;
 use Carbon\CarbonImmutable;
 
@@ -67,7 +68,7 @@ final class DemoClubBuilder
     {
         PlannerSetting::current()->update([
             'team_name_patterns' => [self::TEAM_PREFIX],
-            'primary_color' => '#7A2E3A',
+            'primary_color' => DesignTokens::BRAND,
             'schedule_tagline' => 'Check je kleedkamer bij de ingang · Veel speelplezier en een sportieve wedstrijd',
         ]);
 

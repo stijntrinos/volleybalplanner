@@ -13,7 +13,7 @@
 @source '../views/planner/**/*.blade.php';
 
 /* Volleybalplanner design system: tokens and Filament overrides. */
-:root{--planner-primary:#0B7F8A}
+:root{--planner-primary:#2F4858}
 
 /*
  * Day planner (HomeMatches).
@@ -22,35 +22,35 @@
  * of being sent inline with every page load.
  */
 
-.planner-shell{--slot:18px;color:#172033}
+.planner-shell{--slot:18px;color:#15232c}
 .planner-toolbar{display:flex;justify-content:space-between;gap:1rem;align-items:center;padding:.85rem 1rem;border:1px solid #e4e9f0;border-radius:14px;background:#fff;box-shadow:0 1px 2px #0f172a0a;position:sticky;top:.5rem;z-index:30}
 .dark .planner-toolbar{background:#111827;border-color:#374151;color:#f8fafc}
 .planner-toolbar-primary,.planner-toolbar-secondary{display:flex;align-items:center;gap:.65rem}
 .planner-date-navigation{height:44px;display:flex;align-items:stretch;border:1px solid #d8e0ea;border-radius:10px;overflow:hidden;background:#fff}
 .planner-date-navigation>button{width:38px;color:#526174;font-size:1.5rem;line-height:1;background:#f8fafc}
-.planner-date-navigation>button:hover{background:#eaf4fb;color:#0079b8}
+.planner-date-navigation>button:hover{background:#eefbf5;color:#2f4858}
 .planner-current-date{position:relative;min-width:174px;display:grid;grid-template-columns:1fr auto;align-items:center;padding:0 .55rem 0 .8rem;border-inline:1px solid #e4e9f0}
 .planner-current-date span{grid-column:1}
 .planner-current-date input[type=text]{grid-column:1}
 .planner-date-picker{grid-column:2;grid-row:1/3;display:grid;place-items:center;width:30px;height:30px;border-radius:8px;color:#64748b}
-.planner-date-picker:hover{background:#eaf4fb;color:#0079b8}
+.planner-date-picker:hover{background:#eefbf5;color:#2f4858}
 .planner-date-native{position:absolute;right:.55rem;bottom:0;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0}
 .planner-current-date span{font-size:.68rem;line-height:1;text-transform:uppercase;letter-spacing:.08em;color:#718096}
 .planner-current-date input{font-weight:700;font-size:.84rem;background:transparent;border:0;padding:0;color:inherit}
 .planner-today,.planner-unplanned-toggle{height:44px;border:1px solid #d8e0ea;border-radius:10px;padding:0 .85rem;font-weight:650;background:#fff;color:#334155}
-.planner-today:hover,.planner-unplanned-toggle:hover{border-color:#38a9d7;background:#f0faff}
+.planner-today:hover,.planner-unplanned-toggle:hover{border-color:#6e8c9d;background:#f3fef9}
 .planner-version{min-width:190px;font-weight:650}
 .planner-search{height:44px;min-width:280px;display:flex;align-items:center;gap:.55rem;border:1px solid #d8e0ea;border-radius:10px;padding:0 .7rem;background:#f8fafc}
 .planner-search>span{font-size:1.2rem;color:#64748b}
 .planner-search input{width:100%;border:0;background:transparent;outline:0;font-size:.84rem}
 .planner-search kbd{font-size:.65rem;padding:.15rem .35rem;border:1px solid #d8e0ea;border-radius:4px;background:#fff;color:#64748b}
-.planner-count{display:inline-grid;place-items:center;min-width:22px;height:22px;margin-right:.35rem;border-radius:999px;background:#e7f5fc;color:#0079b8;font-size:.72rem}
+.planner-count{display:inline-grid;place-items:center;min-width:22px;height:22px;margin-right:.35rem;border-radius:999px;background:#ddfbef;color:#2f4858;font-size:.72rem}
 .dark .planner-date-navigation,.dark .planner-today,.dark .planner-unplanned-toggle,.dark .planner-search,.dark .planner-date-navigation>button{background:#1f2937;border-color:#475569}
 .dark .planner-current-date{border-color:#475569}
 .planner-chips,.planner-hall-filter{display:flex;gap:.5rem;flex-wrap:wrap;margin:.75rem 0}
 .planner-chips span{padding:.35rem .7rem;border-radius:999px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;font-size:.75rem;font-weight:600}
 .planner-hall-filter button{padding:.38rem .75rem;border-radius:8px;background:#fff;border:1px solid #d8e0ea;color:#475569;font-size:.76rem;font-weight:650}
-.planner-hall-filter button:before{content:"";display:inline-block;width:7px;height:7px;margin-right:.4rem;border-radius:999px;background:#21a2dc}
+.planner-hall-filter button:before{content:"";display:inline-block;width:7px;height:7px;margin-right:.4rem;border-radius:999px;background:#2f4858}
 .planner-hall-filter button.is-hidden{opacity:.45}
 .planner-hall-filter .planner-hall-count{display:inline-block;margin-left:.4rem;padding:0 .35rem;border-radius:999px;background:#eef4f9;color:#475569;font-size:.68rem;font-style:normal;font-weight:750}
 .planner-layout{display:flex;gap:12px;min-height:900px}
@@ -58,9 +58,9 @@
 .planner-panel-title{display:flex;justify-content:space-between;align-items:flex-start;margin:2px 2px 12px}
 .planner-panel-title h3{font-size:.9rem;font-weight:750;color:#253449}
 .planner-panel-title p{font-size:.7rem;color:#7c8a9b;margin-top:2px}
-.planner-panel-title>span{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#dff2fb;color:#0079b8;font-size:.75rem;font-weight:800}
+.planner-panel-title>span{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#ddfbef;color:#2f4858;font-size:.75rem;font-weight:800}
 .planner-unplanned-card{display:flex;flex-direction:column;gap:2px;padding:10px 11px;border:1px solid #e0e6ed;border-left:3px solid #8a9bac;border-radius:9px;background:#fff;box-shadow:0 1px 2px #0f172a08;cursor:grab}
-.planner-unplanned-card:hover{border-color:#69bddd;box-shadow:0 4px 12px #0f172a12}
+.planner-unplanned-card:hover{border-color:#6e8c9d;box-shadow:0 4px 12px #0f172a12}
 .planner-unplanned-card>div{display:flex;justify-content:space-between;gap:.5rem}
 .planner-unplanned-card strong{font-size:.7rem;color:#64748b}
 .planner-unplanned-card span{font-size:.8rem;font-weight:750}
@@ -76,9 +76,9 @@
 .planner-heading{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:0 14px;color:#fff;border-right:1px solid #ffffff35;box-shadow:inset 0 -1px #00000014}
 .planner-heading strong{max-width:100%;font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .planner-heading span{margin-top:3px;font-size:.67rem;opacity:.8}
-.planner-heading-0{background:#168ec2}
-.planner-heading-1{background:#147d92}
-.planner-heading-2{background:#536ba3}
+.planner-heading-0{background:#2f4858}
+.planner-heading-1{background:#3d6670}
+.planner-heading-2{background:#56658a}
 .planner-heading-3{background:#657f70}
 .planner-time-axis{grid-area:2/1;position:sticky;left:0;z-index:12;background:#f8fafc;border-right:1px solid #e4e9f0}
 .dark .planner-time-axis,.dark .planner-time-header{background:#111827;border-color:#374151}
@@ -87,8 +87,8 @@
 .planner-dropzone{height:1116px;position:relative;border-right:1px solid #e7ebf0;background:repeating-linear-gradient(to bottom,#fff 0,#fff 17px,#e9edf2 18px)}
 .dark .planner-scroll{background:#111827;border-color:#374151}
 .dark .planner-dropzone{border-color:#374151;background:repeating-linear-gradient(to bottom,#111827 0,#111827 17px,#293548 18px)}
-.planner-dropzone.is-drop-target{background-color:#eaf7fd;box-shadow:inset 0 0 0 2px #34a9d8}
-.planner-card{position:absolute;left:5px;right:5px;padding:7px 8px;border:1px solid #b9dfef;border-left:4px solid #168ec2;border-radius:8px;background:#eaf7fd;box-shadow:0 2px 5px #0f172a16;cursor:grab;overflow:hidden;touch-action:none;z-index:5;color:#193247}
+.planner-dropzone.is-drop-target{background-color:#eefbf5;box-shadow:inset 0 0 0 2px #6e8c9d}
+.planner-card{position:absolute;left:5px;right:5px;padding:7px 8px;border:1px solid #bfe9d6;border-left:4px solid #2f4858;border-radius:8px;background:#eefbf5;box-shadow:0 2px 5px #0f172a16;cursor:grab;overflow:hidden;touch-action:none;z-index:5;color:#193247}
 .planner-card:hover{box-shadow:0 5px 14px #0f172a24;z-index:8}
 .planner-card.is-overlapping{border-color:#f97316;border-left-color:#ea580c;background:#fff5ec;outline:2px solid #ea580c;outline-offset:-1px;z-index:6}
 .planner-card.is-overlapping:hover{z-index:9}
@@ -103,10 +103,10 @@
 .planner-card b{margin-top:3px;font-size:.78rem}
 .planner-card small{font-size:.7rem;color:#526174}
 .planner-card-meta{display:flex;gap:.3rem;flex-wrap:wrap;font-size:.63rem;margin-top:5px}
-.planner-card-meta span{padding:2px 4px;border:1px solid #cfe8f2;border-radius:4px;background:#fff9}
+.planner-card-meta span{padding:2px 4px;border:1px solid #cdeedf;border-radius:4px;background:#fff9}
 .planner-match.is-dragging{opacity:.72;z-index:100;box-shadow:0 14px 30px #0f172a36}
-.planner-undo-toast{position:fixed;right:1.5rem;bottom:1.5rem;z-index:9999;display:flex;gap:1rem;align-items:center;padding:.9rem 1rem;border-radius:10px;background:#172033;color:#fff;box-shadow:0 12px 32px #0004}
-.planner-undo-toast button{font-weight:700;color:#7dd3fc}
+.planner-undo-toast{position:fixed;right:1.5rem;bottom:1.5rem;z-index:9999;display:flex;gap:1rem;align-items:center;padding:.9rem 1rem;border-radius:10px;background:#15232c;color:#fff;box-shadow:0 12px 32px #0004}
+.planner-undo-toast button{font-weight:700;color:#b9f3db}
 @media(max-width:1150px){.planner-toolbar{align-items:stretch;flex-direction:column}
 .planner-toolbar-primary,.planner-toolbar-secondary{justify-content:space-between}
 .planner-search{flex:1}}
@@ -125,10 +125,10 @@
 .planner-training-card:hover{z-index:4}
 .planner-activity-card{z-index:3}
 .planner-activity-card:hover{z-index:4}
-.planner-volleystars-card{background:#eaf7fd;border-color:#9fc7da;border-left-color:#168ec2;cursor:default}
+.planner-volleystars-card{background:#eefbf5;border-color:#a9d9c3;border-left-color:#2f4858;cursor:default}
 .planner-volleystars-card.is-hall-wide{right:auto;z-index:4;opacity:.92;cursor:pointer;text-decoration:none}
 .planner-volleystars-card.is-hall-wide:hover{opacity:1;border-left-color:var(--planner-primary)}
-.planner-card-meta button{padding:2px 5px;border:1px solid #7dd3fc;border-radius:4px;background:#fff;color:#0369a1;font-size:.62rem;font-weight:700}
+.planner-card-meta button{padding:2px 5px;border:1px solid #b9f3db;border-radius:4px;background:#fff;color:#2f4858;font-size:.62rem;font-weight:700}
 .planner-assistant-backdrop{position:fixed;inset:0;z-index:100;background:#0f172a55;display:flex;justify-content:flex-end}
 .planner-assistant{width:min(480px,100%);height:100%;overflow:auto;padding:1.25rem;background:#fff;box-shadow:-16px 0 40px #0f172a2b}
 .dark .planner-assistant{background:#111827;color:#f8fafc}
@@ -155,7 +155,7 @@
 .planner-match-modal legend{display:grid;gap:.5rem;color:#030712;font-size:.875rem;line-height:1.25rem;font-weight:500}
 .planner-duration{display:grid;grid-template-columns:repeat(3,1fr);gap:.35rem;margin-bottom:.8rem}
 .planner-duration legend{grid-column:1/-1}
-.planner-duration button{height:2.5rem;padding:0 .55rem;border:1px solid #b9dff0;border-radius:6px;background:#e6f6fd;font-size:.75rem;font-weight:750}
+.planner-duration button{height:2.5rem;padding:0 .55rem;border:1px solid #bfe9d6;border-radius:6px;background:#e6f6fd;font-size:.75rem;font-weight:750}
 .planner-duration button.is-active{border-color:#711c1d;background:#711c1d;color:#fff}
 .planner-match-notes{margin-bottom:.8rem}
 .planner-two-fields{display:flex!important;align-items:center;gap:.6rem;min-height:2.5rem;padding:.65rem;border:1px solid #d8e0ea;border-radius:7px}
@@ -175,31 +175,31 @@
 .planner-history article{display:flex;justify-content:space-between;gap:.5rem;padding:.55rem 0;border-bottom:1px solid #edf2f7;font-size:.7rem}
 .planner-history small{color:#64748b;white-space:nowrap}
 .planner-service-heading{background:#e8f2f7!important;color:#334155;border-left:2px solid #cbd5e1}
-.planner-service-column{background:repeating-linear-gradient(to bottom,#f2f8fb 0,#f2f8fb 17px,#dce8ee 18px);border-left:2px solid #cbd5e1}
-.planner-service-card{background:#dcecf5;border-color:#9fc7da;border-left-color:#168ec2;cursor:default}
+.planner-service-column{background:repeating-linear-gradient(to bottom,#f3f7f8 0,#f3f7f8 17px,#dfe7ea 18px);border-left:2px solid #cbd5e1}
+.planner-service-card{background:#dcecf5;border-color:#a9d9c3;border-left-color:#2f4858;cursor:default}
 .planner-service-card small{margin-top:3px}
 .planner-dropzone{background-color:#fff;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 17px,#edf1f5 17px,#edf1f5 18px),repeating-linear-gradient(to bottom,transparent 0,transparent 71px,#cbd5df 71px,#cbd5df 72px)}
-.planner-service-column{background-color:#f2f8fb;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 17px,#e1ebf0 17px,#e1ebf0 18px),repeating-linear-gradient(to bottom,transparent 0,transparent 71px,#b8ccd6 71px,#b8ccd6 72px)}
+.planner-service-column{background-color:#f3f7f8;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 17px,#e3eaed 17px,#e3eaed 18px),repeating-linear-gradient(to bottom,transparent 0,transparent 71px,#bccbd2 71px,#bccbd2 72px)}
 .dark .planner-dropzone{background-color:#111827;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 17px,#263244 17px,#263244 18px),repeating-linear-gradient(to bottom,transparent 0,transparent 71px,#475569 71px,#475569 72px)}
 .planner-settings,.planner-export{position:relative}
 .planner-settings-trigger{display:grid;place-items:center;width:44px;height:44px;border:1px solid #d8e0ea;border-radius:10px;background:#fff;color:#475569}
-.planner-settings-trigger:hover{border-color:#38a9d7;background:#f0faff;color:#0079b8}
+.planner-settings-trigger:hover{border-color:#6e8c9d;background:#f3fef9;color:#2f4858}
 .planner-settings-menu{position:absolute;right:0;top:calc(100% + 8px);z-index:80;width:240px;padding:8px;border:1px solid #dce3eb;border-radius:12px;background:#fff;box-shadow:0 16px 38px #0f172a24}
 .planner-toolbar-primary .planner-export .planner-settings-menu{right:auto;left:0}
 .planner-settings-title{padding:7px 9px 9px;font-size:.82rem;font-weight:800;color:#1e293b}
 .planner-settings-group{padding:8px 9px 4px;border-top:1px solid #edf1f5;color:#94a3b8;font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
 .planner-settings-menu a,.planner-settings-menu>button{display:block;width:100%;padding:7px 9px;border-radius:7px;color:#334155;font-size:.76rem;font-weight:600;text-align:left}
-.planner-settings-menu a:hover,.planner-settings-menu>button:hover{background:#eaf7fd;color:#0079b8}
+.planner-settings-menu a:hover,.planner-settings-menu>button:hover{background:#eefbf5;color:#2f4858}
 .dark .planner-settings-trigger,.dark .planner-settings-menu{background:#1f2937;border-color:#475569;color:#e2e8f0}
 .dark .planner-settings-title,.dark .planner-settings-menu a,.dark .planner-settings-menu>button{color:#e2e8f0}
 .dark .planner-settings-group{border-color:#374151}
-.dark .planner-settings-menu a:hover,.dark .planner-settings-menu>button:hover{background:#0f3b53}
+.dark .planner-settings-menu a:hover,.dark .planner-settings-menu>button:hover{background:#1d3a37}
 .planner-readonly-notice{margin:.75rem 0;padding:.65rem .85rem;border:1px solid #fde68a;border-radius:10px;background:#fffbeb;color:#92400e;font-size:.76rem;font-weight:600}
 .planner-match.is-readonly{cursor:default}
 .planner-match.is-readonly:hover{box-shadow:0 2px 5px #0f172a16}
 .dark .planner-readonly-notice{border-color:#854d0e;background:#422006;color:#fde68a}
 .planner-search-trigger{position:relative;display:grid;place-items:center;width:44px;height:44px;border:1px solid #d8e0ea;border-radius:10px;background:#fff;color:#475569}
-.planner-search-trigger:hover{border-color:#38a9d7;background:#f0faff;color:#0079b8}
+.planner-search-trigger:hover{border-color:#6e8c9d;background:#f3fef9;color:#2f4858}
 .planner-search-active{position:absolute;right:7px;top:7px;width:7px;height:7px;border:2px solid #fff;border-radius:999px;background:#f97316}
 .planner-search-backdrop{position:fixed;inset:0;z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding:clamp(5rem,14vh,10rem) 1rem 1rem;background:#0f172a73;backdrop-filter:blur(2px)}
 .planner-search-modal{width:min(620px,100%);overflow:hidden;border:1px solid #dce3eb;border-radius:16px;background:#fff;box-shadow:0 24px 70px #0f172a40}
@@ -207,15 +207,15 @@
 .planner-search-modal-header h2{font-size:1rem;font-weight:800;color:#1e293b}
 .planner-search-modal-header p{margin-top:.15rem;font-size:.75rem;color:#64748b}
 .planner-search-modal-header>button{font-size:1.6rem;line-height:1;color:#94a3b8}
-.planner-search-input{display:flex;align-items:center;gap:.65rem;margin:0 1.25rem 1rem;padding:0 .85rem;border:2px solid #38a9d7;border-radius:11px;background:#f8fafc;color:#64748b;box-shadow:0 0 0 3px #38a9d71f}
-.planner-search-input input{width:100%;height:48px;border:0;background:transparent;outline:0;font-size:.9rem;color:#172033}
-.planner-search-input button{font-size:.7rem;font-weight:700;color:#0079b8}
+.planner-search-input{display:flex;align-items:center;gap:.65rem;margin:0 1.25rem 1rem;padding:0 .85rem;border:2px solid #6e8c9d;border-radius:11px;background:#f8fafc;color:#64748b;box-shadow:0 0 0 3px #2f48581f}
+.planner-search-input input{width:100%;height:48px;border:0;background:transparent;outline:0;font-size:.9rem;color:#15232c}
+.planner-search-input button{font-size:.7rem;font-weight:700;color:#2f4858}
 .planner-search-results{max-height:min(480px,55vh);overflow-y:auto;border-top:1px solid #edf1f5}
 .planner-search-empty{padding:2rem 1.25rem;text-align:center;color:#64748b;font-size:.8rem}
 .planner-search-result{display:grid;width:100%;grid-template-columns:82px 1fr 20px;gap:.8rem;align-items:center;padding:.8rem 1.25rem;border-bottom:1px solid #edf1f5;text-align:left}
-.planner-search-result:hover{background:#f0faff}
+.planner-search-result:hover{background:#f3fef9}
 .planner-search-result-date,.planner-search-result-match{display:grid;min-width:0}
-.planner-search-result-date strong{color:#0079b8;font-size:.72rem;text-transform:capitalize}
+.planner-search-result-date strong{color:#2f4858;font-size:.72rem;text-transform:capitalize}
 .planner-search-result-date small,.planner-search-result-match small{margin-top:.12rem;color:#64748b;font-size:.68rem}
 .planner-search-result-match strong{overflow:hidden;color:#1e293b;font-size:.8rem;text-overflow:ellipsis;white-space:nowrap}
 .planner-search-result>svg{color:#94a3b8}
@@ -226,7 +226,7 @@
 .dark .planner-search-modal-header h2,.dark .planner-search-input input,.dark .planner-search-result-match strong{color:#f8fafc}
 .dark .planner-search-input,.dark .planner-search-modal-footer{border-color:#475569;background:#111827}
 .dark .planner-search-results,.dark .planner-search-result{border-color:#374151}
-.dark .planner-search-result:hover{background:#0f3b53}
+.dark .planner-search-result:hover{background:#1d3a37}
 .dark .planner-search-modal-footer kbd{border-color:#475569;background:#1f2937}
 .planner-card.is-search-focus{outline:3px solid #f97316;outline-offset:2px;z-index:15;animation:planner-search-pulse 1.4s ease-in-out 2}
 @keyframes planner-search-pulse{50%{box-shadow:0 0 0 8px #f9731630}}
@@ -245,19 +245,19 @@
 .planner-volleystars-modal{width:min(780px,calc(100% - 2rem))}
 .planner-volleystars-intro{margin:-.45rem 0 1rem;color:#64748b;font-size:.76rem}
 .planner-volleystars-tasks{display:grid;gap:.75rem}
-.planner-volleystars-task{padding:.85rem;border:1px solid #b9dff0;border-radius:11px;background:#edf9fe}
+.planner-volleystars-task{padding:.85rem;border:1px solid #bfe9d6;border-radius:11px;background:#edf9fe}
 .planner-volleystars-task legend{display:block;padding:0 .35rem;color:#075985;font-size:.82rem;font-weight:800}
 .planner-volleystars-times{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:end;gap:.55rem;margin-bottom:.7rem}
 .planner-volleystars-times>span{padding-bottom:.5rem;color:#64748b}
 .planner-volleystars-team-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.55rem}
-.dark .planner-volleystars-task{border-color:#155e75;background:#0c4a5a55}
-.dark .planner-volleystars-task legend{color:#7dd3fc}
+.dark .planner-volleystars-task{border-color:#26504a;background:#1d3f3b55}
+.dark .planner-volleystars-task legend{color:#b9f3db}
 @media(max-width:640px){.planner-volleystars-team-grid{grid-template-columns:1fr}}
 .planner-unplanned-trigger{position:relative;display:grid;place-items:center;width:44px;height:44px;border:1px solid #d8e0ea;border-radius:10px;background:#fff;color:#475569}
-.planner-unplanned-trigger:hover,.planner-unplanned-trigger.is-active{border-color:#38a9d7;background:#f0faff;color:#0079b8}
+.planner-unplanned-trigger:hover,.planner-unplanned-trigger.is-active{border-color:#6e8c9d;background:#f3fef9;color:#2f4858}
 .planner-unplanned-badge{position:absolute;right:-5px;top:-6px;display:grid;place-items:center;min-width:20px;height:20px;padding:0 5px;border:2px solid #fff;border-radius:999px;background:#f97316;color:#fff;font-size:.62rem;font-weight:800}
 .dark .planner-unplanned-trigger{border-color:#475569;background:#1f2937;color:#e2e8f0}
-.dark .planner-unplanned-trigger.is-active{background:#0f3b53;color:#7dd3fc}
+.dark .planner-unplanned-trigger.is-active{background:#1d3a37;color:#b9f3db}
 .dark .planner-unplanned-badge{border-color:#1f2937}
 @media(min-width:901px){.planner-layout{min-height:0;align-items:stretch}
 .planner-scroll,.planner-unplanned{height:clamp(680px,calc(100vh - 14rem),1050px)}
@@ -293,13 +293,13 @@
 .dark .planner-shell{color:#e2e8f0}
 .dark .planner-current-date span{color:#94a3b8}
 .dark .planner-date-picker{color:#cbd5e1}
-.dark .planner-date-picker:hover{background:#0f3b53;color:#7dd3fc}
+.dark .planner-date-picker:hover{background:#1d3a37;color:#b9f3db}
 .dark .planner-date-navigation>button{color:#cbd5e1}
-.dark .planner-date-navigation>button:hover{background:#0f3b53;color:#7dd3fc}
-.dark .planner-today:hover,.dark .planner-unplanned-toggle:hover{border-color:#38a9d7;background:#0f3b53;color:#7dd3fc}
+.dark .planner-date-navigation>button:hover{background:#1d3a37;color:#b9f3db}
+.dark .planner-today:hover,.dark .planner-unplanned-toggle:hover{border-color:#86e6c0;background:#1d3a37;color:#b9f3db}
 .dark .planner-search>span,.dark .planner-search kbd{color:#94a3b8}
 .dark .planner-search kbd{border-color:#475569;background:#111827}
-.dark .planner-count{background:#0f3b53;color:#7dd3fc}
+.dark .planner-count{background:#1d3a37;color:#b9f3db}
 
 /* Venue filters: they were bright white above the dark timetable. */
 .dark .planner-hall-filter button{background:#1f2937;border-color:#475569;color:#e2e8f0}
@@ -308,39 +308,39 @@
 
 /* Side panel with matches still to plan. */
 .dark .planner-panel-title p{color:#94a3b8}
-.dark .planner-panel-title>span{background:#0f3b53;color:#7dd3fc}
+.dark .planner-panel-title>span{background:#1d3a37;color:#b9f3db}
 .dark .planner-unplanned-card{border-left-color:#64748b;color:#e2e8f0}
-.dark .planner-unplanned-card:hover{border-color:#38a9d7}
+.dark .planner-unplanned-card:hover{border-color:#86e6c0}
 .dark .planner-unplanned-card strong,.dark .planner-unplanned-card small{color:#94a3b8}
 .dark .planner-unplanned-card em{background:#7c2d12;color:#fed7aa}
 
 /* The timetable itself. */
 .dark .planner-time-axis span{color:#94a3b8}
-.dark .planner-dropzone.is-drop-target{background-color:#0f3b53;box-shadow:inset 0 0 0 2px #38a9d7}
+.dark .planner-dropzone.is-drop-target{background-color:#1d3a37;box-shadow:inset 0 0 0 2px #86e6c0}
 
 /*
  * The cards. Each kind keeps its own colour -- match blue, training grey,
  * activity amber, VolleyStars cyan -- as a dark variant, so the distinction
  * stays without them lighting up.
  */
-.dark .planner-card{background:#123243;border-color:#1d4d66;border-left-color:#38a9d7;color:#e2e8f0;box-shadow:0 2px 5px #0006}
+.dark .planner-card{background:#183238;border-color:#26504a;border-left-color:#86e6c0;color:#e2e8f0;box-shadow:0 2px 5px #0006}
 .dark .planner-card:hover{box-shadow:0 5px 14px #0008}
 .dark .planner-card>div:first-child span{color:#94a3b8}
 .dark .planner-card small{color:#94a3b8}
 .dark .planner-card-meta span{border-color:#475569;background:#ffffff14}
-.dark .planner-card-meta button{border-color:#0369a1;background:#0f3b53;color:#7dd3fc}
+.dark .planner-card-meta button{border-color:#26504a;background:#1d3a37;color:#b9f3db}
 .dark .planner-card.has-request{border-color:#6d28d9;border-left-color:#a78bfa;background:#2e1065}
 .dark .planner-card-meta .planner-request-badge{border-color:#a78bfa;background:#5b21b6;color:#ede9fe}
 .dark .planner-card.is-overlapping{border-color:#c2410c;border-left-color:#fb923c;background:#431407;outline-color:#ea580c}
 .dark .planner-card.is-requested{background:#422006;border-color:#854d0e;border-left-color:#f59e0b}
 .dark .planner-training-card{background:#1f2937;border-color:#374151;border-left-color:#64748b;color:#cbd5e1}
 .dark .planner-activity-card{background:#422006;border-color:#854d0e;border-left-color:#f59e0b;color:#fde68a}
-.dark .planner-volleystars-card{background:#0c4a5a;border-color:#155e75;border-left-color:#38bdf8;color:#e0f2fe}
+.dark .planner-volleystars-card{background:#1d3f3b;border-color:#26504a;border-left-color:#86e6c0;color:#e8fbf2}
 
 /* Hall duty column and cards. */
-.dark .planner-service-heading{background:#0f3b53!important;color:#bae6fd;border-left-color:#475569}
+.dark .planner-service-heading{background:#1d3a37!important;color:#ddfbef;border-left-color:#475569}
 .dark .planner-service-column{background-color:#0f1f2b;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 17px,#22303f 17px,#22303f 18px);border-left-color:#475569}
-.dark .planner-service-card{background:#123243;border-color:#1d4d66;border-left-color:#38a9d7;color:#e2e8f0}
+.dark .planner-service-card{background:#183238;border-color:#26504a;border-left-color:#86e6c0;color:#e2e8f0}
 
 /* Planning assistant. */
 .dark .planner-assistant-header p{color:#94a3b8}
@@ -464,20 +464,21 @@
 .planner-heading strong{font-size:14px;font-weight:600}
 .planner-heading span{font-size:12px;opacity:.85}
 .planner-heading-0{background:var(--vp-brand)}
-.planner-heading-1{background:#10293b}
-.planner-heading-2{background:#3a4c5a}
-.planner-heading-3{background:#08646d}
-.dark .planner-heading-1{background:#24405a}
-.planner-service-heading,.dark .planner-service-heading{background:#dde6eb!important;color:#10293b;border-left:0}
-.dark .planner-service-heading{background:#24405a!important;color:#f1f5f8}
+.planner-heading-1{background:#3d6670}
+.planner-heading-2{background:#526672}
+.planner-heading-3{background:#187356}
+.dark .planner-heading-0{color:var(--vp-surface-raised)}
+.dark .planner-heading-1{background:#2f5660}
+.planner-service-heading,.dark .planner-service-heading{background:var(--vp-brand-soft)!important;color:var(--vp-ink);border-left:0}
+.dark .planner-service-heading{background:#2a3c47!important;color:#eef4f2}
 
-.planner-dropzone{border-color:var(--vp-line-soft);background-color:#fafbfc;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 71px,#e9eef1 71px,#e9eef1 72px)}
-.dark .planner-dropzone{background-color:#0e2231;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 71px,#1b3447 71px,#1b3447 72px)}
+.planner-dropzone{border-color:var(--vp-line-soft);background-color:#fafbfc;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 71px,#e7edf0 71px,#e7edf0 72px)}
+.dark .planner-dropzone{background-color:#111c23;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 71px,#1f2e38 71px,#1f2e38 72px)}
 .planner-dropzone.is-drop-target{background-color:var(--vp-brand-soft);box-shadow:inset 0 0 0 2px var(--vp-brand)}
 .planner-service-column,.dark .planner-service-column{border-left:1px solid var(--vp-line);background-color:var(--vp-surface);background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 71px,var(--vp-line-soft) 71px,var(--vp-line-soft) 72px)}
 
 .planner-card,.dark .planner-card{border:1px solid var(--vp-line);border-left:1px solid var(--vp-line);border-radius:var(--vp-radius-md);background:var(--vp-surface-raised);color:var(--vp-ink);box-shadow:none;padding:7px 9px}
-.planner-card:hover,.dark .planner-card:hover{border-color:var(--vp-brand-line);box-shadow:0 4px 12px rgb(16 41 59 / .1)}
+.planner-card:hover,.dark .planner-card:hover{border-color:var(--vp-brand-line);box-shadow:0 4px 12px rgb(21 35 44 / .1)}
 .planner-card>div:first-child strong{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
 .planner-card>div:first-child span,.dark .planner-card>div:first-child span{color:var(--vp-ink-muted);font-size:12px}
 .planner-card b{font-size:14px;font-weight:600}
@@ -498,7 +499,7 @@
 .planner-readonly-notice{border-color:#f2bd88;border-radius:var(--vp-radius-md);background:var(--vp-warn-tint);color:var(--vp-warn-ink)}
 .planner-card.is-search-focus{outline-color:var(--vp-warn)}
 .planner-undo-toast{background:var(--vp-ink);border-radius:var(--vp-radius-md)}
-.planner-undo-toast button{color:#5fd0d3}
+.planner-undo-toast button{color:#b9f3db}
 
 /* Modals of the day planner: the burgundy of the original club colour becomes the brand. */
 .planner-match-modal,.planner-assistant,.planner-search-modal{border:1px solid var(--vp-line);border-radius:var(--vp-radius-lg);background:var(--vp-surface-raised);color:var(--vp-ink)}
@@ -506,7 +507,7 @@
 .planner-duration button{border-color:var(--vp-line);border-radius:var(--vp-radius-sm);background:var(--vp-surface-raised);color:var(--vp-ink);font-weight:600}
 .planner-duration button.is-active,.dark .planner-duration button.is-active,.planner-match-modal-actions .is-primary,.dark .planner-match-modal-actions .is-primary{border-color:var(--vp-brand);background:var(--vp-brand);color:var(--vp-on-brand)}
 .planner-match-modal-actions button{border-radius:var(--vp-radius-md);font-weight:600}
-.planner-search-input{border-color:var(--vp-brand);box-shadow:0 0 0 3px rgb(11 127 138 / .15)}
+.planner-search-input{border-color:var(--vp-brand);box-shadow:0 0 0 3px rgb(47 72 88 / .15)}
 .planner-search-input button,.planner-search-result-date strong{color:var(--vp-brand)}
 .planner-search-result:hover{background:var(--vp-brand-soft)}
 .planner-assistant-results>article{border-color:var(--vp-brand-line);background:var(--vp-brand-soft);color:var(--vp-brand-strong)}

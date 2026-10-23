@@ -42,6 +42,7 @@ class PlannerPlugin implements Plugin
             ->font(DesignTokens::FONT)
             ->colors(DesignTokens::palettes())
             ->brandLogo(fn (): View => view('planner::filament.logo'))
+            ->favicon(asset('favicon.svg'))
             ->defaultAvatarProvider(InitialsAvatarProvider::class)
             ->userMenu(position: UserMenuPosition::Topbar)
             ->navigationGroups([

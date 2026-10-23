@@ -59,7 +59,7 @@
                     <legend class="{{ $label }}">{{ __('Welke wedstrijd?') }}</legend>
                     <div class="mt-1 space-y-2">
                         @forelse ($this->matches as $match)
-                            <label class="flex cursor-pointer items-start gap-3 border p-4 transition {{ (int) $matchId === $match->id ? 'planner-border-primary planner-tint-primary' : 'border-gray-300 bg-white hover:border-gray-400' }}">
+                            <label class="planner-option flex cursor-pointer items-start gap-3 border p-4 transition {{ (int) $matchId === $match->id ? 'planner-border-primary planner-tint-primary' : 'border-gray-300 bg-white hover:border-gray-400' }}">
                                 <input type="radio" name="match" value="{{ $match->id }}" wire:model.live="matchId" class="mt-1">
                                 <span class="min-w-0 flex-1">
                                     <span class="block font-semibold text-gray-900">{{ $match->home_team_name }} - {{ $match->away_team_name }}</span>

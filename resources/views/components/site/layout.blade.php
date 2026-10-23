@@ -32,8 +32,8 @@
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="Volleybalplanner: wedstrijdplanning zonder puzzelstress">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="theme-color" content="#10293b">
-    <link rel="icon" href="data:image/svg+xml,{{ rawurlencode('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><rect x="2" y="2" width="20" height="20" rx="5" fill="#10293B"/><circle cx="36" cy="12" r="8.5" fill="none" stroke="#0B7F8A" stroke-width="3"/><rect x="2" y="26" width="20" height="20" rx="5" fill="#10293B"/><rect x="26" y="26" width="20" height="20" rx="5" fill="#10293B"/></svg>') }}">
+    <meta name="theme-color" content="#2f4858">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=outfit:400,500,600,700&display=swap" rel="stylesheet">
     @vite('resources/css/site.css')

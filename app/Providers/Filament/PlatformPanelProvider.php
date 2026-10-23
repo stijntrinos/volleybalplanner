@@ -70,6 +70,7 @@ class PlatformPanelProvider extends PanelProvider
             ->font(DesignTokens::FONT)
             ->colors(DesignTokens::palettes())
             ->brandLogo(fn (): View => view('planner::filament.logo'))
+            ->favicon(asset('favicon.svg'))
             ->defaultAvatarProvider(InitialsAvatarProvider::class)
             ->discoverResources(in: app_path('Filament/Platform/Resources'), for: 'App\\Filament\\Platform\\Resources')
             ->discoverPages(in: app_path('Filament/Platform/Pages'), for: 'App\\Filament\\Platform\\Pages')

@@ -33,10 +33,10 @@
             <div class="card contact-direct">
                 <strong>Liever direct contact?</strong>
                 @if ($email)
-                    <div><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#0B7F8A" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18v12H3zM3 7l9 6 9-6"></path></svg><a href="mailto:{{ $email }}">{{ $email }}</a></div>
+                    <div><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#2F4858" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18v12H3zM3 7l9 6 9-6"></path></svg><a href="mailto:{{ $email }}">{{ $email }}</a></div>
                 @endif
                 @if ($phone)
-                    <div><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#0B7F8A" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1"></path></svg><a href="tel:{{ preg_replace('/[^0-9+]/', '', $phone) }}">{{ $phone }}</a></div>
+                    <div><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#2F4858" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1"></path></svg><a href="tel:{{ preg_replace('/[^0-9+]/', '', $phone) }}">{{ $phone }}</a></div>
                 @endif
                 <p class="muted" style="margin-top: 4px">Al klant en hulp nodig? Gebruik het supportformulier in de beheeromgeving, dan hebben we meteen de juiste planningversie erbij.</p>
             </div>

@@ -48,7 +48,7 @@
                     <legend class="{{ $label }}">{{ __('Welke FTZ-dienst wil je wijzigen?') }}</legend>
                     <div class="mt-1 space-y-2">
                         @forelse ($this->duties as $duty)
-                            <label class="flex cursor-pointer items-start gap-3 border p-4 transition {{ $dutyKey === $duty['key'] ? 'planner-border-primary planner-tint-primary' : 'border-gray-300 bg-white hover:border-gray-400' }}">
+                            <label class="planner-option flex cursor-pointer items-start gap-3 border p-4 transition {{ $dutyKey === $duty['key'] ? 'planner-border-primary planner-tint-primary' : 'border-gray-300 bg-white hover:border-gray-400' }}">
                                 <input type="radio" name="duty" value="{{ $duty['key'] }}" wire:model.live="dutyKey" class="mt-1">
                                 <span class="min-w-0 flex-1">
                                     <span class="block font-semibold text-gray-900">{{ $duty['label'] }} · {{ $duty['description'] }}</span>

@@ -3,7 +3,7 @@
  * Single-hue marks in the planner teal; text stays in the ink tokens.
  */
 
-.vp-stats {
+.vp-analytics {
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -237,7 +237,7 @@
     background: var(--vp-surface-raised);
     border: 1px solid var(--vp-line);
     border-radius: var(--vp-radius-md);
-    box-shadow: 0 8px 24px rgb(16 41 59 / 0.14);
+    box-shadow: 0 8px 24px rgb(21 35 44 / 0.14);
     transform: translateX(-50%);
     pointer-events: none;
 }

@@ -16,7 +16,7 @@
         <legend class="{{ $label }}">{{ __('Hoe nemen we contact met je op?') }}</legend>
         <div class="mt-1 flex flex-wrap gap-3">
             @foreach (ContactPreference::cases() as $option)
-                <label class="flex cursor-pointer items-center gap-2 border px-4 py-2.5 {{ $contactPreference === $option->value ? 'planner-border-primary planner-tint-primary' : 'border-gray-300 bg-white hover:border-gray-400' }}">
+                <label class="planner-option flex cursor-pointer items-center gap-2 border px-4 py-2.5 {{ $contactPreference === $option->value ? 'planner-border-primary planner-tint-primary' : 'border-gray-300 bg-white hover:border-gray-400' }}">
                     <input type="radio" name="{{ $prefix }}-contact-preference" value="{{ $option->value }}" wire:model.live="contactPreference">
                     <span class="text-gray-900">{{ $option->getLabel() }}</span>
                 </label>
