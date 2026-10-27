@@ -67,17 +67,8 @@ final class DemoClubBuilder
 
     private function build(CarbonImmutable $saturday): void
     {
-        PlannerSetting::current()->update([
-            'team_name_patterns' => [self::TEAM_PREFIX],
-            'primary_color' => DesignTokens::BRAND,
-            'schedule_tagline' => 'Check je kleedkamer bij de ingang · Veel speelplezier en een sportieve wedstrijd',
-            // Before the duties are created: a duty takes the points of the moment it came about.
-            'points_referee_duty' => 2,
-            'points_scorer_duty' => 1,
-            'points_hall_duty' => 2,
-            'points_volleystars' => 3,
-            ...$this->seasonHalves(),
-        ]);
+        // Before the duties are created: a duty takes the points of the moment it came about.
+        PlannerSetting::current()->update(['team_name_patterns' => [self::TEAM_PREFIX], ...self::settings()]);
 
         $haven = Venue::query()->create(['venue_code' => 'HAVEN', 'name' => 'De Haven', 'city' => 'Voorbeeldstad', 'is_managed' => true, 'has_duties' => true, 'for_matches' => true, 'for_trainings' => true, 'is_active' => true]);
         $noord = Venue::query()->create(['venue_code' => 'NOORD', 'name' => 'Sportcentrum Noord', 'city' => 'Voorbeeldstad', 'is_managed' => false, 'has_duties' => false, 'for_matches' => true, 'for_trainings' => false, 'is_active' => true]);
@@ -137,12 +128,30 @@ final class DemoClubBuilder
     }
 
     /**
+     * The settings every demo starts with, also a demo filled from the Nevobo.
+     *
+     * @return array<string, mixed>
+     */
+    public static function settings(): array
+    {
+        return [
+            'primary_color' => DesignTokens::BRAND,
+            'schedule_tagline' => 'Check je kleedkamer bij de ingang · Veel speelplezier en een sportieve wedstrijd',
+            'points_referee_duty' => 2,
+            'points_scorer_duty' => 1,
+            'points_hall_duty' => 2,
+            'points_volleystars' => 3,
+            ...self::seasonHalves(),
+        ];
+    }
+
+    /**
      * The two halves of the season the fair share is computed over: September
      * to December and January to May of the current season.
      *
      * @return array{half_1_start: string, half_1_end: string, half_2_start: string, half_2_end: string}
      */
-    private function seasonHalves(): array
+    private static function seasonHalves(): array
     {
         $today = CarbonImmutable::today();
         $year = $today->month >= 7 ? $today->year : $today->year - 1;

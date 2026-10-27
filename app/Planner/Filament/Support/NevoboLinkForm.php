@@ -35,7 +35,7 @@ use Filament\Support\Icons\Heroicon;
 final class NevoboLinkForm
 {
     /**
-     * @param  Closure(): Club  $club
+     * @param  Closure(): ?Club  $club  null for a club that does not exist yet
      * @return list<Component>
      */
     public static function components(Closure $club): array
@@ -140,7 +140,7 @@ final class NevoboLinkForm
      *
      * @param  Set|callable(string, mixed): mixed  $set
      */
-    public static function loadTeams(callable $set, Club $club, ?string $code, bool $fresh = false): void
+    public static function loadTeams(callable $set, ?Club $club, ?string $code, bool $fresh = false): void
     {
         $set('nevobo_teams', []);
         $set('team_ids', []);
@@ -157,7 +157,7 @@ final class NevoboLinkForm
             return;
         }
 
-        [$ownCodes, $relink] = app(CurrentClub::class)->run($club, static fn (): array => [
+        [$ownCodes, $relink] = $club === null ? [[], false] : app(CurrentClub::class)->run($club, static fn (): array => [
             Team::query()->pluck('code')->map(static fn (string $teamCode): string => TeamCode::key($teamCode))->flip()->all(),
             PlannerSetting::query()->value('nevobo_club_code') === strtoupper((string) $code),
         ]);
@@ -198,7 +198,7 @@ final class NevoboLinkForm
             ->all();
     }
 
-    private static function clubLabel(string $code): string
+    public static function clubLabel(string $code): string
     {
         try {
             $club = app(NevoboClubDirectory::class)->club($code);

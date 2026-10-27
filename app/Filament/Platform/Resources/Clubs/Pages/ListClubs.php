@@ -13,6 +13,7 @@ class ListClubs extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            ClubResource::createDemoAction(),
             CreateAction::make(),
         ];
     }

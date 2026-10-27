@@ -6,6 +6,7 @@ use App\Models\Club;
 use App\Models\ContactRequest;
 use App\Models\Plan;
 use App\Models\User;
+use App\Planner\Exceptions\NevoboUnavailable;
 use App\Planner\Support\ClubRole;
 use App\Support\Tenancy\ClubInvitations;
 use Illuminate\Support\Facades\DB;
@@ -13,9 +14,9 @@ use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 /**
- * Turns a demo request from the public site into a working demo club: a
- * club on the largest plan with a trial, filled with demo data, and an
- * invitation for the requester to sign in as club admin.
+ * Turns a demo request from the public site, or a platform admin's own
+ * request, into a working demo club: a club on the largest plan with a
+ * trial, filled with demo data, and an invitation to sign in as club admin.
  *
  * A demo is a normal club with is_demo set. After the trial it turns
  * read-only like any club; platform:prune-demo-clubs deletes it later,
@@ -25,6 +26,7 @@ final class DemoClubs
 {
     public function __construct(
         private readonly DemoClubBuilder $builder,
+        private readonly NevoboDemoFiller $nevobo,
         private readonly ClubInvitations $invitations,
     ) {}
 
@@ -50,14 +52,7 @@ final class DemoClubs
                 return $existing;
             }
 
-            $name = $this->organisation($locked);
-            $club = Club::query()->create([
-                'name' => __(':name (demo)', ['name' => $name]),
-                'slug' => $this->uniqueSlug($name),
-                'is_demo' => true,
-                'plan_id' => $this->largestPlan()?->getKey(),
-                'trial_ends_at' => today()->addDays((int) config('planner.demo.trial_days', 14)),
-            ]);
+            $club = $this->newClub($this->organisation($locked));
 
             $this->builder->fill($club);
             $this->invitations->invite($club, $locked->name, $locked->email, ClubRole::ClubAdmin, $inviter);
@@ -68,6 +63,59 @@ final class DemoClubs
 
             return $club;
         });
+    }
+
+    /**
+     * A demo club a platform admin makes directly, filled with the example
+     * planning or, given a Nevobo club, with that club's own teams and
+     * programme. The contact, when given, is invited as club admin once the
+     * club is filled, so a failed Nevobo link never sends an invitation.
+     *
+     * @param  list<string>  $nevoboTeamIds
+     * @return array{club: Club, nevobo: array{teams: int, venues: int, matches: int, error: string|null}|null}
+     *
+     * @throws NevoboUnavailable when the Nevobo teams could not be linked; no club is left behind
+     */
+    public function create(
+        string $name,
+        ?string $contactName = null,
+        ?string $email = null,
+        ?string $nevoboClubCode = null,
+        array $nevoboTeamIds = [],
+        ?User $inviter = null,
+    ): array {
+        $club = $this->newClub(trim($name));
+        $nevobo = null;
+
+        if (filled($nevoboClubCode)) {
+            try {
+                $nevobo = $this->nevobo->fill($club, $nevoboClubCode, $nevoboTeamIds);
+            } catch (NevoboUnavailable $exception) {
+                $club->delete();
+
+                throw $exception;
+            }
+        } else {
+            $this->builder->fill($club);
+        }
+
+        if (filled($email)) {
+            $this->invitations->invite($club, filled($contactName) ? trim($contactName) : trim($email), $email, ClubRole::ClubAdmin, $inviter);
+        }
+
+        return ['club' => $club, 'nevobo' => $nevobo];
+    }
+
+    /** "<name> (demo)" on the largest plan with a trial. */
+    private function newClub(string $name): Club
+    {
+        return Club::query()->create([
+            'name' => __(':name (demo)', ['name' => $name]),
+            'slug' => $this->uniqueSlug($name),
+            'is_demo' => true,
+            'plan_id' => $this->largestPlan()?->getKey(),
+            'trial_ends_at' => today()->addDays((int) config('planner.demo.trial_days', 14)),
+        ]);
     }
 
     private function organisation(ContactRequest $request): string
