@@ -68,7 +68,12 @@
     <link rel="manifest" href="{{ asset('site.webmanifest') }}">
     <link rel="preload" href="{{ asset('fonts/outfit/outfit-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="{{ asset('fonts/outfit/outfit-latin-600-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
-    @vite('resources/css/site.css')
+    {{-- Inlined so the first render does not wait on a stylesheet request; the dev server keeps hot reload. --}}
+    @if (Vite::isRunningHot())
+        @vite('resources/css/site.css')
+    @else
+        <style>{!! Vite::content('resources/css/site.css') !!}</style>
+    @endif
     @unless ($noindex)
         <script type="application/ld+json">{!! json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
     @endunless
