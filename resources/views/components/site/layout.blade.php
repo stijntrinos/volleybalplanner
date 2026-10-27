@@ -66,8 +66,7 @@
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
     <link rel="manifest" href="{{ asset('site.webmanifest') }}">
-    <link rel="preload" href="{{ asset('fonts/outfit/outfit-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="{{ asset('fonts/outfit/outfit-latin-600-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ asset('fonts/outfit/outfit-latin-variable.woff2') }}" as="font" type="font/woff2" crossorigin>
     {{-- Inlined so the first render does not wait on a stylesheet request; the dev server keeps hot reload. --}}
     @if (Vite::isRunningHot())
         @vite('resources/css/site.css')

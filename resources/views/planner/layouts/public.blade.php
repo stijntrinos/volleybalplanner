@@ -37,8 +37,7 @@
             <meta property="og:image" content="{{ $logo }}">
         @endif
     @endif
-    <link rel="preload" href="{{ asset('fonts/outfit/outfit-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="{{ asset('fonts/outfit/outfit-latin-600-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ asset('fonts/outfit/outfit-latin-variable.woff2') }}" as="font" type="font/woff2" crossorigin>
     @vite('resources/css/app.css')
     <style>
         :root { --planner-primary: {{ $primary }}; }
