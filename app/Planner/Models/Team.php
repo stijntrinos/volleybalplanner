@@ -28,6 +28,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $default_match_duration
  * @property bool $plays_on_two_courts
  * @property bool $scores_own_match
+ * @property Carbon|null $scores_own_match_until
  * @property bool $provides_referee
  * @property string|null $referee_license
  * @property bool $nevobo_referee
@@ -39,6 +40,15 @@ use Illuminate\Support\Carbon;
  * @property int $volunteer_points_earned
  * @property int|null $volunteer_points_percentage
  * @property string|null $locker_room_category
+ * @property bool $no_scoring_heavy_teams
+ * @property bool $no_scoring_late
+ * @property bool $no_hall_duty
+ * @property bool $never_referees
+ * @property bool $referees_restricted_teams
+ * @property bool $referees_c_youth
+ * @property bool $referees_youth_and_lower_women
+ * @property int|null $weekly_max
+ * @property string|null $playing_group
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Club $club
@@ -47,6 +57,7 @@ use Illuminate\Support\Carbon;
  * @property-read int|null $sources_count
  * @property-read Collection<int, Training> $trainings
  * @property-read int|null $trainings_count
+ * @property-read Collection<int, TeamAbsence> $absences
  *
  * @method static \Database\Factories\Planner\TeamFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Team newModelQuery()
@@ -102,8 +113,24 @@ class Team extends Model
         'plays_on_two_courts', 'scores_own_match', 'provides_referee', 'referee_license',
         'nevobo_referee', 'has_duties', 'include_in_duties', 'volunteers', 'include_volunteers',
         'volunteer_points_used', 'volunteer_points_earned', 'volunteer_points_percentage',
-        'locker_room_category',
+        'locker_room_category', ...self::PLANNING_RULES,
     ];
+
+    /**
+     * The per-team planning exceptions: which duties the duty planning
+     * proposes the team.
+     *
+     * @var list<string>
+     */
+    public const PLANNING_RULES = [
+        'scores_own_match_until', 'no_scoring_heavy_teams', 'no_scoring_late', 'no_hall_duty',
+        'never_referees', 'referees_restricted_teams', 'referees_c_youth', 'referees_youth_and_lower_women',
+        'weekly_max', 'playing_group',
+    ];
+
+    public const PLAYING_GROUP_WEEKDAYS = 'weekdays';
+
+    public const PLAYING_GROUP_SATURDAY = 'saturday';
 
     /**
      * The Nevobo referee licences from low to high, with what they allow. A
@@ -126,6 +153,9 @@ class Team extends Model
         'plays_on_two_courts', 'scores_own_match', 'provides_referee', 'referee_license', 'nevobo_referee', 'has_duties',
         'include_in_duties', 'volunteers', 'include_volunteers', 'volunteer_points_used', 'volunteer_points_earned',
         'volunteer_points_percentage', 'locker_room_category',
+        'scores_own_match_until', 'no_scoring_heavy_teams', 'no_scoring_late', 'no_hall_duty',
+        'never_referees', 'referees_restricted_teams', 'referees_c_youth', 'referees_youth_and_lower_women',
+        'weekly_max', 'playing_group',
     ];
 
     protected function casts(): array
@@ -145,7 +175,65 @@ class Team extends Model
             'volunteer_points_used' => 'integer',
             'volunteer_points_earned' => 'integer',
             'volunteer_points_percentage' => 'integer',
+            'scores_own_match_until' => 'date',
+            'no_scoring_heavy_teams' => 'boolean',
+            'no_scoring_late' => 'boolean',
+            'no_hall_duty' => 'boolean',
+            'never_referees' => 'boolean',
+            'referees_restricted_teams' => 'boolean',
+            'referees_c_youth' => 'boolean',
+            'referees_youth_and_lower_women' => 'boolean',
+            'weekly_max' => 'integer',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (Team $team): void {
+            foreach (self::defaultPlanningRules($team->code) as $field => $value) {
+                // What was passed explicitly (the form, an import) wins.
+                if (!array_key_exists($field, $team->getAttributes())) {
+                    $team->setAttribute($field, $value);
+                }
+            }
+        });
+    }
+
+    /**
+     * The planning exceptions a new team starts with. A youth team gets no
+     * hall duty, an A youth team referees C youth and B and C youth never
+     * referee.
+     *
+     * @return array<string, bool>
+     */
+    public static function defaultPlanningRules(?string $code): array
+    {
+        $class = TeamCode::youthClass($code);
+
+        return [
+            'no_hall_duty' => $class !== null,
+            'referees_c_youth' => $class === 'A',
+            'never_referees' => in_array($class, ['B', 'C'], true),
+        ];
+    }
+
+    /** @return array<string, string> */
+    public static function playingGroups(): array
+    {
+        return [
+            self::PLAYING_GROUP_WEEKDAYS => __('Doordeweeks'),
+            self::PLAYING_GROUP_SATURDAY => __('Zaterdag'),
+        ];
+    }
+
+    /**
+     * Whether the team scores its own home match on this date. The flag can
+     * have an end date; after it another team scores.
+     */
+    public function scoresOwnMatchOn(string $date): bool
+    {
+        return $this->scores_own_match
+            && ($this->scores_own_match_until === null || $date <= $this->scores_own_match_until->toDateString());
     }
 
     protected static function newFactory(): TeamFactory
@@ -175,5 +263,11 @@ class Team extends Model
     public function trainings(): HasMany
     {
         return $this->hasMany(Training::class);
+    }
+
+    /** @return HasMany<TeamAbsence, $this> */
+    public function absences(): HasMany
+    {
+        return $this->hasMany(TeamAbsence::class)->orderBy('date_from');
     }
 }

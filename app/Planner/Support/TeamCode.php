@@ -118,6 +118,20 @@ final class TeamCode
         return self::CATEGORIES[Str::upper($match[1] ?? '')] ?? self::CATEGORY_OTHER;
     }
 
+    /**
+     * The age class of a youth team: A, B or C. Seniors and teams without a
+     * recognisable code have none.
+     */
+    public static function youthClass(?string $value): ?string
+    {
+        return preg_match('/^[JM]([ABC])\d+$/', self::key($value), $match) === 1 ? $match[1] : null;
+    }
+
+    public static function isSeniors(?string $value): bool
+    {
+        return preg_match('/^(HS|DS|H|D)\d+$/', self::key($value)) === 1;
+    }
+
     public static function categoryLabel(string $category): string
     {
         return match ($category) {

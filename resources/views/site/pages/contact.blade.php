@@ -14,7 +14,7 @@
     ];
 @endphp
 
-<x-site.layout title="Contact en demo" active="contact" description="Plan een online demo van Volleybalplanner met jullie eigen sporthallen en Nevobo-programma, of stel je vraag.">
+<x-site.layout title="Demo aanvragen en contact" active="contact" description="Vraag een gratis online demo van Volleybalplanner aan, met jullie eigen sporthallen en Nevobo-programma. Of stel je vraag aan ons.">
     <section class="wrap contact">
         <div class="contact-text">
             <div style="display: flex; flex-direction: column; gap: 14px">

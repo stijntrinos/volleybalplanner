@@ -1,0 +1,14 @@
+{
+    "name": "Volleybalplanner",
+    "short_name": "Volleybalplanner",
+    "description": "Wedstrijdplanning voor volleybalverenigingen",
+    "lang": "nl",
+    "start_url": "/",
+    "display": "browser",
+    "background_color": "#ffffff",
+    "theme_color": "#2f4858",
+    "icons": [
+        { "src": "/images/icon-192.png", "sizes": "192x192", "type": "image/png" },
+        { "src": "/images/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    ]
+}

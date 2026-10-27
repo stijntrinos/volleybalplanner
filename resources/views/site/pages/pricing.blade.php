@@ -31,9 +31,44 @@
             ? "De gegevens staan bij {$hosting}. We sluiten een verwerkersovereenkomst met de vereniging."
             : 'We sluiten een verwerkersovereenkomst met de vereniging; daarin staat precies waar en hoe de gegevens bewaard worden.'],
     ];
+
+    $offers = $plans->whereNotNull('price')->map(fn ($plan): array => [
+        '@type' => 'Offer',
+        'name' => $plan->name,
+        'url' => route('site.pricing'),
+        'price' => $plan->price,
+        'priceCurrency' => 'EUR',
+        'priceSpecification' => [
+            '@type' => 'UnitPriceSpecification',
+            'price' => $plan->price,
+            'priceCurrency' => 'EUR',
+            'unitText' => 'seizoen',
+            'valueAddedTaxIncluded' => false,
+        ],
+    ])->values()->all();
+
+    $schema = [
+        array_filter([
+            '@type' => 'SoftwareApplication',
+            '@id' => route('site.home').'#software',
+            'name' => 'Volleybalplanner',
+            'url' => route('site.home'),
+            'applicationCategory' => 'BusinessApplication',
+            'operatingSystem' => 'Web',
+            'offers' => $offers,
+        ]),
+        [
+            '@type' => 'FAQPage',
+            'mainEntity' => array_map(fn (array $item): array => [
+                '@type' => 'Question',
+                'name' => $item[0],
+                'acceptedAnswer' => ['@type' => 'Answer', 'text' => $item[1]],
+            ], $faq),
+        ],
+    ];
 @endphp
 
-<x-site.layout title="Prijzen" active="pricing" description="Eén prijs per seizoen, op basis van het aantal teams. Geen kosten per gebruiker: de hele zaalcommissie werkt mee.">
+<x-site.layout title="Prijzen per seizoen" active="pricing" description="Volleybalplanner kost één vaste prijs per seizoen, op basis van het aantal teams. Geen kosten per gebruiker: de hele zaalcommissie werkt mee." :schema="$schema">
     <section class="page-intro centered">
         <div class="wrap">
             <span class="kicker">Prijzen</span>

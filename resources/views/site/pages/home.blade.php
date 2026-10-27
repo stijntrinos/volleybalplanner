@@ -47,9 +47,24 @@
     ];
 
     $clubColours = ['#2F4858' => 'Leisteen', '#7A2E3A' => 'Bordeaux', '#1E5AA8' => 'Blauw', '#2F6B3A' => 'Groen'];
+
+    $software = [
+        '@type' => 'SoftwareApplication',
+        '@id' => route('site.home').'#software',
+        'name' => 'Volleybalplanner',
+        'url' => route('site.home'),
+        'applicationCategory' => 'BusinessApplication',
+        'applicationSubCategory' => 'Wedstrijdplanning',
+        'operatingSystem' => 'Web',
+        'inLanguage' => 'nl-NL',
+        'description' => 'Online wedstrijdplanning voor de zaalcommissie van volleybalverenigingen: dagrooster per veld, fluit-, tel- en zaaldiensten en een nachtelijke Nevobo-sync.',
+        'featureList' => array_column($features, 1),
+        'image' => asset('images/og-volleybalplanner.png'),
+        'publisher' => ['@id' => route('site.home').'#organisatie'],
+    ];
 @endphp
 
-<x-site.layout>
+<x-site.layout description="Plan thuiswedstrijden, zaalbezetting en fluit-, tel- en zaaldiensten van je volleybalvereniging op één plek. Elke nacht gesynchroniseerd met de Nevobo." :schema="[$software]">
     <section class="hero">
         <div class="wrap">
             <div class="hero-text">

@@ -21,8 +21,21 @@
     @if (! empty($description))
         <meta name="description" content="{{ $description }}">
     @endif
-    @if (! empty($noIndex) || $embed)
+    @if (! empty($noIndex) || $embed || $club->is_demo)
         <meta name="robots" content="noindex, nofollow">
+    @else
+        <link rel="canonical" href="{{ url()->current() }}">
+        <meta property="og:type" content="website">
+        <meta property="og:site_name" content="{{ $club->name }}">
+        <meta property="og:locale" content="nl_NL">
+        <meta property="og:title" content="{{ $pageTitle }}">
+        @if (! empty($description))
+            <meta property="og:description" content="{{ $description }}">
+        @endif
+        <meta property="og:url" content="{{ url()->current() }}">
+        @if ($logo)
+            <meta property="og:image" content="{{ $logo }}">
+        @endif
     @endif
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=outfit:400,500,600,700&display=swap" rel="stylesheet">

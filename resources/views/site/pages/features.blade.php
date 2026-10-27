@@ -84,7 +84,7 @@
     ];
 @endphp
 
-<x-site.layout title="Functies" active="features" description="Alle functies van Volleybalplanner: dagrooster per veld, verplaatsingsassistent, FTZ-planner, Nevobo-sync, wijzigingsverzoeken en het publieke wedstrijdprogramma.">
+<x-site.layout title="Functies voor zaalplanning en FTZ-diensten" active="features" description="Alle functies van Volleybalplanner: dagrooster per veld, verplaatsingsassistent, FTZ-planner, Nevobo-sync, wijzigingsverzoeken en het publieke wedstrijdprogramma.">
     <section class="page-intro">
         <div class="wrap">
             <span class="kicker">Functies</span>

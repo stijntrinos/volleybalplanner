@@ -107,6 +107,21 @@ class PublicClubPagesTest extends TestCase
             ->assertDontSee('/rss', false);
     }
 
+    public function test_public_pages_are_indexable_with_a_canonical_url_except_for_demo_clubs(): void
+    {
+        $club = $this->useClub($this->createClub());
+
+        $this->get("/{$club->slug}/wedstrijden?team=HS1")->assertOk()
+            ->assertSee('<link rel="canonical" href="'.route('planner.public.matches', ['club' => $club]).'">', false)
+            ->assertDontSee('noindex', false);
+
+        $club->update(['is_demo' => true]);
+
+        $this->get("/{$club->slug}/wedstrijden")->assertOk()
+            ->assertSee('<meta name="robots" content="noindex, nofollow">', false)
+            ->assertDontSee('rel="canonical"', false);
+    }
+
     public function test_normal_pages_keep_the_framing_protection(): void
     {
         $club = $this->useClub($this->createClub());

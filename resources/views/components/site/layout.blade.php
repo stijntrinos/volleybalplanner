@@ -1,4 +1,4 @@
-@props(['title' => null, 'description' => null, 'active' => null, 'noindex' => false])
+@props(['title' => null, 'description' => null, 'active' => null, 'noindex' => false, 'schema' => []])
 @php
     $company = config('site.company');
     $pageTitle = $title ? $title.' · Volleybalplanner' : 'Volleybalplanner · Wedstrijdplanning voor volleybalverenigingen';
@@ -7,6 +7,31 @@
         'features' => ['Functies', route('site.features')],
         'pricing' => ['Prijzen', route('site.pricing')],
         'contact' => ['Contact', route('site.contact')],
+    ];
+    $organization = array_filter([
+        '@type' => 'Organization',
+        '@id' => route('site.home').'#organisatie',
+        'name' => 'Volleybalplanner',
+        'legalName' => $company ?: null,
+        'url' => route('site.home'),
+        'logo' => asset('images/icon-512.png'),
+        'email' => config('site.email') ?: null,
+        'telephone' => config('site.phone') ?: null,
+    ]);
+    $structuredData = [
+        '@context' => 'https://schema.org',
+        '@graph' => [
+            $organization,
+            [
+                '@type' => 'WebSite',
+                '@id' => route('site.home').'#website',
+                'name' => 'Volleybalplanner',
+                'url' => route('site.home'),
+                'inLanguage' => 'nl-NL',
+                'publisher' => ['@id' => $organization['@id']],
+            ],
+            ...$schema,
+        ],
     ];
 @endphp
 <!DOCTYPE html>
@@ -19,6 +44,7 @@
     @if ($noindex)
         <meta name="robots" content="noindex">
     @else
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
         <link rel="canonical" href="{{ url()->current() }}">
     @endif
     <meta property="og:type" content="website">
@@ -28,15 +54,24 @@
     <meta property="og:description" content="{{ $pageDescription }}">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:image" content="{{ asset('images/og-volleybalplanner.png') }}">
+    <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="Volleybalplanner: wedstrijdplanning zonder puzzelstress">
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $pageTitle }}">
+    <meta name="twitter:description" content="{{ $pageDescription }}">
     <meta name="theme-color" content="#2f4858">
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="32x32">
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+    <link rel="manifest" href="{{ asset('site.webmanifest') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=outfit:400,500,600,700&display=swap" rel="stylesheet">
     @vite('resources/css/site.css')
+    @unless ($noindex)
+        <script type="application/ld+json">{!! json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
+    @endunless
 </head>
 <body>
     <a href="#inhoud" class="skip-link">Naar de inhoud</a>
