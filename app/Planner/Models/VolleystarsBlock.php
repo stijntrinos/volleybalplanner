@@ -24,6 +24,8 @@ use Illuminate\Support\Carbon;
  * @property string $teardown_end
  * @property string $scoring_start
  * @property string $scoring_end
+ * @property string $refereeing_start
+ * @property string $refereeing_end
  * @property string|null $notes
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -65,7 +67,7 @@ class VolleystarsBlock extends Model
 
     protected $fillable = [
         'version_id', 'date', 'venue_id', 'setup_start', 'setup_end', 'teardown_start',
-        'teardown_end', 'scoring_start', 'scoring_end', 'notes',
+        'teardown_end', 'scoring_start', 'scoring_end', 'refereeing_start', 'refereeing_end', 'notes',
     ];
 
     protected function casts(): array

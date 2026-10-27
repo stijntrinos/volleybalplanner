@@ -12,7 +12,11 @@
         <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
             <div class="flex items-center gap-3">
                 <div class="rounded-lg bg-primary-50 p-2 text-primary-600 dark:bg-primary-500/10 dark:text-primary-400"><x-filament::icon icon="heroicon-o-user-group" class="h-5 w-5" /></div>
-                <div><p class="text-2xl font-semibold text-gray-950 dark:text-white">{{ $summary['teams'] }}</p><p class="text-sm text-gray-500">{{ __('Teams ingepland') }}</p></div>
+                @if ($withPoints)
+                    <div><p class="text-2xl font-semibold text-gray-950 dark:text-white">{{ $summary['below_minimum'] }} <span class="text-base font-normal text-gray-500">{{ __('van :count', ['count' => $summary['teams']]) }}</span></p><p class="text-sm text-gray-500">{{ __('Teams onder het minimum') }}</p></div>
+                @else
+                    <div><p class="text-2xl font-semibold text-gray-950 dark:text-white">{{ $summary['teams'] }}</p><p class="text-sm text-gray-500">{{ __('Teams ingepland') }}</p></div>
+                @endif
             </div>
         </div>
         <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
@@ -24,20 +28,20 @@
         <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
             <div class="flex items-center gap-3">
                 <div class="rounded-lg bg-warning-50 p-2 text-warning-600 dark:bg-warning-500/10 dark:text-warning-400"><x-filament::icon icon="heroicon-o-arrow-trending-up" class="h-5 w-5" /></div>
-                <div class="min-w-0"><p class="text-2xl font-semibold text-gray-950 dark:text-white">{{ $summary['maximum'] }}</p><p class="truncate text-sm text-gray-500" title="{{ $summary['busiest_team'] }}">{{ __('Hoogste') }} · {{ $summary['busiest_team'] ?: '—' }}</p></div>
+                <div class="min-w-0"><p class="text-2xl font-semibold text-gray-950 dark:text-white">{{ $summary['maximum'] }}</p><p class="truncate text-sm text-gray-500" title="{{ $summary['busiest_team'] }}">{{ __('Hoogste') }} · {{ $summary['busiest_team'] ?: '-' }}</p></div>
             </div>
         </div>
         <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
             <div class="flex items-center gap-3">
                 <div class="rounded-lg bg-success-50 p-2 text-success-600 dark:bg-success-500/10 dark:text-success-400"><x-filament::icon icon="heroicon-o-clipboard-document-list" class="h-5 w-5" /></div>
-                <div><p class="text-2xl font-semibold text-gray-950 dark:text-white">{{ $totals['total'] }}</p><p class="text-sm text-gray-500">{{ __(':unit totaal', ['unit' => $unit]) }}</p></div>
+                <div><p class="text-2xl font-semibold text-gray-950 dark:text-white">{{ $totals['planned'] }}</p><p class="text-sm text-gray-500">{{ __(':unit totaal', ['unit' => $unit]) }}</p></div>
             </div>
         </div>
     </div>
 
     <x-filament::section
         :heading="__('Takenverdeling')"
-        :description="$withPoints ? __('Alle diensten zijn omgerekend met de vrijwilligerspunten uit de plannerinstellingen.') : __('Elke dienst telt als één taak.')"
+        :description="$withPoints ? __('Elke dienst telt met zijn eigen punten. Totaal geleverd is geleverd plus ingepland; het minimum is de maatstaf.') : __('Elke dienst telt als één taak.')"
         icon="heroicon-o-scale"
     >
         <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3 md:items-end">
@@ -53,6 +57,19 @@
                     </x-filament::input.select>
                 </x-filament::input.wrapper>
             </label>
+            @if ($withPoints)
+                <label class="grid gap-2">
+                    <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Vergelijken met') }}</span>
+                    <x-filament::input.wrapper>
+                        <x-filament::input.select wire:model.live="compareVersionId">
+                            <option value="">{{ __('Geen vergelijking') }}</option>
+                            @foreach ($this->versions as $id => $name)
+                                @if ($id !== $versionId)<option value="{{ $id }}">{{ $name }}</option>@endif
+                            @endforeach
+                        </x-filament::input.select>
+                    </x-filament::input.wrapper>
+                </label>
+            @endif
             <label class="grid gap-2">
                 <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('Van') }}</span>
                 <x-filament::input.wrapper :valid="! $errors->has('fromDate')">
@@ -78,8 +95,11 @@
                 <x-filament::input.wrapper>
                     <x-filament::input.select wire:model.live="sort">
                         <option value="team_asc">{{ __('Teamnaam') }}</option>
-                        @if ($withPoints)<option value="percentage_desc">{{ __('Grootste tekort') }}</option>@endif
-                        <option value="total_desc">{{ __('Meeste taken') }}</option>
+                        @if ($withPoints)
+                            <option value="remaining_desc">{{ __('Meeste nog in te vullen') }}</option>
+                            <option value="percentage_asc">{{ __('Laagste percentage') }}</option>
+                        @endif
+                        <option value="planned_desc">{{ __('Meeste taken') }}</option>
                         <option value="referee_desc">{{ __('Meeste fluitbeurten') }}</option>
                         <option value="scorer_desc">{{ __('Meeste telbeurten') }}</option>
                         <option value="hall_duty_desc">{{ __('Meeste zaaldiensten') }}</option>
@@ -105,27 +125,36 @@
         </div>
     </x-filament::section>
 
-    <div wire:loading.flex wire:target="versionId,fromDate,toDate,search,sort" class="items-center justify-center gap-2 rounded-xl bg-white p-6 text-sm text-gray-500 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
+    <div wire:loading.flex wire:target="versionId,compareVersionId,fromDate,toDate,search,sort" class="items-center justify-center gap-2 rounded-xl bg-white p-6 text-sm text-gray-500 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
         <x-filament::loading-indicator class="h-5 w-5" /> {{ __('Overzicht bijwerken…') }}
     </div>
 
-    <x-filament::section wire:loading.remove wire:target="versionId,fromDate,toDate,search,sort" :heading="trans_choice(':count team|:count teams', count($filtered))" :description="__('Laagste belasting: :min · hoogste belasting: :max', ['min' => $summary['minimum'], 'max' => $summary['maximum']])">
+    <x-filament::section wire:loading.remove wire:target="versionId,compareVersionId,fromDate,toDate,search,sort" :heading="trans_choice(':count team|:count teams', count($filtered))" :description="__('Laagste belasting: :min · hoogste belasting: :max', ['min' => $summary['minimum'], 'max' => $summary['maximum']])">
         @if ($filtered)
             <div class="overflow-x-auto">
-                <table class="w-full min-w-[60rem] text-left text-sm">
+                <table class="w-full min-w-[64rem] text-left text-sm">
                     <thead>
                         <tr class="border-b border-gray-200 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:border-white/10 dark:text-gray-400">
                             <th class="px-3 py-3">{{ __('Team') }}</th>
                             @if ($withPoints)
-                                <th class="px-3 py-3 text-center">{{ __('Verbruikt') }}</th>
+                                <th class="px-3 py-3 text-center">{{ __('Minimum') }}</th>
                                 <th class="px-3 py-3 text-center">{{ __('Geleverd') }}</th>
                             @endif
                             <th class="px-3 py-3 text-center">{{ __('Fluiten') }}</th>
                             <th class="px-3 py-3 text-center">{{ __('Tellen') }}</th>
                             <th class="px-3 py-3 text-center">{{ __('Zaaldienst') }}</th>
                             @if ($withVolleystars)<th class="px-3 py-3 text-center">{{ __('VolleyStars') }}</th>@endif
-                            @if ($withPoints)<th class="px-3 py-3">{{ __('Percentage') }}</th>@endif
-                            <th class="px-3 py-3 text-right">{{ $unit }}</th>
+                            @if ($withPoints)
+                                <th class="px-3 py-3 text-right">{{ __('Totaal geleverd') }}</th>
+                                <th class="px-3 py-3 text-right">{{ __('Nog in te vullen') }}</th>
+                                <th class="px-3 py-3">{{ __('Percentage') }}</th>
+                                @if ($this->compareName)
+                                    <th class="px-3 py-3 text-right">{{ __('Nog in te vullen in :version', ['version' => $this->compareName]) }}</th>
+                                    <th class="px-3 py-3 text-right">{{ __('Verschil') }}</th>
+                                @endif
+                            @else
+                                <th class="px-3 py-3 text-right">{{ $unit }}</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-white/10">
@@ -133,29 +162,39 @@
                             <tr class="transition hover:bg-gray-50 dark:hover:bg-white/[.025]" wire:key="duty-team-{{ md5($row['team']) }}">
                                 <td class="px-3 py-4 font-semibold text-gray-950 dark:text-white">{{ $row['team'] }}</td>
                                 @if ($withPoints)
-                                    <td class="px-3 py-4 text-center font-medium">{{ $row['used'] ?? 0 }}</td>
-                                    <td class="px-3 py-4 text-center font-medium">{{ $row['earned'] ?? 0 }}</td>
+                                    <td class="px-3 py-4 text-center font-medium">{{ $row['has_minimum'] ? $row['minimum'] : '-' }}</td>
+                                    <td class="px-3 py-4 text-center font-medium">{{ $row['earned'] }}</td>
                                 @endif
                                 <td class="px-3 py-4 text-center"><span class="inline-flex min-w-8 justify-center rounded-full bg-primary-50 px-2.5 py-1 font-medium text-primary-700 dark:bg-primary-500/10 dark:text-primary-400">{{ $row['referee'] }}</span></td>
                                 <td class="px-3 py-4 text-center"><span class="inline-flex min-w-8 justify-center rounded-full bg-info-50 px-2.5 py-1 font-medium text-info-700 dark:bg-info-500/10 dark:text-info-400">{{ $row['scorer'] }}</span></td>
                                 <td class="px-3 py-4 text-center"><span class="inline-flex min-w-8 justify-center rounded-full bg-warning-50 px-2.5 py-1 font-medium text-warning-700 dark:bg-warning-500/10 dark:text-warning-400">{{ $row['hall_duty'] }}</span></td>
                                 @if ($withVolleystars)
-                                    <td class="px-3 py-4 text-center"><span class="inline-flex min-w-8 justify-center rounded-full bg-success-50 px-2.5 py-1 font-medium text-success-700 dark:bg-success-500/10 dark:text-success-400">{{ $row['volleystars'] ?? 0 }}</span></td>
+                                    <td class="px-3 py-4 text-center"><span class="inline-flex min-w-8 justify-center rounded-full bg-success-50 px-2.5 py-1 font-medium text-success-700 dark:bg-success-500/10 dark:text-success-400">{{ $row['volleystars'] }}</span></td>
                                 @endif
                                 @if ($withPoints)
-                                    @php($percentage = (float) ($row['percentage'] ?? 0))
+                                    <td class="px-3 py-4 text-right text-base font-bold text-gray-950 dark:text-white">{{ $row['total'] }}</td>
+                                    <td @class([
+                                        'px-3 py-4 text-right font-medium',
+                                        'text-warning-700 dark:text-warning-400' => $this->isBelowMinimum($row),
+                                        'text-success-700 dark:text-success-400' => $this->isAboveTarget($row),
+                                    ])>{{ $this->remainingLabel($row) }}</td>
                                     <td class="w-52 px-3 py-4">
                                         <span @class([
                                             'inline-flex rounded-full px-2.5 py-1 text-xs font-medium',
-                                            'bg-warning-50 text-warning-700 dark:bg-warning-500/10 dark:text-warning-400' => $percentage > 0,
-                                            'bg-success-50 text-success-700 dark:bg-success-500/10 dark:text-success-400' => $percentage < 0,
-                                            'bg-gray-100 text-gray-600 dark:bg-white/5 dark:text-gray-300' => $percentage == 0,
+                                            'bg-warning-50 text-warning-700 dark:bg-warning-500/10 dark:text-warning-400' => $this->isBelowMinimum($row),
+                                            'bg-success-50 text-success-700 dark:bg-success-500/10 dark:text-success-400' => ! $this->isBelowMinimum($row) && $row['has_minimum'],
+                                            'bg-gray-100 text-gray-600 dark:bg-white/5 dark:text-gray-300' => ! $row['has_minimum'],
                                         ])>
-                                            {{ $this->percentageLabel($percentage) }}
+                                            {{ $this->statusLabel($row) }}
                                         </span>
                                     </td>
+                                    @if ($this->compareName)
+                                        <td class="px-3 py-4 text-right">{{ $row['has_minimum'] ? ($comparison[$row['team']] ?? '-') : '' }}</td>
+                                        <td class="px-3 py-4 text-right font-medium">{{ $this->differenceLabel($row) }}</td>
+                                    @endif
+                                @else
+                                    <td class="px-3 py-4 text-right text-base font-bold text-gray-950 dark:text-white">{{ $row['total'] }}</td>
                                 @endif
-                                <td class="px-3 py-4 text-right text-base font-bold text-gray-950 dark:text-white">{{ $row['total'] }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -163,15 +202,21 @@
                         <tr class="border-t-2 border-gray-300 bg-gray-50 font-semibold text-gray-950 dark:border-white/20 dark:bg-white/[.03] dark:text-white">
                             <td class="px-3 py-4">{{ __('Alle teams') }}</td>
                             @if ($withPoints)
-                                <td class="px-3 py-4 text-center">{{ $totals['used'] }}</td>
+                                <td class="px-3 py-4 text-center">{{ $totals['minimum'] }}</td>
                                 <td class="px-3 py-4 text-center">{{ $totals['earned'] }}</td>
                             @endif
                             <td class="px-3 py-4 text-center">{{ $totals['referee'] }}</td>
                             <td class="px-3 py-4 text-center">{{ $totals['scorer'] }}</td>
                             <td class="px-3 py-4 text-center">{{ $totals['hall_duty'] }}</td>
                             @if ($withVolleystars)<td class="px-3 py-4 text-center">{{ $totals['volleystars'] }}</td>@endif
-                            @if ($withPoints)<td></td>@endif
-                            <td class="px-3 py-4 text-right text-base">{{ $totals['total'] }}</td>
+                            @if ($withPoints)
+                                <td class="px-3 py-4 text-right text-base">{{ $totals['total'] }}</td>
+                                <td class="px-3 py-4 text-right">{{ $totals['remaining'] }}</td>
+                                <td></td>
+                                @if ($this->compareName)<td class="px-3 py-4 text-right">{{ array_sum($comparison) }}</td><td></td>@endif
+                            @else
+                                <td class="px-3 py-4 text-right text-base">{{ $totals['total'] }}</td>
+                            @endif
                         </tr>
                     </tfoot>
                 </table>

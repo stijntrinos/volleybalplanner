@@ -8,6 +8,7 @@ use App\Planner\Filament\Concerns\HasVersionSelection;
 use App\Planner\Filament\NavigationGroups;
 use App\Planner\Filament\Pages\Concerns\AuthorizesMatches;
 use App\Planner\Filament\Pages\Concerns\ManagesDutyBlocks;
+use App\Planner\Filament\Pages\Concerns\ManagesTeamChoice;
 use App\Planner\Filament\Pages\Concerns\ShowsErrors;
 use App\Planner\Models\ScheduleVersion;
 use App\Planner\Models\Team;
@@ -29,6 +30,7 @@ class DutyPlanner extends Page
         HasPlannerPage,
         HasVersionSelection,
         ManagesDutyBlocks,
+        ManagesTeamChoice,
         ShowsErrors;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedMegaphone;
@@ -69,7 +71,7 @@ class DutyPlanner extends Page
 
     public static function getNavigationLabel(): string
     {
-        return __('FTZ-planner');
+        return __('FTZ-planning');
     }
 
     public function getTitle(): string

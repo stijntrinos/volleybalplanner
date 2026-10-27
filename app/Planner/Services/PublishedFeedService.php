@@ -4,7 +4,6 @@ namespace App\Planner\Services;
 
 use App\Planner\Enums\MatchType;
 use App\Planner\Enums\ScheduleVersionStatus;
-use App\Planner\Enums\VolleystarsRole;
 use App\Planner\Features\PlannerFeature;
 use App\Planner\Models\FixtureMatch;
 use App\Planner\Models\ScheduleVersion;
@@ -106,11 +105,7 @@ class PublishedFeedService
             $blocks = $version->volleystarsBlocks()->whereDate('date', '>=', $from)->with(['venue', 'tasks.team', 'tasks.court'])->get();
             foreach ($blocks as $block) {
                 foreach ($block->tasks as $task) {
-                    [$start, $end] = match ($task->role) {
-                        VolleystarsRole::Scoring => [$block->scoring_start, $block->scoring_end],
-                        VolleystarsRole::Teardown => [$block->teardown_start, $block->teardown_end],
-                        default => [$block->setup_start, $block->setup_end],
-                    };
+                    [$start, $end] = $task->role->times($block);
                     $role = $task->role->getLabel();
                     $items->push([
                         'type' => 'volleystars', 'id' => $task->id, 'date' => $block->date->toDateString(),

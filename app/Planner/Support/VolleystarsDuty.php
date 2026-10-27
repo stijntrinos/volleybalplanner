@@ -2,7 +2,6 @@
 
 namespace App\Planner\Support;
 
-use App\Planner\Enums\VolleystarsRole;
 use App\Planner\Models\VolleystarsBlock;
 use App\Planner\Models\VolleystarsTask;
 
@@ -30,11 +29,7 @@ final class VolleystarsDuty
     {
         $role = $task->role;
 
-        [$start, $end] = match ($role) {
-            VolleystarsRole::Scoring => [$block->scoring_start, $block->scoring_end],
-            VolleystarsRole::Teardown => [$block->teardown_start, $block->teardown_end],
-            VolleystarsRole::Setup => [$block->setup_start, $block->setup_end],
-        };
+        [$start, $end] = $role->times($block);
 
         return new self(
             date: $block->date->toDateString(),

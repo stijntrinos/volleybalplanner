@@ -6,6 +6,7 @@
     'fieldWarnings' => [],
     'label',
     'nevobo' => false,
+    'choice' => null,
 ])
 
 @php
@@ -21,10 +22,12 @@
 {{-- The key contains the path. When a row shifts in the draft, morphing would
      otherwise reuse this select with a new wire:model while Livewire keeps the
      old binding, so a choice wrote into the row that used to be at this index. --}}
+<div class="flex items-start gap-1.5">
 <x-filament::input.wrapper
     wire:key="duty-field-wrapper-{{ $path }}"
     :valid="! $fieldErrors"
     @class([
+        'min-w-0 flex-1',
         'ring-warning-500 dark:ring-warning-400' => ! $fieldErrors && $fieldWarnings,
     ])
 >
@@ -33,12 +36,25 @@
         wire:model.live="{{ $path }}"
         aria-label="{{ $label }}"
     >
-        <option value="">{{ __('— niet ingevuld —') }}</option>
+        <option value="">{{ __('- niet ingevuld -') }}</option>
         @foreach ($list as $optionValue => $optionLabel)
             <option value="{{ $optionValue }}">{{ $optionLabel }}</option>
         @endforeach
     </x-filament::input.select>
 </x-filament::input.wrapper>
+@if ($choice)
+    {{-- The team choice shows all teams in the order of the planning rules,
+         with their standing and why a team is or is not proposed. --}}
+    <x-filament::icon-button
+        icon="heroicon-o-queue-list"
+        color="gray"
+        wire:click="{{ $choice }}"
+        :label="__('Teamkeuze: :label', ['label' => $label])"
+        :tooltip="__('Teamkeuze')"
+        class="mt-1 shrink-0"
+    />
+@endif
+</div>
 
 @foreach ($fieldErrors as $reason)
     <p class="mt-1.5 flex gap-1 text-xs text-danger-600 dark:text-danger-400">

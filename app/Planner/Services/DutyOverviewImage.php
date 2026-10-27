@@ -16,7 +16,7 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
  * teams instead of a fixed size with empty space below.
  *
  * Rows come from DutyTallyService::perTeam() plus a 'status_label' (the
- * "Stand" column). used/earned/percentage only exist with volunteer points,
+ * "Stand" column). The minimum columns only show with volunteer points,
  * volleystars only with the VolleyStars module.
  */
 class DutyOverviewImage

@@ -48,34 +48,36 @@ class SettingsPageTest extends TestCase
     {
         $data = Livewire::test(Settings::class)->get('data');
 
-        $this->assertSame([], $data['duty_rules']['no_referee']);
-        $this->assertSame([], array_values($data['duty_rules']['referee_requirements']));
+        $this->assertSame([], $data['duty_rules']['restricted_referee_teams']);
+        $this->assertSame([], $data['duty_rules']['scorer_heavy_teams']);
         $this->assertSame('19:00', $data['duty_rules']['scorer_cutoff']);
-        $this->assertSame(DutyRules::DEFAULTS['hall_duty_codes'], $data['duty_rules']['hall_duty_codes']);
+        $this->assertSame(DutyRules::DEFAULTS['lower_class_terms'], $data['duty_rules']['lower_class_terms']);
+        $this->assertSame(5, $data['max_duties_per_week']);
+        $this->assertSame(4, $data['max_duties_per_day']);
     }
 
-    public function test_the_referee_requirements_survive_saving_and_reopening(): void
+    public function test_the_club_wide_rules_and_season_values_survive_saving_and_reopening(): void
     {
         $this->filledForm()
-            ->set('data.duty_rules.no_referee', ['DS 8'])
-            ->set('data.duty_rules.referee_requirements', [['team' => 'HS 5', 'allowed' => ['DS 1', 'HS 1']]])
+            ->set('data.duty_rules.restricted_referee_teams', ['HS 2', 'HS 3'])
             ->set('data.duty_rules.scorer_cutoff', '20:00')
+            ->set('data.duty_rules.home_city', 'Arnhem')
+            ->set('data.max_duties_per_week', 3)
+            ->set('data.half_1_start', '2026-09-01')
+            ->set('data.half_1_end', '2026-12-31')
             ->call('save')
             ->assertHasNoErrors();
 
         $saved = PlannerSetting::current()->fresh();
-        $this->assertSame(['DS 8'], $saved->duty_rules['no_referee']);
-        $this->assertSame(['HS 5' => ['DS 1', 'HS 1']], $saved->duty_rules['referee_requirements']);
-
         $rules = new DutyRules($saved->duty_rules);
-        $this->assertTrue($rules->mayNotReferee('DS8'));
-        $this->assertFalse($rules->mayNotReferee('DS10'));
-        $this->assertSame(['DS1', 'HS1'], $rules->refereeRequirement('HS5'));
+        $this->assertSame(['HS2', 'HS3'], $rules->restrictedRefereeTeams());
         $this->assertSame(1200, $rules->scorerCutoffMinutes());
+        $this->assertSame('Arnhem', $rules->homeCity());
+        $this->assertSame(3, $saved->max_duties_per_week);
+        $this->assertSame(1, $saved->seasonHalf('2026-11-14'));
 
-        // Reopening gives the same rows as were filled in.
         $data = Livewire::test(Settings::class)->get('data');
-        $this->assertSame([['team' => 'HS 5', 'allowed' => ['DS 1', 'HS 1']]], array_values($data['duty_rules']['referee_requirements']));
+        $this->assertSame(['HS 2', 'HS 3'], $data['duty_rules']['restricted_referee_teams']);
     }
 
     public function test_competition_rules_are_typed_day_month_and_stored_month_day(): void
@@ -98,16 +100,16 @@ class SettingsPageTest extends TestCase
 
     public function test_an_emptied_list_stays_empty(): void
     {
-        PlannerSetting::current()->update(['duty_rules' => ['no_referee' => ['DS 10']]]);
+        PlannerSetting::current()->update(['duty_rules' => ['scorer_heavy_teams' => ['HS 1']]]);
 
         $this->filledForm()
-            ->set('data.duty_rules.no_referee', [])
+            ->set('data.duty_rules.scorer_heavy_teams', [])
             ->call('save')
             ->assertHasNoErrors();
 
         $saved = PlannerSetting::current()->fresh();
-        $this->assertSame([], $saved->duty_rules['no_referee']);
-        $this->assertFalse((new DutyRules($saved->duty_rules))->mayNotReferee('DS10'));
+        $this->assertSame([], $saved->duty_rules['scorer_heavy_teams']);
+        $this->assertSame([], (new DutyRules($saved->duty_rules))->scorerHeavyTeams());
     }
 
     public function test_without_the_right_the_club_settings_do_not_change(): void
@@ -117,7 +119,7 @@ class SettingsPageTest extends TestCase
 
         Livewire::test(Settings::class)
             ->set('data.buffer_minutes', 90)
-            ->set('data.duty_rules.no_referee', ['DS 1'])
+            ->set('data.duty_rules.scorer_heavy_teams', ['DS 1'])
             ->call('save');
 
         $saved = PlannerSetting::current()->fresh();
@@ -263,8 +265,10 @@ class SettingsPageTest extends TestCase
         $this->actingAsClubUser(ClubRole::PlanningCommittee, $this->createClub([PlannerFeature::Duties->value]));
 
         Livewire::test(Settings::class)
-            ->assertSee('Wie mag welke taak')
-            ->assertDontSee('Vrijwilligerspunten per taak');
+            ->assertSee('Clubbrede regels')
+            ->assertSee('Maxima en voorrang')
+            ->assertDontSee('Punten per dienst')
+            ->assertDontSee('Seizoenshelften');
     }
 
     private function filledForm(): Testable

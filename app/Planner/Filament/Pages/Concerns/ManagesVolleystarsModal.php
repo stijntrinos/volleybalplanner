@@ -6,6 +6,9 @@ use App\Planner\Enums\VolleystarsRole;
 use App\Planner\Features\PlannerFeature;
 use App\Planner\Models\Team;
 use App\Planner\Models\VolleystarsBlock;
+use App\Planner\Services\Duties\PlanningContext;
+use App\Planner\Services\Duties\PointsBalance;
+use App\Planner\Services\Duties\TeamChoice;
 use App\Support\Tenancy\CurrentClub;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Collection;
@@ -33,7 +36,16 @@ trait ManagesVolleystarsModal
         'setup' => ['setup_start', 'setup_end'],
         'teardown' => ['teardown_start', 'teardown_end'],
         'scoring' => ['scoring_start', 'scoring_end'],
+        'refereeing' => ['refereeing_start', 'refereeing_end'],
     ];
+
+    /**
+     * The team choice per role, computed on opening: groups with teams in
+     * the order of the planning rules.
+     *
+     * @var array<string, array<string, array<int, string>>>
+     */
+    public array $volleystarsChoice = [];
 
     public function openVolleystars(int $blockId): void
     {
@@ -66,11 +78,75 @@ trait ManagesVolleystarsModal
                 return [$role => array_pad($teams, 3, null)];
             })
             ->all();
+        $this->volleystarsChoice = $this->volleystarsChoiceFor($block);
+    }
+
+    /**
+     * Ranks the teams per role the way the duty planning does: proposed, not
+     * proposed and cannot, with the standing and the reason in the label.
+     * Teams outside the duty planning stay selectable at the bottom.
+     *
+     * @return array<string, array<string, array<int, string>>>
+     */
+    private function volleystarsChoiceFor(VolleystarsBlock $block): array
+    {
+        $context = PlanningContext::forVersion($block->version);
+        $block = $context->volleystarsBlocks()->firstWhere('id', $block->id) ?? $block;
+        $teamChoice = app(TeamChoice::class);
+        $groups = [
+            TeamChoice::PROPOSED => __('Voorgesteld'),
+            TeamChoice::NOT_PROPOSED => __('Niet voorgesteld'),
+            TeamChoice::CANNOT => __('Kan niet'),
+        ];
+        $choice = [];
+
+        foreach (VolleystarsRole::inDayOrder() as $role) {
+            // The slots of this role are being filled in; they do not count.
+            foreach (range(0, 2) as $sortOrder) {
+                $context->register->remove($context->dutyForVolleystars($block, $role, $sortOrder)['key']);
+            }
+            $chosen = [];
+            foreach ($teamChoice->candidates($context->dutyForVolleystars($block, $role, 0), $context) as $position => $candidate) {
+                $label = ($position === 0 && $candidate['status'] === TeamChoice::PROPOSED ? __('Voorstel').': ' : '')
+                    .$candidate['code'].' · '.$this->balanceLabel($candidate['balance'], $context->withPoints);
+                if ($candidate['status'] !== TeamChoice::PROPOSED && $candidate['reasons'] !== []) {
+                    $label .= ' · '.$candidate['reasons'][0];
+                }
+                $choice[$role->value][$groups[$candidate['status']]][$candidate['team']->id] = $label;
+                $chosen[] = $candidate['team']->id;
+            }
+            foreach ($this->getVolleystarsTeamsProperty()->except($chosen) as $id => $label) {
+                $choice[$role->value][__('Buiten de FTZ-planning')][$id] = $label;
+            }
+            // Count them again after ranking, so the next role sees which team
+            // already does this block (V1).
+            foreach ($block->tasks->where('role', $role) as $task) {
+                if ($task->team) {
+                    $context->register->put($context->dutyForVolleystars($block, $role, (int) $task->sort_order, $task->points) + ['team' => $task->team->code]);
+                }
+            }
+        }
+
+        return $choice;
+    }
+
+    private function balanceLabel(PointsBalance $balance, bool $withPoints): string
+    {
+        return match (true) {
+            !$withPoints => trans_choice(':count dienst|:count diensten', $balance->total()),
+            $balance->hasMinimum() => __(':total van :minimum · nog :remaining · :percentage', [
+                'total' => $balance->total(),
+                'minimum' => $balance->minimum(),
+                'remaining' => $balance->remaining(),
+                'percentage' => PointsBalance::percentageText($balance->percentage()),
+            ]),
+            default => __(':total geleverd · geen minimum', ['total' => $balance->total()]),
+        };
     }
 
     public function closeVolleystars(): void
     {
-        $this->reset(['modalVolleystarsId', 'modalVolleystarsTeams', 'modalVolleystarsTimes']);
+        $this->reset(['modalVolleystarsId', 'modalVolleystarsTeams', 'modalVolleystarsTimes', 'volleystarsChoice']);
         $this->resetValidation();
     }
 
@@ -128,6 +204,9 @@ trait ManagesVolleystarsModal
             $block->update($times);
 
             foreach (array_keys($this->volleystarsRoles) as $role) {
+                // A duty keeps its points; only a new slot gets the default
+                // that applies now.
+                $points = $block->tasks()->where('role', $role)->pluck('points', 'sort_order');
                 $block->tasks()->where('role', $role)->delete();
 
                 foreach (collect($this->modalVolleystarsTeams[$role] ?? [])->filter()->values() as $sortOrder => $teamId) {
@@ -136,6 +215,7 @@ trait ManagesVolleystarsModal
                         'team_id' => (int) $teamId,
                         'court_id' => null,
                         'sort_order' => $sortOrder,
+                        'points' => $points[$sortOrder] ?? null,
                     ]);
                 }
             }
@@ -163,9 +243,7 @@ trait ManagesVolleystarsModal
     /** @return array<string, string> role value => label */
     public function getVolleystarsRolesProperty(): array
     {
-        return collect([VolleystarsRole::Setup, VolleystarsRole::Teardown, VolleystarsRole::Scoring])
-            ->mapWithKeys(fn (VolleystarsRole $role): array => [$role->value => $role->getLabel()])
-            ->all();
+        return VolleystarsRole::options();
     }
 
     public function getModalVolleystarsBlockProperty(): ?VolleystarsBlock

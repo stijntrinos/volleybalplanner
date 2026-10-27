@@ -187,6 +187,7 @@
                                                             :field-errors="$row['team']['errors']"
                                                             :field-warnings="$row['team']['warnings']"
                                                             :label="__('Team voor zaaldienst')"
+                                                            :choice="'openTeamChoice(\'hall_duty\', ' . $row['index'] . ')'"
                                                         />
                                                     </div>
                                                     <x-planner::duty-keep
@@ -206,7 +207,7 @@
                                         @endphp
                                         {{-- Index in the key: the actions and fields in this row refer to it. --}}
                                         <tr wire:key="duty-match-{{ $row['id'] }}-{{ $row['index'] }}">
-                                            <td class="is-time">{{ $row['time'] }}</td>
+                                            <td class="is-time">{{ $row['time'] }}<span class="block text-xs font-normal text-gray-400">{{ __('tot :time', ['time' => $this->displayEndTime($row['time'])]) }}</span></td>
                                             <td >
                                                 <span class="vp-muted">{{ __('Wedstrijd') }}</span>
                                             </td>
@@ -226,6 +227,7 @@
                                                             :field-warnings="$row['referee']['warnings']"
                                                             :label="__('Scheidsrechter voor :code', ['code' => $row['code']])"
                                                             nevobo
+                                                            :choice="'openTeamChoice(\'match\', ' . $row['index'] . ', \'referee\')'"
                                                         />
                                                     </div>
                                                     <x-planner::duty-keep
@@ -246,6 +248,7 @@
                                                             :field-errors="$row['scorer']['errors']"
                                                             :field-warnings="$row['scorer']['warnings']"
                                                             :label="__('Teller voor :code', ['code' => $row['code']])"
+                                                            :choice="'openTeamChoice(\'match\', ' . $row['index'] . ', \'scorer\')'"
                                                         />
                                                     </div>
                                                     <x-planner::duty-keep
@@ -272,5 +275,6 @@
             <p>{{ __('Kies een planningversie en generatiemodus. De planner maakt daarna een voorstel dat je kunt aanpassen en controleren voordat het wordt toegepast.') }}</p>
         </div>
     @endif
+    @include('planner::filament.pages.duty-planner.team-choice')
     <x-filament-actions::modals />
 </x-filament-panels::page>

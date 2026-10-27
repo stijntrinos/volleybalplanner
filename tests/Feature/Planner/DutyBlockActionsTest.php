@@ -152,6 +152,10 @@ class DutyBlockActionsTest extends TestCase
 
     public function test_a_whole_day_can_be_locked_while_empty_fields_stay_free(): void
     {
+        // A team works in one venue per day, so the second venue needs teams of its own.
+        foreach (['HS 6', 'DS 3'] as $code) {
+            Team::factory()->create(['code' => $code, 'name' => 'VV Demo '.$code, 'include_in_duties' => true]);
+        }
         $this->match($this->venueA, '10:00', 'W-A');
         $this->match($this->venueB, '12:00', 'W-B');
 

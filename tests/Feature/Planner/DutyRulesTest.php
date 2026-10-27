@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Planner;
 
-use App\Planner\Enums\DutyType;
 use App\Planner\Enums\MatchType;
 use App\Planner\Models\PlannerSetting;
 use App\Planner\Services\Duties\DutyPlanner;
 use App\Planner\Services\Duties\DutyRules;
+use App\Planner\Services\Duties\PlanningContext;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithClubs;
 use Tests\Feature\Planner\Concerns\BuildsDutyFixtures;
@@ -24,22 +24,20 @@ class DutyRulesTest extends TestCase
     {
         $rules = new DutyRules;
 
-        $this->assertFalse($rules->mayNotReferee('DS10'));
-        $this->assertNull($rules->refereeRequirement('HS2'));
+        $this->assertSame([], $rules->restrictedRefereeTeams());
         $this->assertSame([], $rules->scorerHeavyTeams());
         $this->assertSame('19:00', $rules->scorerCutoff());
-        $this->assertSame(3, $rules->maxDutiesPerDay());
-        $this->assertTrue($rules->mayDoHallDuty('JA1'));
-        $this->assertFalse($rules->mayDoHallDuty('JB1'));
+        $this->assertSame('', $rules->homeCity());
     }
 
     public function test_an_emptied_list_means_nobody_and_missing_keys_fall_back(): void
     {
-        $rules = new DutyRules(['hall_duty_codes' => [], 'scorer_cutoff' => null, 'scorer_heavy_teams' => ['HS 1', 'ds-1']]);
+        $rules = new DutyRules(['restricted_referee_teams' => [], 'scorer_cutoff' => null, 'scorer_heavy_teams' => ['HS 1', 'ds-1'], 'no_referee' => ['DS 10']]);
 
-        $this->assertFalse($rules->mayDoHallDuty('HS1'));
+        $this->assertSame([], $rules->restrictedRefereeTeams());
         $this->assertSame('19:00', $rules->scorerCutoff());
         $this->assertSame(['HS1', 'DS1'], $rules->scorerHeavyTeams());
+        $this->assertArrayNotHasKey('no_referee', $rules->toArray(), 'old club rules are ignored');
     }
 
     public function test_codes_read_back_as_text(): void
@@ -53,18 +51,17 @@ class DutyRulesTest extends TestCase
     {
         $this->setUpDutyClub(['Dynamo', 'DYN']);
         PlannerSetting::current()->update(['duty_rules' => [
-            'no_referee' => ['DS 3'],
-            'referee_requirements' => ['HS 1' => ['DS 1']],
+            'restricted_referee_teams' => ['HS 1'],
             'scorer_heavy_teams' => ['HS 1'],
         ]]);
-        $ds3 = $this->team('DS 3', ['name' => 'Dynamo DS 3']);
-        $hs4 = $this->team('HS 4', ['name' => 'Dynamo HS 4']);
-        $jc1 = $this->team('JC 1', ['name' => 'Dynamo JC 1']);
-        $slot = $this->slot('DYN HS 1');
+        $ds3 = $this->team('DS 3', ['never_referees' => true]);
+        $hs4 = $this->team('HS 4');
+        $jc1 = $this->team('JC 1', ['no_scoring_heavy_teams' => true]);
+        $target = $this->matchOf('DYN HS 1');
 
-        $this->assertContains('DS 3 fluit niet.', $this->violations($ds3, DutyType::Referee, $slot, false));
-        $this->assertContains('HS 1 mag alleen door DS 1 worden gefloten.', $this->violations($hs4, DutyType::Referee, $slot, false));
-        $this->assertContains('C-jeugd mag niet tellen bij HS 1.', $this->violations($jc1, DutyType::Scorer, $slot, false));
+        $this->assertContains('Niet voorgesteld: Fluit nooit.', $this->violations($ds3, $target, PlanningContext::DUTY_REFEREE));
+        $this->assertContains('Niet voorgesteld: Bij HS 1 fluiten alleen de teams die daarvoor zijn aangewezen.', $this->violations($hs4, $target, PlanningContext::DUTY_REFEREE));
+        $this->assertContains('Telt niet bij HS 1.', $this->violations($jc1, $target, PlanningContext::DUTY_SCORER));
     }
 
     public function test_another_club_name_pattern_recognises_own_matches_by_name(): void
@@ -77,20 +74,20 @@ class DutyRulesTest extends TestCase
             'venue_id' => null, 'home_team_name' => 'Orion HS 2', 'away_team_name' => 'Dynamo HS 5',
             'away_team_id' => $hs4->id, 'match_type' => MatchType::Away, 'time' => '14:00',
         ]);
-        $slot = ['date' => $this->saturday, 'start' => '10:00', 'end' => '12:00', 'venue_id' => $this->venue->id];
+        $target = $this->matchOf('Dynamo HS 9');
 
-        $this->assertNotContains('Het team heeft die dag een uitwedstrijd.', $this->violations($hs4, DutyType::Scorer, $slot));
-        $this->assertContains('Het team heeft die dag een uitwedstrijd.', $this->violations($hs5, DutyType::Scorer, $slot));
+        $this->assertNotContains('Het team heeft die dag een uitwedstrijd.', $this->violations($hs4, $target, PlanningContext::DUTY_SCORER));
+        $this->assertContains('Het team heeft die dag een uitwedstrijd.', $this->violations($hs5, $target, PlanningContext::DUTY_SCORER));
     }
 
     public function test_the_aetos_pattern_means_nothing_to_another_club(): void
     {
         $this->setUpDutyClub(['Dynamo']);
-        PlannerSetting::current()->update(['duty_rules' => ['referee_requirements' => ['HS 1' => ['DS 1']]]]);
+        PlannerSetting::current()->update(['duty_rules' => ['restricted_referee_teams' => ['HS 1']]]);
         $hs4 = $this->team('HS 4');
 
-        // "AETOS HS 1" is an opponent here, so its requirement does not apply.
-        $this->assertSame([], $this->violations($hs4, DutyType::Referee, $this->slot('AETOS HS 1'), false));
+        // "AETOS HS 1" is an opponent here, so its restriction does not apply.
+        $this->assertSame([], $this->violations($hs4, $this->matchOf('AETOS HS 1'), PlanningContext::DUTY_REFEREE));
     }
 
     public function test_without_any_name_pattern_teams_are_matched_by_id(): void
@@ -102,10 +99,10 @@ class DutyRulesTest extends TestCase
             'venue_id' => null, 'home_team_name' => 'Orion HS 2', 'away_team_name' => 'Club HS 4',
             'away_team_id' => $hs4->id, 'match_type' => MatchType::Away, 'time' => '14:00',
         ]);
-        $slot = ['date' => $this->saturday, 'start' => '10:00', 'end' => '12:00', 'venue_id' => $this->venue->id];
+        $target = $this->matchOf('Club HS 9');
 
-        $this->assertContains('Het team heeft die dag een uitwedstrijd.', $this->violations($hs4, DutyType::Scorer, $slot));
-        $this->assertNotContains('Het team heeft die dag een uitwedstrijd.', $this->violations($hs5, DutyType::Scorer, $slot));
+        $this->assertContains('Het team heeft die dag een uitwedstrijd.', $this->violations($hs4, $target, PlanningContext::DUTY_SCORER));
+        $this->assertNotContains('Het team heeft die dag een uitwedstrijd.', $this->violations($hs5, $target, PlanningContext::DUTY_SCORER));
     }
 
     public function test_the_planner_generates_a_full_draft_with_empty_rules_and_another_pattern(): void

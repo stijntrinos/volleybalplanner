@@ -8,6 +8,7 @@ use App\Planner\Enums\ChangeStatus;
 use App\Planner\Enums\MatchType;
 use App\Planner\Enums\NevoboChangeStatus;
 use App\Planner\Enums\NevoboStatus;
+use App\Planner\Services\Duties\DutyPoints;
 use App\Support\Tenancy\BelongsToClub;
 use Database\Factories\Planner\FixtureMatchFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -55,6 +56,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $nevobo_new_time
  * @property string|null $nevobo_new_venue
  * @property string|null $scorer
+ * @property int|null $referee_points the points of the referee duty, fixed when the duty came about
+ * @property int|null $scorer_points
  * @property bool $scorer_auto
  * @property string|null $notes
  * @property Carbon|null $original_date
@@ -180,7 +183,7 @@ class FixtureMatch extends Model
         'change_status', 'change_requested', 'change_requested_at', 'change_requested_by',
         'away_change_status', 'away_new_date', 'away_new_time', 'away_new_venue',
         'away_notes', 'is_sitting_volleyball', 'suggested_court_id', 'suggested_duration_minutes',
-        'created_by',
+        'created_by', 'referee_points', 'scorer_points',
     ];
 
     protected function casts(): array
@@ -207,7 +210,14 @@ class FixtureMatch extends Model
             'nevobo_changed_at' => 'datetime',
             'nevobo_previous_date' => 'date',
             'nevobo_new_date' => 'date',
+            'referee_points' => 'integer',
+            'scorer_points' => 'integer',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(fn (FixtureMatch $match) => DutyPoints::fillMatch($match));
     }
 
     protected static function newFactory(): FixtureMatchFactory

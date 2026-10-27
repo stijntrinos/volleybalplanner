@@ -130,7 +130,7 @@ class HallDutyResource extends Resource
             ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])])
             ->defaultSort('date')
             ->emptyStateHeading(__('Nog geen zaaldiensten'))
-            ->emptyStateDescription(__('Voeg handmatig een zaaldienst toe of genereer deze via de FTZ-planner.'))
+            ->emptyStateDescription(__('Voeg handmatig een zaaldienst toe of genereer deze via de FTZ-planning.'))
             ->emptyStateIcon('heroicon-o-key');
     }
 

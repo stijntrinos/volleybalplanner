@@ -3,6 +3,7 @@
 namespace App\Planner\Models;
 
 use App\Models\Club;
+use App\Planner\Services\Duties\DutyPoints;
 use App\Support\Tenancy\BelongsToClub;
 use Database\Factories\Planner\HallDutyFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -21,6 +22,7 @@ use Illuminate\Support\Carbon;
  * @property bool $team_auto
  * @property int $venue_id
  * @property string|null $notes
+ * @property int|null $points fixed when the duty came about
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Club $club
@@ -56,11 +58,16 @@ class HallDuty extends Model
 
     protected $table = 'planner_hall_duties';
 
-    protected $fillable = ['version_id', 'date', 'start_time', 'end_time', 'team_id', 'team_auto', 'venue_id', 'notes'];
+    protected $fillable = ['version_id', 'date', 'start_time', 'end_time', 'team_id', 'team_auto', 'venue_id', 'notes', 'points'];
 
     protected function casts(): array
     {
-        return ['date' => 'date', 'team_auto' => 'boolean'];
+        return ['date' => 'date', 'team_auto' => 'boolean', 'points' => 'integer'];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(fn (HallDuty $duty) => DutyPoints::fillHallDuty($duty));
     }
 
     protected static function newFactory(): HallDutyFactory

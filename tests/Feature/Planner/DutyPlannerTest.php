@@ -137,53 +137,27 @@ class DutyPlannerTest extends TestCase
 
     public function test_validation_flags_an_invalid_manual_assignment(): void
     {
-        $this->team('JB 1', ['name' => 'AETOS JB 1']);
+        $this->team('JB 1');
+        $this->team('HS 5');
         $match = $this->homeMatch();
 
         $validation = $this->planner()->validate($this->version, [
-            'matches' => [['id' => $match->id, 'referee' => 'JB 1', 'scorer' => '']], 'hall_duties' => [],
+            'matches' => [['id' => $match->id, 'referee' => 'HS 5', 'scorer' => 'JB 1']], 'hall_duties' => [],
         ]);
 
-        $this->assertSame(1, $validation['count']);
-        $this->assertContains('B- en C-jeugd mogen niet fluiten.', $validation['matches'][$match->id]['referee']);
-    }
+        $this->assertSame(1, $validation['count'], 'refereeing the own match is a hard rule');
+        $this->assertContains('Het team speelt zelf op het tijdstip van de dienst.', $validation['matches'][$match->id]['referee']);
 
-    /** A team with a points gap would otherwise get eight duties on one Saturday. */
-    public function test_a_team_gets_no_more_duties_per_day_than_the_limit(): void
-    {
-        $this->team('DS 5', ['volunteer_points_earned' => 0, 'volunteer_points_used' => 100]);
-        $this->team('DS 6', ['volunteer_points_earned' => 90, 'volunteer_points_used' => 100]);
-        $this->team('DS 7', ['volunteer_points_earned' => 95, 'volunteer_points_used' => 100]);
-        foreach (['09:00', '11:00', '13:00', '15:00', '17:00'] as $number => $time) {
-            $this->homeMatch(['time' => $time, 'match_code' => 'D'.$number]);
-        }
-
-        $draft = $this->planner()->generate($this->version);
-
-        $duties = [];
-        foreach ($draft['matches'] as $row) {
-            foreach ([$row['referee'], $row['scorer']] as $code) {
-                if ($code) {
-                    $duties[$code] = ($duties[$code] ?? 0) + 1;
-                }
-            }
-        }
-        foreach ($draft['hall_duties'] as $duty) {
-            if ($duty['team_code']) {
-                $duties[$duty['team_code']] = ($duties[$duty['team_code']] ?? 0) + 1;
-            }
-        }
-
-        $this->assertNotSame([], $duties, 'The generator does hand out duties.');
-        foreach ($duties as $code => $count) {
-            $this->assertLessThanOrEqual(3, $count, "{$code} got {$count} duties on one day.");
-        }
-        $this->assertGreaterThan(1, count($duties), 'The limit spreads the day over more teams.');
+        $warning = $this->planner()->validate($this->version, [
+            'matches' => [['id' => $match->id, 'referee' => 'JB 1', 'scorer' => '']], 'hall_duties' => [],
+        ]);
+        $this->assertSame(0, $warning['count'], 'a team that never referees may still be chosen');
+        $this->assertContains('Niet voorgesteld: Fluit nooit.', $warning['matches'][$match->id]['referee']);
     }
 
     public function test_the_day_limit_is_configurable_and_zero_means_no_limit(): void
     {
-        PlannerSetting::current()->update(['duty_rules' => ['max_duties_per_day' => 0]]);
+        PlannerSetting::current()->update(['max_duties_per_day' => 0, 'max_duties_per_week' => 0, 'hall_duty_weekdays' => []]);
         $this->team('DS 5', ['volunteer_points_earned' => 0, 'volunteer_points_used' => 100]);
         $this->team('DS 6', ['volunteer_points_earned' => 90, 'volunteer_points_used' => 100]);
         foreach (['09:00', '11:00', '13:00', '15:00'] as $number => $time) {
@@ -255,19 +229,6 @@ class DutyPlannerTest extends TestCase
 
         $this->assertSame([], $validation['matches']);
         $this->assertSame(0, $validation['count']);
-    }
-
-    public function test_tallies_count_duties_without_the_volunteer_points_module(): void
-    {
-        $this->setUpDutyClub(features: ['duties']);
-        PlannerSetting::current()->update(['points_referee_duty' => 5]);
-        $team = $this->team('HS 4', ['volunteer_points_earned' => 50, 'volunteer_points_used' => 100]);
-        $this->homeMatch();
-
-        $tallies = $this->planner()->generate($this->version)['tallies'][$team->id];
-
-        $this->assertSame(0, $tallies['used'], 'points standings are ignored without the module');
-        $this->assertSame($tallies['referee'] + $tallies['scorer'] + $tallies['hall_duty'], $tallies['total']);
     }
 
     private function planner(): DutyPlanner

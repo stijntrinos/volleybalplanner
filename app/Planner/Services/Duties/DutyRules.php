@@ -5,32 +5,26 @@ namespace App\Planner\Services\Duties;
 use App\Planner\Support\TeamCode;
 
 /**
- * The club's duty rules (referee, scorer, hall duty): which teams never
- * referee, which home teams may only be refereed by certain teams, and so on.
- * Team line-ups change every season, so these rules live in
- * planner_settings.duty_rules instead of in code. This class reads them and
- * falls back to DEFAULTS for missing keys.
- *
- * The team-specific defaults are empty: a club without configuration gets no
- * team-specific restrictions, only the generic youth/category rules.
+ * The club-wide settings of the duty planning, from planner_settings.duty_rules.
+ * Who referees, scores or does hall duty lives on the team (its planning
+ * exceptions); what stays here applies to the whole club: which home teams
+ * count as heavy or restricted, the evening limit for scoring and the home
+ * city. Missing keys fall back to DEFAULTS.
  */
 final class DutyRules
 {
     public const DEFAULTS = [
-        // Teams that never referee, e.g. ['DS 10'].
-        'no_referee' => [],
-        // Home team code => teams allowed to referee it, e.g. ['HS 2' => ['DS 1', 'HS 1']].
-        'referee_requirements' => [],
-        // Words that mark a lower class, where A youth and lower women's teams may referee.
+        // Words that mark a lower class ("women 3rd/4th class").
         'lower_class_terms' => ['3e', '4e', 'derde', 'vierde'],
-        // Home teams C youth may not score for, e.g. ['HS 1', 'DS 1'].
-        'scorer_heavy_teams' => [],
-        // From this time on C youth no longer scores.
+        // From this start time on, teams with "no scoring late" do not score.
         'scorer_cutoff' => '19:00',
-        // Team code prefixes that may do hall duty.
-        'hall_duty_codes' => ['HS', 'DS', 'H', 'D', 'JA', 'MA'],
-        // Maximum duties per team per playing day; 0 means no limit.
-        'max_duties_per_day' => 3,
+        // An away match in this city counts as a match in the own hall. Empty
+        // means: the city of the main venue.
+        'home_city' => '',
+        // Home teams only teams with "referees restricted teams" referee, e.g. ['HS 2', 'HS 3'].
+        'restricted_referee_teams' => [],
+        // Home teams that teams with "no scoring at heavy teams" do not score, e.g. ['HS 1', 'DS 1'].
+        'scorer_heavy_teams' => [],
     ];
 
     /** @var array<string, mixed> */
@@ -40,13 +34,13 @@ final class DutyRules
     public function __construct(?array $rules = null)
     {
         // Only missing keys fall back to the default: a club that empties a
-        // list means "nobody", not "give me the default back".
+        // list means "none", not "give me the default back".
         $given = array_filter(
             $rules ?? [],
             static fn (mixed $value): bool => $value !== null && $value !== '',
         );
 
-        $this->values = array_replace(self::DEFAULTS, $given);
+        $this->values = array_intersect_key(array_replace(self::DEFAULTS, $given), self::DEFAULTS);
     }
 
     /** @return array<string, mixed> */
@@ -55,37 +49,7 @@ final class DutyRules
         return $this->values;
     }
 
-    /** A team that according to the club never has to referee. */
-    public function mayNotReferee(string $code): bool
-    {
-        return in_array($code, $this->codes('no_referee'), true);
-    }
-
-    /**
-     * The teams allowed to referee this home team, or null when no special
-     * requirement applies to it.
-     *
-     * @return list<string>|null
-     */
-    public function refereeRequirement(string $homeCode): ?array
-    {
-        if ($homeCode === '') {
-            return null;
-        }
-
-        foreach ((array) $this->values['referee_requirements'] as $team => $allowed) {
-            if (TeamCode::key((string) $team) === $homeCode) {
-                return array_values(array_filter(array_map(
-                    static fn (mixed $code): string => TeamCode::key((string) $code),
-                    (array) $allowed,
-                )));
-            }
-        }
-
-        return null;
-    }
-
-    /** Recognises the lower classes where A youth and lower women's teams may referee. */
+    /** Recognises the lower classes ("women 3rd/4th class"). */
     public function isLowerClass(?string $text): bool
     {
         $terms = array_filter(array_map('strval', (array) $this->values['lower_class_terms']));
@@ -98,12 +62,6 @@ final class DutyRules
         return preg_match('/(?<![A-Z0-9])('.$pattern.')(?![A-Z0-9])/i', (string) $text) === 1;
     }
 
-    /** @return list<string> */
-    public function scorerHeavyTeams(): array
-    {
-        return $this->codes('scorer_heavy_teams');
-    }
-
     public function scorerCutoff(): string
     {
         return substr((string) $this->values['scorer_cutoff'], 0, 5) ?: '19:00';
@@ -111,36 +69,24 @@ final class DutyRules
 
     public function scorerCutoffMinutes(): int
     {
-        [$hour, $minute] = array_pad(array_map('intval', explode(':', $this->scorerCutoff())), 2, 0);
-
-        return $hour * 60 + $minute;
+        return PlayingRounds::minutes($this->scorerCutoff());
     }
 
-    /**
-     * How many duties the generator gives a team on one playing day at most.
-     * Without this limit a team with few volunteer points tops the candidate
-     * list every time and gets an entire Saturday in a row. Zero means no
-     * limit.
-     */
-    public function maxDutiesPerDay(): int
+    public function homeCity(): string
     {
-        return max(0, (int) $this->values['max_duties_per_day']);
+        return trim((string) $this->values['home_city']);
     }
 
-    public function mayDoHallDuty(string $code): bool
+    /** @return list<string> */
+    public function restrictedRefereeTeams(): array
     {
-        $prefixes = array_filter(array_map(
-            static fn (mixed $prefix): string => TeamCode::key((string) $prefix),
-            (array) $this->values['hall_duty_codes'],
-        ));
+        return $this->codes('restricted_referee_teams');
+    }
 
-        foreach ($prefixes as $prefix) {
-            if (str_starts_with($code, $prefix)) {
-                return true;
-            }
-        }
-
-        return false;
+    /** @return list<string> */
+    public function scorerHeavyTeams(): array
+    {
+        return $this->codes('scorer_heavy_teams');
     }
 
     /** "DS10" reads as DS 10 once it ends up in a message. */

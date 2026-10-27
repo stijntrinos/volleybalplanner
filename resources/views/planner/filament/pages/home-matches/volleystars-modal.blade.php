@@ -8,7 +8,7 @@
                 </div>
                 <button type="button" wire:click="closeVolleystars" aria-label="{{ __('Sluiten') }}">×</button>
             </div>
-            <p class="planner-volleystars-intro">{{ __('Koppel per taak maximaal drie teams. Hetzelfde team mag meerdere plekken invullen; de taak geldt voor alle velden in deze sporthal.') }}</p>
+            <p class="planner-volleystars-intro">{{ __('Koppel per taak maximaal drie teams. Hetzelfde team mag meerdere plekken invullen; de taak geldt voor alle velden in deze sporthal. De teams staan in de volgorde van de FTZ-planning, met hun stand.') }}</p>
             <div class="planner-volleystars-tasks">
                 @foreach ($this->volleystarsRoles as $role => $label)
                     <fieldset class="planner-volleystars-task" wire:key="volleystars-{{ $role }}">
@@ -35,9 +35,17 @@
                                     <x-filament::input.wrapper>
                                         <x-filament::input.select wire:model="modalVolleystarsTeams.{{ $role }}.{{ $position }}">
                                             <option value="">{{ __('Niet gekoppeld') }}</option>
-                                            @foreach ($this->volleystarsTeams as $teamId => $teamLabel)
-                                                <option value="{{ $teamId }}">{{ $teamLabel }}</option>
-                                            @endforeach
+                                            @forelse ($volleystarsChoice[$role] ?? [] as $group => $teams)
+                                                <optgroup label="{{ $group }}">
+                                                    @foreach ($teams as $teamId => $teamLabel)
+                                                        <option value="{{ $teamId }}">{{ $teamLabel }}</option>
+                                                    @endforeach
+                                                </optgroup>
+                                            @empty
+                                                @foreach ($this->volleystarsTeams as $teamId => $teamLabel)
+                                                    <option value="{{ $teamId }}">{{ $teamLabel }}</option>
+                                                @endforeach
+                                            @endforelse
                                         </x-filament::input.select>
                                     </x-filament::input.wrapper>
                                 </label>

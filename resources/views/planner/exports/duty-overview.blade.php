@@ -127,6 +127,8 @@
                         @endif
                         <th>{{ __('Totaal') }}</th>
                         @if ($showPoints)
+                            <th>{{ __('Minimum') }}</th>
+                            <th>{{ __('Nog in te vullen') }}</th>
                             <th>{{ __('Stand') }}</th>
                         @endif
                     </tr>
@@ -143,8 +145,13 @@
                             @endif
                             <td class="total">{{ $row['total'] ?? 0 }}</td>
                             @if ($showPoints)
-                                @php $percentage = (float) ($row['percentage'] ?? 0); @endphp
-                                <td @class(['short' => $percentage > 0, 'above' => $percentage < 0])>{{ $row['status_label'] ?? '' }}</td>
+                                @php
+                                    $short = ($row['has_minimum'] ?? false) && ($row['remaining'] ?? 0) > 0;
+                                    $above = ($row['has_minimum'] ?? false) && ($row['above_minimum'] ?? 0) > 0;
+                                @endphp
+                                <td>{{ ($row['has_minimum'] ?? false) ? $row['minimum'] : '-' }}</td>
+                                <td @class(['short' => $short, 'above' => $above])>{{ ! ($row['has_minimum'] ?? false) ? '' : ($above ? '-'.$row['above_minimum'] : $row['remaining']) }}</td>
+                                <td @class(['short' => $short, 'above' => $above])>{{ $row['status_label'] ?? '' }}</td>
                             @endif
                         </tr>
                     @endforeach
@@ -160,6 +167,8 @@
                         @endif
                         <td class="total">{{ $totals['total'] ?? 0 }}</td>
                         @if ($showPoints)
+                            <td>{{ $totals['minimum'] ?? 0 }}</td>
+                            <td>{{ $totals['remaining'] ?? 0 }}</td>
                             <td></td>
                         @endif
                     </tr>
@@ -168,7 +177,7 @@
 
             <p class="footer">
                 @if ($showPoints)
-                    {{ __('Taakpunten volgens de vrijwilligerspunten uit de plannerinstellingen') }}
+                    {{ __('Elke dienst telt met zijn eigen punten; het minimum is de maatstaf') }}
                 @else
                     {{ __('Aantal diensten per team') }}
                 @endif

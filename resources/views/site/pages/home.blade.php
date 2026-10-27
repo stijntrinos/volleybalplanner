@@ -24,7 +24,7 @@
 
     $features = [
         ['M7 7h11l-3-3M17 17H6l3 3', 'Slim verplaatsen', 'De verplaatsingsassistent toont alleen momenten die echt vrij zijn. Een andere dag wordt eerst een voorstel dat op akkoord wacht.'],
-        ['M4 19c0-3 2.7-5 6-5s6 2 6 5M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M17 11a3 3 0 1 0 0-6M20 19c0-2.2-1.2-3.8-3-4.6', 'Fluiten, tellen en zaaldienst', 'Eén klik voor een volledig voorstel, met teamregels en vrijwilligerspunten. Handmatige keuzes blijven staan.'],
+        ['M4 19c0-3 2.7-5 6-5s6 2 6 5M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M17 11a3 3 0 1 0 0-6M20 19c0-2.2-1.2-3.8-3-4.6', 'Fluiten, tellen en zaaldienst', 'Eén klik voor een volledig voorstel dat eerlijk verdeelt naar het minimum van elk team. Per dienst zie je wie wordt voorgesteld en waarom.'],
         ['M20 11a8 8 0 0 0-14.3-4.9L4 8M4 4v4h4M4 13a8 8 0 0 0 14.3 4.9L20 16M20 20v-4h-4', 'Nevobo-sync elke nacht', 'Om 06:00 vergelijkt de planner met de Nevobo-feeds. Kleine wijzigingen gaan vanzelf, afwijkingen komen op het dashboard.'],
         ['M4 13l2.5-8h11l2.5 8v6H4zM4 13h5l1 2h4l1-2h5', 'Wijzigingsverzoeken', 'Teams vragen via een vaste link om een andere datum of dienst. Jij beslist, met reden en voorstel erbij.'],
         ['M3 5h18v14H3zM12 5v3M12 16v3', 'CenterCourt', 'Een wedstrijd op twee velden staat als één brede kaart in de planner en als “CC” op de website.'],

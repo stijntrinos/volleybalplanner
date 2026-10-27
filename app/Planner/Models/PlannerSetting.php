@@ -40,6 +40,16 @@ use Illuminate\Support\Carbon;
  * @property int $points_scorer_duty
  * @property int $points_hall_duty
  * @property int $points_volleystars
+ * @property int $max_duties_per_week
+ * @property int $max_duties_per_day soft: the team moves back, but may still if nobody else fits
+ * @property int $max_hall_duties_per_day
+ * @property int $home_player_priority duties a team under its minimum gets priority for on its own home day
+ * @property int|null $min_days_between_duties
+ * @property int $display_match_duration display only; the rules use each match's own duration
+ * @property Carbon|null $half_1_start
+ * @property Carbon|null $half_1_end
+ * @property Carbon|null $half_2_start
+ * @property Carbon|null $half_2_end
  * @property array<array-key, mixed>|null $hall_duty_weekdays
  * @property array<array-key, mixed>|null $hall_duty_exceptions
  * @property array<array-key, mixed>|null $team_group_order
@@ -113,10 +123,18 @@ class PlannerSetting extends Model
         'schedule_footer', 'duty_rules', 'hall_duty_weekdays', 'hall_duty_exceptions', 'team_group_order',
         'requests_open', 'request_reasons', 'duty_request_reasons',
         'team_name_patterns', 'nevobo_club_code', 'logo_path', 'primary_color', 'schedule_tagline',
+        'max_duties_per_week', 'max_duties_per_day', 'max_hall_duties_per_day', 'home_player_priority',
+        'min_days_between_duties', 'display_match_duration', 'half_1_start', 'half_1_end', 'half_2_start', 'half_2_end',
     ];
 
+    /** The database defaults, so a row that was just created (or only made) knows them too. */
     protected $attributes = [
         'team_name_patterns' => '[]',
+        'max_duties_per_week' => 5,
+        'max_duties_per_day' => 4,
+        'max_hall_duties_per_day' => 2,
+        'home_player_priority' => 3,
+        'display_match_duration' => 120,
     ];
 
     protected function casts(): array
@@ -143,6 +161,16 @@ class PlannerSetting extends Model
             'request_reasons' => 'array',
             'duty_request_reasons' => 'array',
             'requests_open' => 'boolean',
+            'max_duties_per_week' => 'integer',
+            'max_duties_per_day' => 'integer',
+            'max_hall_duties_per_day' => 'integer',
+            'home_player_priority' => 'integer',
+            'min_days_between_duties' => 'integer',
+            'display_match_duration' => 'integer',
+            'half_1_start' => 'date',
+            'half_1_end' => 'date',
+            'half_2_start' => 'date',
+            'half_2_end' => 'date',
         ];
     }
 
@@ -267,6 +295,31 @@ class PlannerSetting extends Model
             },
             $this->hall_duty_exceptions ?? [],
         ))));
+    }
+
+    /**
+     * The half of the season a date falls in (1 or 2), or null when the
+     * halves have not been set or the date is outside them.
+     */
+    public function seasonHalf(string $date): ?int
+    {
+        foreach ([1, 2] as $half) {
+            $period = $this->halfPeriod($half);
+            if ($period !== null && $date >= $period[0] && $date <= $period[1]) {
+                return $half;
+            }
+        }
+
+        return null;
+    }
+
+    /** @return array{string, string}|null start and end as Y-m-d */
+    public function halfPeriod(int $half): ?array
+    {
+        $start = $this->getAttribute("half_{$half}_start");
+        $end = $this->getAttribute("half_{$half}_end");
+
+        return $start && $end ? [$start->toDateString(), $end->toDateString()] : null;
     }
 
     /**

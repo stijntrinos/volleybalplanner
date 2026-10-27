@@ -159,7 +159,7 @@ class PlannerResourceRecordsTest extends TestCase
             ->assertFormFieldDoesNotExist('volunteer_points_used')
             ->assertFormFieldDisabled('locker_room_category');
 
-        Livewire::test(ListTeams::class)->assertTableColumnHidden('points_balance');
+        Livewire::test(ListTeams::class)->assertTableColumnHidden('minimum');
     }
 
     public function test_the_team_form_shows_module_fields_when_modules_are_on(): void

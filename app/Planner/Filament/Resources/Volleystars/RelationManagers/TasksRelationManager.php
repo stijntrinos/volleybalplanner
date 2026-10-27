@@ -53,7 +53,7 @@ class TasksRelationManager extends RelationManager
     public function form(Schema $schema): Schema
     {
         return $schema->components([
-            Select::make('role')->label(__('Taak'))->options(VolleystarsRole::class)->required()->native(false),
+            Select::make('role')->label(__('Taak'))->options(VolleystarsRole::options())->required()->native(false),
             Select::make('team_id')->label(__('Team'))->relationship('team', 'name')
                 ->getOptionLabelFromRecordUsing(fn ($record): string => "{$record->code} · {$record->name}")
                 ->searchable(['code', 'name'])->preload(),
@@ -71,6 +71,7 @@ class TasksRelationManager extends RelationManager
                 ->color(fn (?VolleystarsRole $state): string => match ($state) {
                     VolleystarsRole::Setup => 'info',
                     VolleystarsRole::Scoring => 'success',
+                    VolleystarsRole::Refereeing => 'primary',
                     VolleystarsRole::Teardown => 'warning',
                     default => 'gray',
                 }),
@@ -83,7 +84,7 @@ class TasksRelationManager extends RelationManager
             ->headerActions([CreateAction::make()->label(__('Taak toevoegen'))])
             ->recordActions([EditAction::make(), DeleteAction::make()])->defaultSort('sort_order')
             ->emptyStateHeading(__('Nog geen taken verdeeld'))
-            ->emptyStateDescription(__('Voeg opbouw-, tel- en afbouwtaken toe en wijs ze toe aan teams.'))
+            ->emptyStateDescription(__('Voeg opbouw-, tel-, fluit- en afbouwtaken toe en wijs ze toe aan teams.'))
             ->emptyStateIcon('heroicon-o-clipboard-document-list');
     }
 }

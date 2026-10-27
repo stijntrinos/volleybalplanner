@@ -39,6 +39,8 @@ class Settings extends Page implements HasForms
         'training_period_start', 'training_period_end',
         'buffer_minutes', 'cache_ttl_minutes', 'admin_override_external_error',
         'points_referee_duty', 'points_scorer_duty', 'points_hall_duty', 'points_volleystars',
+        'max_duties_per_week', 'max_duties_per_day', 'max_hall_duties_per_day', 'home_player_priority',
+        'min_days_between_duties', 'display_match_duration', 'half_1_start', 'half_1_end', 'half_2_start', 'half_2_end',
         'schedule_footer', 'hall_duty_weekdays', 'hall_duty_exceptions', 'team_group_order',
         'request_reasons', 'duty_request_reasons', 'requests_open',
         'team_name_patterns', 'logo_path', 'primary_color', 'schedule_tagline',
@@ -185,52 +187,34 @@ class Settings extends Page implements HasForms
         ActivityColor::query()->whereNotIn('type', $kept)->delete();
     }
 
-    /**
-     * The referee requirements are stored as team => allowed teams; a
-     * repeater works with a numbered list. To the form here, back below.
-     *
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     private function dutyRulesToForm(?array $rules): array
     {
         $values = (new DutyRules($rules))->toArray();
 
-        $requirements = [];
-        foreach ((array) $values['referee_requirements'] as $team => $allowed) {
-            $requirements[] = ['team' => (string) $team, 'allowed' => array_values((array) $allowed)];
-        }
-
         return [
-            'no_referee' => array_values((array) $values['no_referee']),
-            'referee_requirements' => $requirements,
-            'lower_class_terms' => array_values((array) $values['lower_class_terms']),
+            'restricted_referee_teams' => array_values((array) $values['restricted_referee_teams']),
             'scorer_heavy_teams' => array_values((array) $values['scorer_heavy_teams']),
             'scorer_cutoff' => substr((string) $values['scorer_cutoff'], 0, 5),
-            'hall_duty_codes' => array_values((array) $values['hall_duty_codes']),
-            'max_duties_per_day' => (int) $values['max_duties_per_day'],
+            'home_city' => (string) $values['home_city'],
+            'lower_class_terms' => array_values((array) $values['lower_class_terms']),
         ];
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * Who referees, scores or does hall duty lives on the team; only the
+     * club-wide rules are stored here.
+     *
+     * @return array<string, mixed>
+     */
     private function dutyRulesFromForm(array $data): array
     {
-        $requirements = [];
-        foreach ((array) ($data['referee_requirements'] ?? []) as $row) {
-            $team = trim((string) ($row['team'] ?? ''));
-            if ($team === '') {
-                continue;
-            }
-            $requirements[$team] = $this->list($row['allowed'] ?? []);
-        }
-
         return [
-            'no_referee' => $this->list($data['no_referee'] ?? []),
-            'referee_requirements' => $requirements,
-            'lower_class_terms' => $this->list($data['lower_class_terms'] ?? []),
+            'restricted_referee_teams' => $this->list($data['restricted_referee_teams'] ?? []),
             'scorer_heavy_teams' => $this->list($data['scorer_heavy_teams'] ?? []),
             'scorer_cutoff' => substr((string) ($data['scorer_cutoff'] ?? ''), 0, 5) ?: DutyRules::DEFAULTS['scorer_cutoff'],
-            'hall_duty_codes' => $this->list($data['hall_duty_codes'] ?? []),
-            'max_duties_per_day' => max(0, (int) ($data['max_duties_per_day'] ?? DutyRules::DEFAULTS['max_duties_per_day'])),
+            'home_city' => trim((string) ($data['home_city'] ?? '')),
+            'lower_class_terms' => $this->list($data['lower_class_terms'] ?? []),
         ];
     }
 

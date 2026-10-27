@@ -17,6 +17,7 @@ use App\Planner\Models\HallDuty;
 use App\Planner\Models\PlannerSetting;
 use App\Planner\Models\ScheduleVersion;
 use App\Planner\Models\Team;
+use App\Planner\Models\TeamAbsence;
 use App\Planner\Models\Training;
 use App\Planner\Models\Venue;
 use App\Planner\Support\DesignTokens;
@@ -70,6 +71,12 @@ final class DemoClubBuilder
             'team_name_patterns' => [self::TEAM_PREFIX],
             'primary_color' => DesignTokens::BRAND,
             'schedule_tagline' => 'Check je kleedkamer bij de ingang · Veel speelplezier en een sportieve wedstrijd',
+            // Before the duties are created: a duty takes the points of the moment it came about.
+            'points_referee_duty' => 2,
+            'points_scorer_duty' => 1,
+            'points_hall_duty' => 2,
+            'points_volleystars' => 3,
+            ...$this->seasonHalves(),
         ]);
 
         $haven = Venue::query()->create(['venue_code' => 'HAVEN', 'name' => 'De Haven', 'city' => 'Voorbeeldstad', 'is_managed' => true, 'has_duties' => true, 'for_matches' => true, 'for_trainings' => true, 'is_active' => true]);
@@ -81,8 +88,13 @@ final class DemoClubBuilder
         }
         $this->courts['noord1'] = Court::query()->create(['venue_id' => $noord->id, 'name' => '1', 'sort_order' => 1, 'is_active' => true]);
 
-        foreach (self::TEAM_CODES as $code) {
+        foreach (self::TEAM_CODES as $index => $code) {
             $this->teams[$code] = Team::query()->create([
+                // A need and minimum percentage per team, so the minimum and the
+                // standing have something to show.
+                'volunteer_points_used' => 20 + ($index * 7) % 30,
+                'volunteer_points_percentage' => $index % 3 === 0 ? 80 : 100,
+                'volunteer_points_earned' => ($index * 5) % 12,
                 'code' => $code,
                 'name' => self::TEAM_PREFIX.' '.$code,
                 'default_weekday' => 'Za',
@@ -97,6 +109,7 @@ final class DemoClubBuilder
         }
 
         Training::query()->create(['team_id' => $this->teams['HS 5']->id, 'venue_id' => $haven->id, 'weekday' => 'zaterdag', 'start_time' => '16:45', 'end_time' => '18:45', 'court' => 3]);
+        TeamAbsence::query()->create(['team_id' => $this->teams['HS 4']->id, 'date_from' => $saturday->toDateString(), 'reason' => 'Toernooi']);
         Training::query()->create(['team_id' => $this->teams['DS 2']->id, 'venue_id' => $haven->id, 'weekday' => 'dinsdag', 'start_time' => '20:00', 'end_time' => '22:00', 'court' => 1]);
 
         $week = CarbonImmutable::today()->isoWeek();
@@ -121,6 +134,25 @@ final class DemoClubBuilder
 
         $this->applyDraftChanges($draft);
         $this->createChangeRequests($published, $saturday);
+    }
+
+    /**
+     * The two halves of the season the fair share is computed over: September
+     * to December and January to May of the current season.
+     *
+     * @return array{half_1_start: string, half_1_end: string, half_2_start: string, half_2_end: string}
+     */
+    private function seasonHalves(): array
+    {
+        $today = CarbonImmutable::today();
+        $year = $today->month >= 7 ? $today->year : $today->year - 1;
+
+        return [
+            'half_1_start' => "{$year}-09-01",
+            'half_1_end' => "{$year}-12-31",
+            'half_2_start' => ($year + 1).'-01-01',
+            'half_2_end' => ($year + 1).'-05-31',
+        ];
     }
 
     /**

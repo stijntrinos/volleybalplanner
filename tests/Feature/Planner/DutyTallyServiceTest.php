@@ -93,10 +93,12 @@ class DutyTallyServiceTest extends TestCase
         $rows = $this->tally();
 
         $this->assertCount(1, $rows);
-        $this->assertSame(100, $rows[0]['used']);
+        $this->assertSame(100, $rows[0]['minimum']);
         $this->assertSame(25, $rows[0]['earned']);
         $this->assertSame(10, $rows[0]['scorer']);
-        $this->assertSame(65.0, $rows[0]['percentage']);
+        $this->assertSame(35, $rows[0]['total']);
+        $this->assertSame(65, $rows[0]['remaining']);
+        $this->assertSame(35.0, $rows[0]['percentage']);
     }
 
     public function test_volleystars_tasks_count_with_the_module(): void
@@ -112,7 +114,7 @@ class DutyTallyServiceTest extends TestCase
         $this->assertSame(4, $rows[0]['total']);
     }
 
-    public function test_without_volunteer_points_duties_are_counted_and_point_columns_left_out(): void
+    public function test_without_volunteer_points_every_duty_counts_one_and_no_team_has_a_minimum(): void
     {
         $this->club(['duties', 'volleystars']);
         $team = Team::factory()->create(['code' => 'HS 1', 'volunteer_points_used' => 100, 'volunteer_points_earned' => 25]);
@@ -123,13 +125,13 @@ class DutyTallyServiceTest extends TestCase
 
         $row = $this->tally()[0];
 
-        $this->assertSame(
-            ['team' => 'HS 1', 'referee' => 1, 'scorer' => 1, 'hall_duty' => 1, 'volleystars' => 0, 'total' => 3],
-            $row,
+        $this->assertEquals(
+            ['referee' => 1, 'scorer' => 1, 'hall_duty' => 1, 'volleystars' => 0, 'total' => 3, 'earned' => 0, 'has_minimum' => false],
+            array_intersect_key($row, array_flip(['referee', 'scorer', 'hall_duty', 'volleystars', 'total', 'earned', 'has_minimum'])),
         );
     }
 
-    public function test_without_the_volleystars_module_volleystars_is_left_out(): void
+    public function test_without_the_volleystars_module_volleystars_does_not_count(): void
     {
         $this->club(['duties', 'volunteer_points']);
         $team = Team::factory()->create(['code' => 'DS 1']);
@@ -138,9 +140,8 @@ class DutyTallyServiceTest extends TestCase
 
         $row = $this->tally()[0];
 
-        $this->assertArrayNotHasKey('volleystars', $row);
+        $this->assertSame(0, $row['volleystars']);
         $this->assertSame(0, $row['total']);
-        $this->assertArrayHasKey('percentage', $row);
     }
 
     private function tally(?string $from = null, ?string $to = null): array

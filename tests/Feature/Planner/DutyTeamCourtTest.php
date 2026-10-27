@@ -10,7 +10,7 @@ class DutyTeamCourtTest extends TestCase
     public function test_the_field_shows_the_teams_and_an_empty_choice(): void
     {
         $this->field(['DS 1' => 'DS 1', 'HS 2' => 'HS 2'], 'HS 2')
-            ->assertSee('— niet ingevuld —')
+            ->assertSee('- niet ingevuld -')
             ->assertSee('<option value="DS 1">DS 1</option>', false)
             ->assertSee('<option value="HS 2">HS 2</option>', false)
             ->assertDontSee('Nevobo');

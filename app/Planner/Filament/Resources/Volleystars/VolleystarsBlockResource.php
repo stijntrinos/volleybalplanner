@@ -92,6 +92,8 @@ class VolleystarsBlockResource extends Resource
                     self::endTimeField('setup_end', __('Opbouw tot'), '12:00', 'setup_start', __('opbouwen')),
                     self::timeField('scoring_start', __('Tellen vanaf'), '08:45'),
                     self::endTimeField('scoring_end', __('Tellen tot'), '12:30', 'scoring_start', __('tellen')),
+                    self::timeField('refereeing_start', __('Fluiten vanaf'), '08:45'),
+                    self::endTimeField('refereeing_end', __('Fluiten tot'), '12:30', 'refereeing_start', __('fluiten')),
                     self::timeField('teardown_start', __('Afbouw vanaf'), '08:30'),
                     self::endTimeField('teardown_end', __('Afbouw tot'), '12:45', 'teardown_start', __('afbouwen')),
                 ])->columnSpanFull(),

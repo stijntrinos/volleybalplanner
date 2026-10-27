@@ -30,6 +30,7 @@ class PlannerServiceProvider extends ServiceProvider
         Models\ScheduleVersion::class => Policies\ScheduleVersionPolicy::class,
         Models\Team::class => Policies\TeamPolicy::class,
         Models\TeamSource::class => Policies\TeamSourcePolicy::class,
+        Models\TeamAbsence::class => Policies\TeamAbsencePolicy::class,
         Models\Training::class => Policies\TrainingPolicy::class,
         Models\Venue::class => Policies\VenuePolicy::class,
         Models\VenueAlias::class => Policies\VenueAliasPolicy::class,

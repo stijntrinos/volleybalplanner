@@ -34,6 +34,7 @@ final class ClubDataPurger
         'planner_user_preferences',
         'planner_settings',
         'planner_schedule_versions',
+        'planner_team_absences',
         'planner_team_sources',
         'planner_teams',
         'planner_courts',

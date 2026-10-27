@@ -2,14 +2,16 @@
 
 namespace Tests\Feature\Planner\Concerns;
 
-use App\Planner\Enums\DutyType;
 use App\Planner\Enums\MatchType;
 use App\Planner\Models\FixtureMatch;
 use App\Planner\Models\PlannerSetting;
 use App\Planner\Models\ScheduleVersion;
 use App\Planner\Models\Team;
 use App\Planner\Models\Venue;
+use App\Planner\Services\Duties\PlanningContext;
+use App\Planner\Services\Duties\PointsBalance;
 use App\Planner\Services\Duties\RuleEngine;
+use App\Planner\Services\Duties\TeamChoice;
 use Carbon\CarbonImmutable;
 
 /**
@@ -61,20 +63,58 @@ trait BuildsDutyFixtures
         ]);
     }
 
-    /** A slot for a home match of this team on 2026-09-12 at 10:00. */
-    protected function slot(string $homeTeam): array
+    /** A home match of this team on the test Saturday at 10:00. */
+    protected function matchOf(string $homeTeam, array $attributes = []): FixtureMatch
     {
-        return [
-            'date' => $this->saturday, 'start' => '10:00', 'end' => '11:45',
-            'venue_id' => $this->venue->id, 'match' => $this->homeMatch(['home_team_name' => $homeTeam]),
-        ];
+        return $this->homeMatch($attributes + ['home_team_name' => $homeTeam]);
     }
 
-    /** @return list<string> */
-    protected function violations(Team $team, DutyType $duty, array $slot, bool $withMatches = true): array
+    /** The context of the test version, as the planner builds it. */
+    protected function context(): PlanningContext
     {
-        return app(RuleEngine::class)->violations(
-            $team, $duty, $slot, $withMatches ? $this->version->matches()->get() : collect(), collect(),
-        );
+        return PlanningContext::forVersion($this->version);
+    }
+
+    /** The duty of a match in a fresh context. */
+    protected function dutyOf(FixtureMatch $match, string $duty, ?PlanningContext $context = null): array
+    {
+        $context ??= $this->context();
+
+        return $context->dutyForMatch($context->homeMatches()->firstWhere('id', $match->id), $duty);
+    }
+
+    /**
+     * All reasons (hard, then soft with "Niet voorgesteld:") for this team on
+     * this duty of a match.
+     *
+     * @return list<string>
+     */
+    protected function violations(Team $team, FixtureMatch $match, string $duty): array
+    {
+        $context = $this->context();
+
+        return app(RuleEngine::class)->violations($context->teamWithCode($team->code) ?? $team, $this->dutyOf($match, $duty, $context), $context);
+    }
+
+    /** The team the generator proposes for this duty of a match. */
+    protected function best(FixtureMatch $match, string $duty): ?string
+    {
+        $context = $this->context();
+
+        return app(TeamChoice::class)->best($this->dutyOf($match, $duty, $context), $context)?->code;
+    }
+
+    /** @return list<array{team: Team, code: string, status: string, balance: PointsBalance, reasons: list<string>}> */
+    protected function candidates(FixtureMatch $match, string $duty): array
+    {
+        $context = $this->context();
+
+        return app(TeamChoice::class)->candidates($this->dutyOf($match, $duty, $context), $context);
+    }
+
+    /** @return array{team: Team, code: string, status: string, balance: PointsBalance, reasons: list<string>}|null */
+    protected function candidate(FixtureMatch $match, string $duty, string $code): ?array
+    {
+        return collect($this->candidates($match, $duty))->firstWhere('code', $code);
     }
 }

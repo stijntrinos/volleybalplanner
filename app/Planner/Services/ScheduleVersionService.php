@@ -83,16 +83,16 @@ class ScheduleVersionService
             }
             foreach ($source->hallDuties as $hallDuty) {
                 $copy->hallDuties()->create($hallDuty->only([
-                    'date', 'start_time', 'end_time', 'team_id', 'venue_id', 'notes',
+                    'date', 'start_time', 'end_time', 'team_id', 'venue_id', 'notes', 'points',
                 ]));
             }
             foreach ($source->volleystarsBlocks()->with('tasks')->get() as $block) {
                 $newBlock = $copy->volleystarsBlocks()->create($block->only([
                     'date', 'venue_id', 'setup_start', 'setup_end',
-                    'teardown_start', 'teardown_end', 'scoring_start', 'scoring_end', 'notes',
+                    'teardown_start', 'teardown_end', 'scoring_start', 'scoring_end', 'refereeing_start', 'refereeing_end', 'notes',
                 ]));
                 foreach ($block->tasks as $task) {
-                    $newBlock->tasks()->create($task->only(['role', 'team_id', 'court_id', 'sort_order']));
+                    $newBlock->tasks()->create($task->only(['role', 'team_id', 'court_id', 'sort_order', 'points']));
                 }
             }
 

@@ -2,20 +2,29 @@
 
 namespace Tests\Feature\Planner;
 
-use App\Planner\Enums\DutyType;
 use App\Planner\Enums\MatchType;
 use App\Planner\Models\PlannerSetting;
 use App\Planner\Models\Training;
 use App\Planner\Models\Venue;
+use App\Planner\Services\Duties\PlanningContext;
 use App\Planner\Services\Duties\RuleEngine;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithClubs;
 use Tests\Feature\Planner\Concerns\BuildsDutyFixtures;
 use Tests\TestCase;
 
+/**
+ * Steps 1 and 2 of the planning rules: who can do a duty (hard) and who is
+ * not proposed (soft, "Niet voorgesteld: ...").
+ */
 class DutyRuleEngineTest extends TestCase
 {
     use BuildsDutyFixtures, InteractsWithClubs, RefreshDatabase;
+
+    private const REFEREE = PlanningContext::DUTY_REFEREE;
+
+    private const SCORER = PlanningContext::DUTY_SCORER;
 
     protected function setUp(): void
     {
@@ -23,7 +32,20 @@ class DutyRuleEngineTest extends TestCase
         $this->setUpDutyClub();
     }
 
-    public function test_an_away_match_blocks_a_team_the_whole_day(): void
+    public function test_an_away_match_outside_the_home_city_blocks_a_team_the_whole_day(): void
+    {
+        $this->venue->update(['city' => 'Arnhem']);
+        PlannerSetting::current()->update(['main_venue_id' => $this->venue->id]);
+        $team = $this->team('HS 4');
+        $this->homeMatch([
+            'home_team_name' => 'Dynamo HS 4', 'away_team_name' => 'AETOS HS 4', 'away_team_id' => $team->id,
+            'match_type' => MatchType::Away, 'venue_id' => Venue::factory()->create(['city' => 'Apeldoorn'])->id, 'time' => '20:00',
+        ]);
+
+        $this->assertContains('Het team speelt die dag uit buiten Arnhem.', $this->violations($team, $this->matchOf('AETOS HS 5'), self::SCORER));
+    }
+
+    public function test_without_a_home_city_every_away_match_blocks_the_day(): void
     {
         $team = $this->team('HS 4');
         $this->homeMatch([
@@ -31,11 +53,23 @@ class DutyRuleEngineTest extends TestCase
             'match_type' => MatchType::Away, 'venue_id' => null, 'time' => '20:00',
         ]);
 
-        $reasons = $this->violations($team, DutyType::Scorer, [
-            'date' => $this->saturday, 'start' => '10:00', 'end' => '12:00', 'venue_id' => $this->venue->id,
+        $this->assertContains('Het team heeft die dag een uitwedstrijd.', $this->violations($team, $this->matchOf('AETOS HS 5'), self::SCORER));
+    }
+
+    /** An away match in the home city counts as a match in the own hall: only the time and the venue matter. */
+    public function test_an_away_match_in_the_home_city_counts_as_a_match_in_the_own_hall(): void
+    {
+        PlannerSetting::current()->update(['duty_rules' => ['home_city' => 'Arnhem']]);
+        $team = $this->team('HS 4');
+        $this->homeMatch([
+            'home_team_name' => 'Dynamo HS 4', 'away_team_name' => 'AETOS HS 4', 'away_team_id' => $team->id,
+            'match_type' => MatchType::Away, 'venue_id' => Venue::factory()->create(['city' => 'Arnhem'])->id, 'time' => '16:00',
         ]);
 
-        $this->assertContains('Het team heeft die dag een uitwedstrijd.', $reasons);
+        $reasons = $this->violations($team, $this->matchOf('AETOS HS 5'), self::SCORER);
+
+        $this->assertNotContains('Het team speelt die dag uit buiten Arnhem.', $reasons);
+        $this->assertContains('Het team speelt die dag in een andere sporthal.', $reasons);
     }
 
     /**
@@ -56,11 +90,7 @@ class DutyRuleEngineTest extends TestCase
             'time' => '09:00', 'duration_minutes' => 105,
         ]);
 
-        $reasons = $this->violations($mc1, DutyType::Scorer, [
-            'date' => $this->saturday, 'start' => '09:00', 'end' => '10:45', 'venue_id' => $this->venue->id, 'match' => $own,
-        ]);
-
-        $this->assertSame([], $reasons, 'MC 1 may score its own match.');
+        $this->assertSame([], $this->violations($mc1, $own, self::SCORER), 'MC 1 may score its own match.');
     }
 
     public function test_a_club_name_with_a_team_code_before_ours_does_not_block_our_team(): void
@@ -69,20 +99,16 @@ class DutyRuleEngineTest extends TestCase
         $ja2 = $this->team('JA 2');
         $target = $this->homeMatch([
             'home_team_name' => 'AETOS JA 2', 'away_team_name' => 'Toesj JA 1', 'home_team_id' => $ja2->id,
-            'date' => '2026-10-03', 'time' => '17:00', 'duration_minutes' => 105,
+            'time' => '17:00', 'duration_minutes' => 105,
         ]);
         // The opponent is called "WRA Juristen - Rebelle HS 2"; that HS 2 is
         // not ours, but stands before our own code in the same name.
         $this->homeMatch([
             'venue_id' => null, 'home_team_name' => 'WRA Juristen', 'away_team_name' => 'Rebelle HS 2 - AETOS HS 3',
-            'match_type' => MatchType::Away, 'date' => '2026-10-03', 'time' => '16:00', 'duration_minutes' => 120,
+            'match_type' => MatchType::Away, 'time' => '16:00', 'duration_minutes' => 120,
         ]);
 
-        $reasons = $this->violations($hs2, DutyType::Referee, [
-            'date' => '2026-10-03', 'start' => '17:00', 'end' => '18:45', 'venue_id' => $this->venue->id, 'match' => $target,
-        ]);
-
-        $this->assertSame([], $reasons, 'the away match of HS 3 says nothing about HS 2');
+        $this->assertSame([], $this->violations($hs2, $target, self::REFEREE), 'the away match of HS 3 says nothing about HS 2');
     }
 
     public function test_a_real_second_home_match_does_block(): void
@@ -97,11 +123,7 @@ class DutyRuleEngineTest extends TestCase
             'time' => '09:30', 'duration_minutes' => 105,
         ]);
 
-        $reasons = $this->violations($team, DutyType::Scorer, [
-            'date' => $this->saturday, 'start' => '09:00', 'end' => '10:45', 'venue_id' => $this->venue->id, 'match' => $own,
-        ]);
-
-        $this->assertContains('De taak overlapt met de eigen thuiswedstrijd.', $reasons);
+        $this->assertContains('Het team speelt zelf op het tijdstip van de dienst.', $this->violations($team, $own, self::SCORER));
     }
 
     public function test_an_away_match_of_another_team_does_not_block_our_team(): void
@@ -113,186 +135,153 @@ class DutyRuleEngineTest extends TestCase
             'away_team_id' => $ma6->id, 'match_type' => MatchType::Away, 'time' => '10:30',
         ]);
 
-        $reasons = $this->violations($ma2, DutyType::Scorer, [
-            'date' => $this->saturday, 'start' => '12:30', 'end' => '14:15', 'venue_id' => $this->venue->id,
-        ]);
-
-        $this->assertNotContains('Het team heeft die dag een uitwedstrijd.', $reasons);
+        $this->assertNotContains('Het team heeft die dag een uitwedstrijd.', $this->violations($ma2, $this->matchOf('AETOS HS 5', ['time' => '12:30']), self::SCORER));
     }
 
     public function test_a_wrong_old_team_id_on_the_away_match_of_hs8_does_not_block_hs7(): void
     {
         $hs7 = $this->team('HS 7');
         $hs8 = $this->team('HS 8');
-        $ds5 = $this->team('DS 5');
-        $target = $this->homeMatch([
-            'home_team_name' => 'AETOS DS 5', 'away_team_name' => "ACE'19 DS 1", 'home_team_id' => $ds5->id,
-            'date' => '2026-09-24', 'time' => '20:30', 'duration_minutes' => 120,
-        ]);
+        $target = $this->matchOf('AETOS DS 5', ['time' => '20:30', 'duration_minutes' => 120]);
         // An old import wrongly linked this pool match of HS 8 to source team HS 7.
         $this->homeMatch([
             'venue_id' => null, 'home_team_name' => 'Boemerang Komeet HS 2', 'away_team_name' => 'AETOS HS 8',
-            'away_team_id' => $hs7->id, 'match_type' => MatchType::Away,
-            'date' => '2026-09-24', 'time' => '19:30', 'duration_minutes' => 120,
+            'away_team_id' => $hs7->id, 'match_type' => MatchType::Away, 'time' => '19:30', 'duration_minutes' => 120,
         ]);
-        $this->homeMatch([
-            'home_team_name' => 'AETOS HS 7', 'away_team_name' => 'Woudenberg HS 4', 'home_team_id' => $hs7->id,
-            'date' => '2026-09-25', 'time' => '21:00', 'duration_minutes' => 120,
-        ]);
-        $slot = ['date' => '2026-09-24', 'start' => '20:30', 'end' => '22:30', 'venue_id' => $this->venue->id, 'match' => $target];
 
-        $this->assertNotContains('Het team heeft die dag een uitwedstrijd.', $this->violations($hs7, DutyType::Referee, $slot));
-        $this->assertContains('Het team heeft die dag een uitwedstrijd.', $this->violations($hs8, DutyType::Referee, $slot));
+        $this->assertNotContains('Het team heeft die dag een uitwedstrijd.', $this->violations($hs7, $target, self::REFEREE));
+        $this->assertContains('Het team heeft die dag een uitwedstrijd.', $this->violations($hs8, $target, self::REFEREE));
     }
 
-    public function test_training_in_another_venue_blocks_a_duty(): void
+    public function test_a_training_at_the_time_of_the_duty_is_not_proposed(): void
     {
-        $otherVenue = Venue::factory()->create();
         $team = $this->team('DS 4');
         Training::factory()->create([
-            'team_id' => $team->id, 'venue_id' => $otherVenue->id,
-            'weekday' => 'zaterdag', 'start_time' => '09:00', 'end_time' => '10:00', 'court' => 1,
+            'team_id' => $team->id, 'venue_id' => Venue::factory()->create()->id,
+            'weekday' => 'zaterdag', 'start_time' => '09:30', 'end_time' => '11:00', 'court' => 1,
         ]);
 
-        $reasons = app(RuleEngine::class)->violations($team, DutyType::HallDuty, [
-            'date' => $this->saturday, 'start' => '14:00', 'end' => '16:00', 'venue_id' => $this->venue->id,
-        ], $this->version->matches()->get(), Training::all());
+        $reasons = $this->violations($team, $this->matchOf('AETOS HS 5'), self::SCORER);
 
-        $this->assertContains('Het team traint die dag in een andere sporthal.', $reasons);
-    }
-
-    /** Without settings no team-specific rules apply: the Aetos defaults are gone. */
-    public function test_without_settings_no_team_specific_rules_apply(): void
-    {
-        $ds10 = $this->team('DS 10');
-        $hs4 = $this->team('HS 4');
-        $slot = $this->slot('AETOS HS 2');
-
-        $this->assertSame([], $this->violations($ds10, DutyType::Referee, $slot, false));
-        $this->assertSame([], $this->violations($hs4, DutyType::Referee, $slot, false));
-    }
-
-    public function test_the_former_hardcoded_rules_work_when_configured(): void
-    {
-        PlannerSetting::current()->update(['duty_rules' => [
-            'no_referee' => ['DS 10'],
-            'referee_requirements' => ['HS 2' => ['DS 1', 'HS 1', 'HS 3']],
-        ]]);
-        $ds10 = $this->team('DS 10');
-        $hs4 = $this->team('HS 4');
-        $slot = $this->slot('AETOS HS 2');
-
-        $this->assertContains('DS 10 fluit niet.', $this->violations($ds10, DutyType::Referee, $slot, false));
-        $this->assertContains(
-            'HS 2 mag alleen door DS 1, HS 1 of HS 3 worden gefloten.',
-            $this->violations($hs4, DutyType::Referee, $slot, false),
-        );
-    }
-
-    /** Team line-ups change every season; these rules come from the planner settings. */
-    public function test_referee_rules_come_from_the_planner_settings(): void
-    {
-        PlannerSetting::current()->update(['duty_rules' => [
-            'no_referee' => ['DS 8'],
-            'referee_requirements' => ['HS 5' => ['DS 1']],
-        ]]);
-        $ds8 = $this->team('DS 8');
-        $ds10 = $this->team('DS 10');
-        $hs4 = $this->team('HS 4');
-        $slot = $this->slot('AETOS HS 5');
-
-        $this->assertContains('DS 8 fluit niet.', $this->violations($ds8, DutyType::Referee, $slot, false));
-        $this->assertNotContains('DS 10 fluit niet.', $this->violations($ds10, DutyType::Referee, $slot, false));
-        $this->assertContains('HS 5 mag alleen door DS 1 worden gefloten.', $this->violations($hs4, DutyType::Referee, $slot, false));
-    }
-
-    /** Team codes start with the category letter (JC 1, MC 1); the old check on "C" never fired. */
-    public function test_c_youth_does_not_score_in_the_evening(): void
-    {
-        $jc1 = $this->team('JC 1');
-        $slot = ['start' => '19:30', 'end' => '21:15'] + $this->slot('AETOS HS 5');
-
-        $this->assertContains('C-jeugd mag niet tellen vanaf 19:00.', $this->violations($jc1, DutyType::Scorer, $slot, false));
-    }
-
-    public function test_a_team_may_score_its_own_home_match(): void
-    {
-        $team = $this->team('MB 4', ['name' => 'AETOS MB 4']);
-
-        $this->assertSame([], $this->violations($team, DutyType::Scorer, $this->slot('AETOS MB 4')));
-    }
-
-    public function test_scoring_another_simultaneous_match_stays_blocked(): void
-    {
-        $team = $this->team('MB 4', ['name' => 'AETOS MB 4']);
-        $this->homeMatch(['match_code' => 'OWN-MB4', 'home_team_name' => 'AETOS MB 4']);
-
-        $reasons = $this->violations($team, DutyType::Scorer, $this->slot('AETOS HS 5'));
-
-        $this->assertContains('De taak overlapt met de eigen thuiswedstrijd.', $reasons);
-    }
-
-    public function test_refereeing_the_own_home_match_stays_blocked(): void
-    {
-        $team = $this->team('HS 1', ['name' => 'AETOS HS 1']);
-
-        $reasons = $this->violations($team, DutyType::Referee, $this->slot('AETOS HS 1'));
-
-        $this->assertContains('De taak overlapt met de eigen thuiswedstrijd.', $reasons);
+        $this->assertContains('Niet voorgesteld: Het team traint op dat moment.', $reasons);
+        $this->assertTrue(RuleEngine::isWarning('Niet voorgesteld: Het team traint op dat moment.'));
     }
 
     /** The training gives way to the match when the team plays at that moment. */
     public function test_a_training_does_not_count_when_the_team_plays_itself(): void
     {
-        $hs4 = $this->team('HS 4', ['name' => 'AETOS HS 4']);
-        $own = $this->homeMatch([
-            'home_team_name' => 'AETOS HS 4', 'away_team_name' => 'Rensa Family Orion HS 5', 'home_team_id' => $hs4->id,
-            'date' => '2026-09-24', 'time' => '20:30', 'duration_minutes' => 120,
-        ]);
+        $hs4 = $this->team('HS 4', ['scores_own_match' => true]);
+        $own = $this->homeMatch(['home_team_name' => 'AETOS HS 4', 'home_team_id' => $hs4->id, 'time' => '20:30', 'duration_minutes' => 120]);
         Training::factory()->create([
             'team_id' => $hs4->id, 'venue_id' => $this->venue->id,
-            'weekday' => 'donderdag', 'start_time' => '20:00', 'end_time' => '22:00', 'court' => 1,
+            'weekday' => 'zaterdag', 'start_time' => '20:00', 'end_time' => '22:00', 'court' => 1,
         ]);
 
-        $reasons = app(RuleEngine::class)->violations($hs4, DutyType::Scorer, [
-            'date' => '2026-09-24', 'start' => '20:30', 'end' => '22:30', 'venue_id' => $this->venue->id, 'match' => $own,
-        ], $this->version->matches()->get(), Training::all());
-
-        $this->assertSame([], $reasons, 'HS 4 may score its own match; the training gives way.');
+        $this->assertSame([], $this->violations($hs4, $own, self::SCORER), 'HS 4 may score its own match; the training gives way.');
     }
 
-    public function test_a_training_still_blocks_when_the_team_does_not_play_itself(): void
+    public function test_never_referees_and_the_restricted_teams_are_team_settings(): void
     {
-        $ds3 = $this->team('DS 3', ['name' => 'AETOS DS 3']);
-        $hs4 = $this->team('HS 4', ['name' => 'AETOS HS 4']);
-        $match = $this->homeMatch([
-            'home_team_name' => 'AETOS HS 4', 'away_team_name' => 'Rensa Family Orion HS 5', 'home_team_id' => $hs4->id,
-            'date' => '2026-09-24', 'time' => '20:30', 'duration_minutes' => 120,
-        ]);
-        Training::factory()->create([
-            'team_id' => $ds3->id, 'venue_id' => $this->venue->id,
-            'weekday' => 'donderdag', 'start_time' => '20:00', 'end_time' => '22:00', 'court' => 1,
-        ]);
+        PlannerSetting::current()->update(['duty_rules' => ['restricted_referee_teams' => ['HS 2']]]);
+        $ds10 = $this->team('DS 10', ['never_referees' => true]);
+        $hs4 = $this->team('HS 4');
+        $hs1 = $this->team('HS 1', ['referees_restricted_teams' => true]);
+        $target = $this->matchOf('AETOS HS 2');
 
-        $reasons = app(RuleEngine::class)->violations($ds3, DutyType::Scorer, [
-            'date' => '2026-09-24', 'start' => '20:30', 'end' => '22:30', 'venue_id' => $this->venue->id, 'match' => $match,
-        ], $this->version->matches()->get(), Training::all());
-
-        $this->assertContains('De taak overlapt met de training.', $reasons);
+        $this->assertContains('Niet voorgesteld: Fluit nooit.', $this->violations($ds10, $target, self::REFEREE));
+        $this->assertContains('Niet voorgesteld: Bij HS 2 fluiten alleen de teams die daarvoor zijn aangewezen.', $this->violations($hs4, $target, self::REFEREE));
+        $this->assertSame([], $this->violations($hs1, $target, self::REFEREE));
     }
 
-    /** The C youth time limit is a club preference the committee may overrule. */
-    public function test_the_c_youth_time_limit_is_a_warning(): void
+    /** Without club settings no team-specific rules apply. */
+    public function test_without_settings_no_team_specific_rules_apply(): void
     {
-        $this->assertTrue(RuleEngine::isWarning('C-jeugd mag niet tellen vanaf 19:00.'));
+        $hs4 = $this->team('HS 4');
+
+        $this->assertSame([], $this->violations($hs4, $this->matchOf('AETOS HS 2'), self::REFEREE));
+    }
+
+    public function test_no_scoring_late_and_at_the_heavy_teams(): void
+    {
+        PlannerSetting::current()->update(['duty_rules' => ['scorer_heavy_teams' => ['HS 1', 'DS 1']]]);
+        $jc1 = $this->team('JC 1', ['no_scoring_late' => true, 'no_scoring_heavy_teams' => true]);
+
+        $this->assertContains('Telt niet bij wedstrijden vanaf 19:00 uur.', $this->violations($jc1, $this->matchOf('AETOS HS 5', ['time' => '19:30']), self::SCORER));
+        $this->assertContains('Telt niet bij HS 1 of DS 1.', $this->violations($jc1, $this->matchOf('AETOS DS 1', ['time' => '12:00']), self::SCORER));
+    }
+
+    public function test_only_a_team_that_scores_its_own_match_scores_its_own_home_match(): void
+    {
+        $mb4 = $this->team('MB 4', ['scores_own_match' => true]);
+        $mb5 = $this->team('MB 5');
+
+        $this->assertSame([], $this->violations($mb4, $this->matchOf('AETOS MB 4'), self::SCORER));
+        $this->assertContains('Het team speelt zelf op het tijdstip van de dienst.', $this->violations($mb5, $this->matchOf('AETOS MB 5', ['time' => '13:00']), self::SCORER));
+    }
+
+    public function test_scoring_own_match_stops_after_the_end_date(): void
+    {
+        $until = CarbonImmutable::parse($this->saturday)->subDay()->toDateString();
+        $mb4 = $this->team('MB 4', ['scores_own_match' => true, 'scores_own_match_until' => $until]);
+
+        $this->assertContains('Het team speelt zelf op het tijdstip van de dienst.', $this->violations($mb4, $this->matchOf('AETOS MB 4'), self::SCORER));
+    }
+
+    public function test_refereeing_the_own_home_match_stays_blocked(): void
+    {
+        $team = $this->team('HS 1', ['scores_own_match' => true]);
+
+        $this->assertContains('Het team speelt zelf op het tijdstip van de dienst.', $this->violations($team, $this->matchOf('AETOS HS 1'), self::REFEREE));
+    }
+
+    public function test_youth_gets_no_duties_on_weekdays(): void
+    {
+        $mb3 = $this->team('MB 3');
+        $thursday = CarbonImmutable::parse($this->saturday)->subDays(2)->toDateString();
+
+        $this->assertContains(
+            'Niet voorgesteld: Jeugdteams krijgen doordeweeks geen diensten.',
+            $this->violations($mb3, $this->matchOf('AETOS HS 5', ['date' => $thursday, 'time' => '19:00']), self::SCORER),
+        );
+    }
+
+    public function test_a_c_youth_referee_preference_keeps_a_youth_off_seniors(): void
+    {
+        $ja1 = $this->team('JA 1');
+        $ja2 = $this->team('JA 2', ['referees_c_youth' => false]);
+
+        $this->assertTrue($ja1->referees_c_youth, 'a new A youth team referees C youth');
+        $this->assertContains('Niet voorgesteld: Fluit niet bij A-jeugd en senioren.', $this->violations($ja1, $this->matchOf('AETOS HS 5'), self::REFEREE));
+        $this->assertSame([], $this->violations($ja1, $this->matchOf('AETOS JC 1', ['time' => '12:00']), self::REFEREE));
+        $this->assertContains(
+            "Niet voorgesteld: Van de A-jeugd fluiten alleen teams met 'Fluit bij C-jeugd'.",
+            $this->violations($ja2, $this->matchOf('AETOS JC 2', ['time' => '14:00']), self::REFEREE),
+        );
+    }
+
+    public function test_a_lower_class_women_team_only_referees_youth_and_lower_women(): void
+    {
+        $ds8 = $this->team('DS 8', ['referees_youth_and_lower_women' => true]);
+
+        $this->assertContains('Niet voorgesteld: Fluit alleen bij jeugd en dames uit een lagere klasse.', $this->violations($ds8, $this->matchOf('AETOS HS 5'), self::REFEREE));
+        $this->assertSame([], $this->violations($ds8, $this->matchOf('AETOS DS 7', ['time' => '12:00', 'pool' => 'Dames 3e klasse D']), self::REFEREE));
+    }
+
+    public function test_only_a_soft_rule_is_a_warning(): void
+    {
+        $this->assertTrue(RuleEngine::isWarning('Niet voorgesteld: Fluit nooit.'));
         $this->assertFalse(RuleEngine::isWarning('Het team heeft die dag een uitwedstrijd.'));
-        $this->assertFalse(RuleEngine::isWarning('C-jeugd mag niet tellen bij HS 1.'));
+        $this->assertFalse(RuleEngine::isWarning('Telt niet bij wedstrijden vanaf 19:00 uur.'));
     }
 
     public function test_an_excluded_team_is_reported(): void
     {
         $team = $this->team('HS 4', ['include_in_duties' => false]);
+        $this->matchOf('AETOS HS 5');
+        $context = $this->context();
 
-        $this->assertContains('Team is uitgesloten van de FTZ-planner.', $this->violations($team, DutyType::HallDuty, $this->slot('AETOS HS 5')));
+        $reasons = app(RuleEngine::class)->violations($team, $context->dutyForHallDuty($this->saturday, $this->venue->id, '09:15', '12:15'), $context);
+
+        $this->assertContains('Het team doet niet mee aan de FTZ-planning.', $reasons);
     }
 }

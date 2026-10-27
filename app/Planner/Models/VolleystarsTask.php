@@ -4,6 +4,7 @@ namespace App\Planner\Models;
 
 use App\Models\Club;
 use App\Planner\Enums\VolleystarsRole;
+use App\Planner\Services\Duties\DutyPoints;
 use App\Support\Tenancy\BelongsToClub;
 use Database\Factories\Planner\VolleystarsTaskFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,6 +20,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $team_id
  * @property int|null $court_id
  * @property int $sort_order
+ * @property int|null $points fixed when the duty came about
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read VolleystarsBlock $block
@@ -51,11 +53,16 @@ class VolleystarsTask extends Model
 
     protected $table = 'planner_volleystars_tasks';
 
-    protected $fillable = ['block_id', 'role', 'team_id', 'court_id', 'sort_order'];
+    protected $fillable = ['block_id', 'role', 'team_id', 'court_id', 'sort_order', 'points'];
 
     protected function casts(): array
     {
-        return ['role' => VolleystarsRole::class];
+        return ['role' => VolleystarsRole::class, 'points' => 'integer'];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(fn (VolleystarsTask $task) => DutyPoints::fillVolleystarsTask($task));
     }
 
     protected static function newFactory(): VolleystarsTaskFactory

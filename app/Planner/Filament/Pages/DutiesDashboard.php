@@ -7,6 +7,7 @@ use App\Planner\Filament\Concerns\HasPlannerPage;
 use App\Planner\Filament\Concerns\HasVersionSelection;
 use App\Planner\Filament\NavigationGroups;
 use App\Planner\Models\ScheduleVersion;
+use App\Planner\Services\Duties\PointsBalance;
 use App\Planner\Services\DutyOverviewImage;
 use App\Planner\Services\DutyTallyService;
 use App\Planner\Support\DateFormat;
@@ -21,9 +22,9 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use UnitEnum;
 
 /**
- * Duty distribution per team (module duties). The used/earned/percentage
- * columns only exist with volunteer_points, the VolleyStars column only with
- * volleystars; DutyTallyService leaves those keys out otherwise.
+ * Duty distribution per team (module duties), measured against the minimum.
+ * The minimum columns only show with volunteer_points, the VolleyStars column
+ * only with volleystars.
  */
 class DutiesDashboard extends Page
 {
@@ -31,7 +32,7 @@ class DutiesDashboard extends Page
         HasVersionSelection;
 
     /** Columns that are summed in the totals row, when present. */
-    private const TOTAL_COLUMNS = ['used', 'earned', 'referee', 'scorer', 'hall_duty', 'volleystars', 'total'];
+    private const TOTAL_COLUMNS = ['minimum', 'earned', 'referee', 'scorer', 'hall_duty', 'volleystars', 'planned', 'total', 'remaining'];
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChartBar;
 
@@ -56,6 +57,12 @@ class DutiesDashboard extends Page
     public string $fromDate = '';
 
     public string $toDate = '';
+
+    /** A second schedule version to compare the shortfall per team with. */
+    public ?int $compareVersionId = null;
+
+    /** @var array<string, int> team code => shortfall to the minimum in the compared version */
+    public array $comparison = [];
 
     protected static function requiredFeatures(): array
     {
@@ -93,6 +100,11 @@ class DutiesDashboard extends Page
         $this->load();
     }
 
+    public function updatedCompareVersionId(): void
+    {
+        $this->load();
+    }
+
     public function load(): void
     {
         $this->validate([
@@ -106,6 +118,14 @@ class DutiesDashboard extends Page
 
         $this->tallies = $this->versionId
             ? app(DutyTallyService::class)->perTeam(ScheduleVersion::findOrFail($this->versionId), $this->fromDate ?: null, $this->toDate ?: null)
+            : [];
+        // The shortfall per version is the shortfall to the minimum, only for
+        // teams with a minimum.
+        $this->comparison = $this->compareVersionId && $this->compareVersionId !== $this->versionId && $this->withVolunteerPoints()
+            ? collect(app(DutyTallyService::class)->perTeam(ScheduleVersion::findOrFail($this->compareVersionId), $this->fromDate ?: null, $this->toDate ?: null))
+                ->filter(fn (array $row): bool => $row['has_minimum'])
+                ->mapWithKeys(fn (array $row): array => [$row['team'] => $row['remaining']])
+                ->all()
             : [];
     }
 
@@ -193,42 +213,91 @@ class DutiesDashboard extends Page
             'scorer_desc' => $tallies->sortBy([['scorer', 'desc'], ['total', 'desc']])->values()->all(),
             'hall_duty_desc' => $tallies->sortBy([['hall_duty', 'desc'], ['total', 'desc']])->values()->all(),
             'volleystars_desc' => $tallies->sortBy([['volleystars', 'desc'], ['total', 'desc']])->values()->all(),
-            'percentage_desc' => $tallies->sortByDesc('percentage')->values()->all(),
-            default => $tallies->sortByDesc('total')->values()->all(),
+            'remaining_desc' => $tallies->sortBy([['remaining', 'desc'], ['team', 'asc']])->values()->all(),
+            'percentage_asc' => $tallies->sortBy(fn (array $row): float => $row['percentage'] ?? PHP_INT_MAX)->values()->all(),
+            default => $tallies->sortByDesc('planned')->values()->all(),
         };
     }
 
-    /** @return array{teams: int, average: float, minimum: int, maximum: int, busiest_team: ?string} */
+    /**
+     * The summary is about the points from the duty planning: what the
+     * planning itself has distributed.
+     *
+     * @return array{teams: int, average: float, minimum: int, maximum: int, busiest_team: ?string, below_minimum: int}
+     */
     public function getSummaryProperty(): array
     {
         $tallies = collect($this->tallies);
-        $busiest = $tallies->sortByDesc('total')->first();
+        $busiest = $tallies->sortByDesc('planned')->first();
 
         return [
             'teams' => $tallies->count(),
-            'average' => round((float) $tallies->avg('total'), 1),
-            'minimum' => (int) ($tallies->min('total') ?? 0),
-            'maximum' => (int) ($tallies->max('total') ?? 0),
+            'average' => round((float) $tallies->avg('planned'), 1),
+            'minimum' => (int) ($tallies->min('planned') ?? 0),
+            'maximum' => (int) ($tallies->max('planned') ?? 0),
             'busiest_team' => $busiest['team'] ?? null,
+            'below_minimum' => $tallies->filter(fn (array $row): bool => $this->isBelowMinimum($row))->count(),
         ];
     }
 
-    /** Only rows with volunteer points have a standing. */
-    public function statusLabel(array $row): string
+    /** The name of the compared version for the column heading. */
+    public function getCompareNameProperty(): ?string
     {
-        return array_key_exists('percentage', $row) ? $this->percentageLabel((float) $row['percentage']) : '';
+        return $this->compareVersionId && $this->compareVersionId !== $this->versionId && $this->withVolunteerPoints()
+            ? ScheduleVersion::query()->whereKey($this->compareVersionId)->value('name')
+            : null;
     }
 
-    public function percentageLabel(float $percentage): string
+    /**
+     * What the column "still to fill" shows: the shortfall to the minimum, as
+     * a negative number what was earned above it, and nothing without one.
+     */
+    public function remainingLabel(array $row): string
     {
-        if ($percentage === 0.0) {
-            return __('Op doel');
+        return match (true) {
+            !$row['has_minimum'] => '',
+            $row['above_minimum'] > 0 => '-'.$row['above_minimum'],
+            default => (string) $row['remaining'],
+        };
+    }
+
+    /**
+     * The difference in shortfall between the compared and the shown
+     * version: positive means the team has less shortfall in the shown one.
+     */
+    public function differenceLabel(array $row): string
+    {
+        if (!$row['has_minimum'] || !array_key_exists($row['team'], $this->comparison)) {
+            return '';
         }
 
-        $value = rtrim(rtrim(number_format(abs($percentage), 1, ',', ''), '0'), ',').'%';
+        $difference = $this->comparison[$row['team']] - $row['remaining'];
 
-        return $percentage > 0
-            ? __(':value tekort', ['value' => $value])
-            : __(':value boven doel', ['value' => $value]);
+        return $difference === 0 ? '0' : ($difference > 0 ? '+' : '').$difference;
+    }
+
+    /** "72,0%", "120,0% boven doel" or "Geen minimum"; empty without volunteer points. */
+    public function statusLabel(array $row): string
+    {
+        if (!$this->withVolunteerPoints()) {
+            return '';
+        }
+        if (!$row['has_minimum']) {
+            return __('Geen minimum');
+        }
+
+        $text = PointsBalance::percentageText($row['percentage']);
+
+        return $row['above_minimum'] > 0 ? __(':percentage boven doel', ['percentage' => $text]) : $text;
+    }
+
+    public function isAboveTarget(array $row): bool
+    {
+        return $row['has_minimum'] && $row['above_minimum'] > 0;
+    }
+
+    public function isBelowMinimum(array $row): bool
+    {
+        return $row['has_minimum'] && $row['remaining'] > 0;
     }
 }

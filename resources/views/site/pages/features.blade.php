@@ -28,13 +28,13 @@
         [
             'kicker' => 'Planning · FTZ',
             'title' => 'Fluiten, tellen en zaaldienst',
-            'text' => 'Eén klik voor een volledig voorstel. De planner kijkt naar wedstrijden, trainingen, uitwedstrijden en teamregels, en verdeelt eerlijk op vrijwilligerspunten.',
-            'points' => ['Per dag controleren, vastzetten of opnieuw laten vullen', 'Handmatige keuzes blijven altijd staan', 'Taken-dashboard: geleverd tegenover verbruikt per team'],
+            'text' => 'Eén klik voor een volledig voorstel. De planner kijkt naar wedstrijden, trainingen, uitwedstrijden, afwezigheid en de uitzonderingen per team, en verdeelt eerlijk naar wat elk team nog moet leveren tot zijn minimum.',
+            'points' => ['Teamkeuze per dienst: wie wordt voorgesteld en waarom', 'Per dag controleren, vastzetten of opnieuw laten vullen; handmatige keuzes blijven staan', 'Taken-dashboard: de stand per team tegenover het minimum'],
             'mock' => 'Taken-dashboard · seizoen 2026-2027',
             'rows' => [
-                ['DS 1', 'Verbruikt 312 · geleverd 157', 'Tekort', 'warn'],
-                ['HS 3', 'Verbruikt 140 · geleverd 152', 'In balans', 'ok'],
-                ['MB 1', 'Verbruikt 96 · geleverd 101', 'In balans', 'ok'],
+                ['DS 1', 'Minimum 218 · geleverd 157', 'Nog 61', 'warn'],
+                ['HS 3', 'Minimum 140 · geleverd 152', 'Boven minimum', 'ok'],
+                ['MB 1', 'Minimum 96 · geleverd 96', 'Op minimum', 'ok'],
             ],
         ],
         [
@@ -56,9 +56,9 @@
             ['Thuiswedstrijden', 'Dagrooster per sporthal en veld, slepen met conflictcontrole, assistent voor verplaatsen.'],
             ['Uitwedstrijden', 'Actuele en voorgestelde datum, status van overleg en conflicten met eigen wedstrijden.'],
             ['Sporthalbezetting', 'Beschikbaarheid per hal als lijst of kalender, met snelfilters op conflicten.'],
-            ['FTZ-planner', 'Voorstel voor fluiten, tellen en zaaldienst volgens teamregels en punten.'],
-            ['Zaaldiensten en VolleyStars', 'Wie per tijdsblok verantwoordelijk is; opbouw, tellen en afbouw verdelen.'],
-            ['Taken-dashboard', 'Vrijwilligerspunten per team: geleverd tegenover verbruikt.'],
+            ['FTZ-planning', 'Voorstel voor fluiten, tellen en zaaldienst volgens vaste planningsregels, met een teamkeuze die laat zien waarom.'],
+            ['Zaaldiensten en VolleyStars', 'Wie per tijdsblok verantwoordelijk is; opbouw, tellen, fluiten en afbouw verdelen.'],
+            ['Taken-dashboard', 'Vrijwilligerspunten per team tegenover het minimum, en twee planningsversies naast elkaar.'],
             ['Exporteren', 'Excel, PDF, conflictrapport, dagschema en FTZ-Excel.'],
         ],
         'Invoer & controle' => [
@@ -75,16 +75,16 @@
             ['Insluiten op de clubsite', 'Wedstrijdprogramma en formulieren zonder kop en voet, in de clubkleur.'],
         ],
         'Stamdata & instellingen' => [
-            ['Teams', 'Vaste speeldag, tijd en veld, CenterCourt, FTZ-deelname en punten.'],
+            ['Teams', 'Vaste speeldag, tijd en veld, CenterCourt, uitzonderingen voor diensten, afwezigheid en punten.'],
             ['Sporthallen en beschikbaarheid', 'Locaties, velden, openingstijden en uitzonderingen.'],
             ['Trainingsschema', 'Vast weekschema voor de conflictcontrole.'],
             ['Zaalactiviteiten', 'Hal of veld blokkeren buiten wedstrijden.'],
-            ['Clubinstellingen', 'Seizoen, hoofdsporthal, FTZ-regels, punten, clubkleur en logo.'],
+            ['Clubinstellingen', 'Seizoen en seizoenshelften, hoofdsporthal, maxima voor diensten, punten, clubkleur en logo.'],
         ],
     ];
 @endphp
 
-<x-site.layout title="Functies voor zaalplanning en FTZ-diensten" active="features" description="Alle functies van Volleybalplanner: dagrooster per veld, verplaatsingsassistent, FTZ-planner, Nevobo-sync, wijzigingsverzoeken en het publieke wedstrijdprogramma.">
+<x-site.layout title="Functies voor zaalplanning en FTZ-diensten" active="features" description="Alle functies van Volleybalplanner: dagrooster per veld, verplaatsingsassistent, FTZ-planning, Nevobo-sync, wijzigingsverzoeken en het publieke wedstrijdprogramma.">
     <section class="page-intro">
         <div class="wrap">
             <span class="kicker">Functies</span>

@@ -5,6 +5,7 @@ namespace App\Planner\Filament\Pages\Concerns;
 use App\Planner\Enums\OverlapPolicy;
 use App\Planner\Features\PlannerFeature;
 use App\Planner\Filament\Support\LockedFeature;
+use App\Planner\Models\PlannerSetting;
 use App\Planner\Models\Venue;
 use App\Planner\Support\TeamCode;
 use App\Support\Tenancy\CurrentClub;
@@ -171,7 +172,7 @@ trait BuildsSettingsTabs
                             ->helperText(__('Al ingeplande zaaldiensten blijven altijd zichtbaar, ook op een uitgevinkte dag.')),
                         Repeater::make('hall_duty_exceptions')
                             ->label(__('Losse dagen zonder zaaldienst'))
-                            ->helperText(__('Een toernooi of vrij weekend. Op deze dagen stelt de FTZ-planner geen zaaldienst voor, ook al is het een zaaldienstdag.'))
+                            ->helperText(__('Een toernooi of vrij weekend. Op deze dagen stelt de FTZ-planning geen zaaldienst voor, ook al is het een zaaldienstdag.'))
                             ->simple(
                                 DatePicker::make('date')
                                     ->label(__('Datum'))
@@ -219,60 +220,85 @@ trait BuildsSettingsTabs
             ->icon(Heroicon::OutlinedClipboardDocumentCheck)
             ->visible(fn (): bool => static::hasModule(PlannerFeature::Duties))
             ->schema([
-                Section::make(__('Vrijwilligerspunten per taak'))
-                    ->description(__('De FTZ-planner gebruikt deze waarden om geleverde en verbruikte inzet eerlijk te verdelen.'))
+                Section::make(__('Punten per dienst'))
+                    ->description(__('De vrijwilligerscommissie bepaalt deze punten. Een nieuwe dienst krijgt de punten die op dat moment gelden; bestaande diensten veranderen niet mee.'))
                     ->icon(Heroicon::OutlinedScale)
                     ->visible(fn (): bool => static::hasModule(PlannerFeature::VolunteerPoints))
                     ->schema([
-                        TextInput::make('points_referee_duty')->label(__('Fluitdienst'))->numeric()->minValue(0)->suffix(__('punten'))->required(),
-                        TextInput::make('points_scorer_duty')->label(__('Teldienst'))->numeric()->minValue(0)->suffix(__('punten'))->required(),
-                        TextInput::make('points_hall_duty')->label(__('Zaaldienst'))->numeric()->minValue(0)->suffix(__('punten'))->required(),
-                        TextInput::make('points_volleystars')->label(__('VolleyStars-taak'))->numeric()->minValue(0)->suffix(__('punten'))->required()
+                        TextInput::make('points_referee_duty')->label(__('Fluitdienst'))->integer()->minValue(0)->suffix(__('punten'))->required(),
+                        TextInput::make('points_scorer_duty')->label(__('Teldienst'))->integer()->minValue(0)->suffix(__('punten'))->required(),
+                        TextInput::make('points_hall_duty')->label(__('Zaaldienst'))->integer()->minValue(0)->suffix(__('punten'))->required(),
+                        TextInput::make('points_volleystars')->label(__('VolleyStars-dienst'))->integer()->minValue(0)->suffix(__('punten'))->required()
                             ->visible(fn (): bool => static::hasModule(PlannerFeature::Volleystars)),
                     ])->columns(2),
-                Section::make(__('Wie mag welke taak'))
-                    ->description(__('Teamcodes mogen als HS 1 of HS1 geschreven worden.'))
+                Section::make(__('Maxima en voorrang'))
+                    ->description(__('Hoe de FTZ-planning de diensten over de teams spreidt.'))
+                    ->icon(Heroicon::OutlinedAdjustmentsVertical)
+                    ->schema([
+                        TextInput::make('max_duties_per_week')
+                            ->label(__('Maximum diensten per team per week'))
+                            ->integer()->minValue(0)->suffix(__('diensten'))->required()
+                            ->helperText(__('Week van maandag tot en met zondag. Een team op het maximum wordt niet voorgesteld. Per team kan een afwijkend maximum gelden.')),
+                        TextInput::make('max_duties_per_day')
+                            ->label(__('Maximum diensten per team per dag'))
+                            ->integer()->minValue(0)->suffix(__('diensten'))->required()
+                            ->helperText(__('Zacht maximum: het team schuift naar achteren, maar mag toch als er geen ander team is.')),
+                        TextInput::make('max_hall_duties_per_day')
+                            ->label(__('Maximum zaaldiensten per team per dag'))
+                            ->integer()->minValue(0)->suffix(__('diensten'))->required()
+                            ->helperText(__('Zacht maximum dat vóór alle voorrangsregels werkt.')),
+                        TextInput::make('home_player_priority')
+                            ->label(__('Diensten met voorrang voor thuisspelend team'))
+                            ->integer()->minValue(0)->suffix(__('diensten'))->required()
+                            ->helperText(__('Zoveel diensten krijgt een team onder zijn minimum voorrang op een dag dat het zelf thuis speelt.')),
+                        TextInput::make('min_days_between_duties')
+                            ->label(__('Minimaal aantal dagen tussen diensten'))
+                            ->integer()->minValue(0)->suffix(__('dagen'))
+                            ->placeholder(__('Geen voorkeur'))
+                            ->helperText(__('Leeg betekent: de regel doet niets.')),
+                        TextInput::make('display_match_duration')
+                            ->label(__('Wedstrijdduur'))
+                            ->integer()->minValue(30)->maxValue(240)->suffix(__('minuten'))->required()
+                            ->helperText(__('Alleen voor de weergave van de eindtijd. De planningsregels rekenen met de duur van elke wedstrijd zelf.')),
+                    ])->columns(2),
+                Section::make(__('Seizoenshelften'))
+                    ->description(__('Nodig voor het eerlijke deel: de punten van alle diensten in een helft worden verdeeld naar wat elk team aan het begin van die helft nog moet invullen tot zijn minimum.'))
+                    ->icon(Heroicon::OutlinedCalendarDays)
+                    ->visible(fn (): bool => static::hasModule(PlannerFeature::VolunteerPoints))
+                    ->schema([
+                        DatePicker::make('half_1_start')->label(__('Helft 1 vanaf'))->native(false)->displayFormat('d-m-Y')->requiredWith('half_1_end'),
+                        DatePicker::make('half_1_end')->label(__('Helft 1 tot en met'))->native(false)->displayFormat('d-m-Y')->afterOrEqual('half_1_start')->requiredWith('half_1_start'),
+                        DatePicker::make('half_2_start')->label(__('Helft 2 vanaf'))->native(false)->displayFormat('d-m-Y')->requiredWith('half_2_end'),
+                        DatePicker::make('half_2_end')->label(__('Helft 2 tot en met'))->native(false)->displayFormat('d-m-Y')->afterOrEqual('half_2_start')->requiredWith('half_2_start'),
+                    ])->columns(2),
+                Section::make(__('Clubbrede regels'))
+                    ->description(__('Wie fluit, telt of zaaldienst doet staat per team, bij de planningsuitzonderingen van het team. Teamcodes mogen als HS 1 of HS1 geschreven worden.'))
                     ->icon(Heroicon::OutlinedShieldCheck)
                     ->schema([
-                        TagsInput::make('duty_rules.no_referee')
-                            ->label(__('Teams die nooit fluiten'))
-                            ->placeholder('DS 10')
-                            ->helperText(__('Deze teams worden nooit als scheidsrechter voorgesteld.')),
+                        TagsInput::make('duty_rules.restricted_referee_teams')
+                            ->label(__('Teams met een vaste fluitploeg'))
+                            ->placeholder('HS 2')
+                            ->helperText(__('Bij thuiswedstrijden van deze teams worden alleen teams met "Fluit bij de teams met een vaste fluitploeg" voorgesteld.')),
+                        TagsInput::make('duty_rules.scorer_heavy_teams')
+                            ->label(__('Zware wedstrijden om te tellen'))
+                            ->placeholder('HS 1')
+                            ->helperText(__('Teams met "Niet tellen bij zware wedstrijden" tellen niet bij thuiswedstrijden van deze teams.')),
+                        TextInput::make('duty_rules.scorer_cutoff')
+                            ->label(__('Niet tellen vanaf'))
+                            ->placeholder('19:00')
+                            ->rule('date_format:H:i')
+                            ->required()
+                            ->helperText(__('Teams met "Niet tellen na ... uur" tellen niet bij wedstrijden die om deze tijd of later beginnen.')),
+                        TextInput::make('duty_rules.home_city')
+                            ->label(__('Thuisplaats'))
+                            ->placeholder(fn (): ?string => Venue::query()->whereKey(PlannerSetting::current()->main_venue_id)->value('city'))
+                            ->maxLength(100)
+                            ->helperText(__('Een uitwedstrijd in deze plaats telt als een wedstrijd in de eigen hal; daarbuiten is het team de hele dag weg. Leeg betekent de plaats van de hoofdsporthal.')),
                         TagsInput::make('duty_rules.lower_class_terms')
                             ->label(__('Woorden die een lagere klasse aanduiden'))
                             ->placeholder('3e')
-                            ->helperText(__('A-jeugd en damesteams uit deze klassen mogen alleen jeugd of deze klassen fluiten.')),
-                        Repeater::make('duty_rules.referee_requirements')
-                            ->label(__('Wedstrijden met een vaste fluitploeg'))
-                            ->addActionLabel(__('Regel toevoegen'))
-                            ->schema([
-                                TextInput::make('team')->label(__('Thuisspelend team'))->placeholder('HS 2')->required(),
-                                TagsInput::make('allowed')->label(__('Mag gefloten worden door'))->placeholder('HS 1')->required(),
-                            ])
-                            ->columns(2)
-                            ->columnSpanFull()
-                            ->defaultItems(0)
-                            ->helperText(__('Staat een wedstrijd hier niet bij, dan mag ieder team fluiten dat verder aan de regels voldoet.')),
-                        TagsInput::make('duty_rules.scorer_heavy_teams')
-                            ->label(__('Wedstrijden waar C-jeugd niet mag tellen'))
-                            ->placeholder('HS 1'),
-                        TextInput::make('duty_rules.scorer_cutoff')
-                            ->label(__('C-jeugd telt niet meer vanaf'))
-                            ->placeholder('19:00')
-                            ->rule('date_format:H:i')
-                            ->required(),
-                        TagsInput::make('duty_rules.hall_duty_codes')
-                            ->label(__('Teamcodes die zaaldienst mogen doen'))
-                            ->placeholder('DS')
-                            ->helperText(__('Er wordt naar het begin van de teamcode gekeken: DS dekt DS 1 tot en met DS 10.'))
+                            ->helperText(__('Herkent de wedstrijden van dames uit een lagere klasse.'))
                             ->columnSpanFull(),
-                        TextInput::make('duty_rules.max_duties_per_day')
-                            ->label(__('Maximaal aantal taken per team per dag'))
-                            ->numeric()
-                            ->minValue(0)
-                            ->maxValue(20)
-                            ->required()
-                            ->helperText(__('Fluiten, tellen en zaaldienst bij elkaar. 0 betekent geen grens; de generator laat een taak dan liever leeg dan dat hij een team een hele dag achter elkaar inzet.')),
                     ])->columns(2),
             ]);
     }

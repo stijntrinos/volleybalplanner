@@ -80,13 +80,13 @@ class DutyDraftOverviewTest extends TestCase
     public function test_rejections_hang_on_the_right_field(): void
     {
         $rows = collect($this->overview($this->draft(), [
-            'matches' => [2 => ['scorer' => ['C-jeugd mag niet tellen vanaf 19:00.']]],
+            'matches' => [2 => ['scorer' => ['Niet voorgesteld: Het team traint op dat moment.']]],
             'hall_duties' => [0 => ['Het team heeft die dag een uitwedstrijd.']],
         ])[0]['rows']);
 
         // The C youth time limit is a club preference the committee may
         // deliberately overrule, so it is listed with the warnings.
-        $this->assertSame(['C-jeugd mag niet tellen vanaf 19:00.'], $rows->firstWhere('code', 'W-2')['scorer']['warnings']);
+        $this->assertSame(['Niet voorgesteld: Het team traint op dat moment.'], $rows->firstWhere('code', 'W-2')['scorer']['warnings']);
         $this->assertSame([], $rows->firstWhere('code', 'W-2')['scorer']['errors']);
         $this->assertSame([], $rows->firstWhere('code', 'W-2')['referee']['errors']);
         $this->assertSame(['Het team heeft die dag een uitwedstrijd.'], $rows->firstWhere('type', 'hall_duty')['team']['errors']);
@@ -95,7 +95,7 @@ class DutyDraftOverviewTest extends TestCase
     public function test_a_warning_does_not_count_as_an_issue(): void
     {
         $blocks = $this->overview($this->draft(), [
-            'matches' => [2 => ['scorer' => ['C-jeugd mag niet tellen vanaf 19:00.']]],
+            'matches' => [2 => ['scorer' => ['Niet voorgesteld: Het team traint op dat moment.']]],
         ]);
 
         $this->assertSame(0, $blocks[0]['counts']['issues'], 'A deliberate choice should not block applying.');

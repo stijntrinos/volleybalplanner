@@ -5,6 +5,9 @@ namespace App\Planner\Filament\Resources\Teams\Tables;
 use App\Planner\Features\PlannerFeature;
 use App\Planner\Filament\Resources\Teams\Schemas\TeamForm;
 use App\Planner\Models\Team;
+use App\Planner\Services\Duties\PointsBalance;
+use App\Planner\Services\DutyTallyService;
+use App\Planner\Support\TeamCode;
 use App\Support\Tenancy\CurrentClub;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -48,24 +51,35 @@ class TeamsTable
                     ->label(__('Inzet & automatisering'))
                     ->view('planner::filament.tables.columns.team-traits'),
 
-                TextColumn::make('points_balance')
-                    ->label(__('Puntenbalans'))
+                // The minimum is the yardstick; the need only shows on the
+                // Standing tab. A team without a minimum shows no standing.
+                TextColumn::make('minimum')
+                    ->label(__('Minimum'))
                     ->visible($volunteerPoints)
-                    ->state(fn (Team $record): int => $record->volunteer_points_earned - $record->volunteer_points_used)
-                    ->formatStateUsing(fn (int $state): string => ($state > 0 ? '+' : '').$state)
-                    ->description(fn (Team $record): string => __(':earned geleverd · :used ontvangen', [
-                        'earned' => $record->volunteer_points_earned,
-                        'used' => $record->volunteer_points_used,
+                    ->state(fn (Team $record): string => self::balance($record)->hasMinimum() ? (string) self::balance($record)->minimum() : __('Geen minimum'))
+                    ->color(fn (Team $record): ?string => self::balance($record)->hasMinimum() ? null : 'gray')
+                    ->alignEnd(),
+                TextColumn::make('total_earned')
+                    ->label(__('Totaal geleverd'))
+                    ->visible($volunteerPoints)
+                    ->state(fn (Team $record): int => self::balance($record)->total())
+                    ->description(fn (Team $record): string => __(':earned geleverd · :planned ingepland', [
+                        'earned' => self::balance($record)->earned,
+                        'planned' => self::balance($record)->planned,
                     ]))
-                    ->badge()
-                    ->color(fn (int $state): string => match (true) {
-                        $state > 0 => 'success',
-                        $state < 0 => 'warning',
-                        default => 'gray',
+                    ->alignEnd(),
+                TextColumn::make('remaining')
+                    ->label(__('Nog in te vullen'))
+                    ->visible($volunteerPoints)
+                    ->state(fn (Team $record): string => self::remaining(self::balance($record)))
+                    ->description(fn (Team $record): ?string => self::balance($record)->isAboveTarget() ? __('Boven doel') : null)
+                    ->color(fn (Team $record): ?string => match (true) {
+                        self::balance($record)->isBelowMinimum() => 'warning',
+                        self::balance($record)->isAboveTarget() => 'success',
+                        default => null,
                     })
-                    ->sortable(query: fn ($query, string $direction) => $query->orderByRaw(
-                        '(volunteer_points_earned - volunteer_points_used) '.($direction === 'desc' ? 'desc' : 'asc'),
-                    )),
+                    ->weight(FontWeight::SemiBold)
+                    ->alignEnd(),
             ])
             ->filters(array_values(array_filter([
                 $lockerRooms ? SelectFilter::make('locker_room_category')
@@ -90,5 +104,25 @@ class TeamsTable
             ->emptyStateHeading(__('Nog geen teams'))
             ->emptyStateDescription(__('Voeg teams toe of importeer een wedstrijdplanning om te beginnen.'))
             ->emptyStateIcon('heroicon-o-user-group');
+    }
+
+    private static function balance(Team $record): PointsBalance
+    {
+        // Once per request, not per row.
+        $planned = once(fn (): array => ($version = DutyTallyService::displayableVersion())
+            ? app(DutyTallyService::class)->plannedPerTeam($version)
+            : []);
+
+        return PointsBalance::forTeam($record, $planned[TeamCode::key($record->code)]['total'] ?? 0);
+    }
+
+    /** The shortfall to the minimum, a negative number above it and nothing without a minimum. */
+    private static function remaining(PointsBalance $balance): string
+    {
+        return match (true) {
+            !$balance->hasMinimum() => '',
+            $balance->isAboveTarget() => '-'.$balance->aboveMinimum(),
+            default => (string) $balance->remaining(),
+        };
     }
 }

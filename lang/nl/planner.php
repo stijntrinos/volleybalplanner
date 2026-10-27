@@ -14,9 +14,9 @@ return [
     ],
     'feature_descriptions' => [
         'away_matches' => 'Uitwedstrijden volgen en verzetten in overleg met de thuisclub.',
-        'duties' => 'Fluiten, tellen en zaaldienst automatisch voorstellen en verdelen over teams.',
-        'volunteer_points' => 'Punten bijhouden per team voor de diensten die ze draaien. Vereist Diensten.',
-        'volleystars' => 'VolleyStars-blokken met eigen taken op het dagrooster. Vereist Diensten.',
+        'duties' => 'Fluiten, tellen en zaaldienst automatisch voorstellen volgens vaste planningsregels, met uitzonderingen en afwezigheid per team en een teamkeuze die laat zien waarom.',
+        'volunteer_points' => 'Een minimum per team op basis van de behoefte, eerlijk verdeeld per seizoenshelft, met vaste punten per dienst en import van de puntenlijst. Vereist Diensten.',
+        'volleystars' => 'VolleyStars-blokken met opbouw, tellen, fluiten en afbouw op het dagrooster, verdeeld volgens dezelfde planningsregels. Vereist Diensten.',
         'trainings' => 'Trainingsschema inlezen, zodat de planner er rekening mee houdt.',
         'change_requests' => 'Teams vragen via een gedeelde link om een wedstrijd of dienst te verzetten.',
         'locker_rooms' => 'Kleedkamers indelen en tonen op het dagschema.',
@@ -40,12 +40,12 @@ return [
     ],
     'permission_group_descriptions' => [
         'planning' => 'Thuis- en uitwedstrijden verplaatsen, sporthalbezetting en zaalactiviteiten.',
-        'duties' => 'FTZ-planner, zaaldiensten, VolleyStars en het taken-dashboard.',
+        'duties' => 'FTZ-planning, zaaldiensten, VolleyStars en het taken-dashboard.',
         'versions' => 'Concepten maken en dupliceren, een versie actief maken of verwijderen.',
         'imports' => 'Planning importeren, teambronnen en Nevobo-wijzigingen verwerken.',
         'requests' => 'Verzoeken van teams accepteren, afwijzen of parkeren.',
         'master_data' => 'Teams, sporthallen en velden, beschikbaarheid, trainingsschema en bondskalender.',
-        'settings' => 'Seizoen, hoofdsporthal, FTZ-regels, punten, clubkleur en logo.',
+        'settings' => 'Seizoen, hoofdsporthal, maxima voor diensten, punten, clubkleur en logo.',
         'exports' => 'Excel, PDF, dagschema en conflictrapport downloaden.',
     ],
 ];
