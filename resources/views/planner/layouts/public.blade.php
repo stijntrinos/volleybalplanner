@@ -37,8 +37,8 @@
             <meta property="og:image" content="{{ $logo }}">
         @endif
     @endif
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=outfit:400,500,600,700&display=swap" rel="stylesheet">
+    <link rel="preload" href="{{ asset('fonts/outfit/outfit-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ asset('fonts/outfit/outfit-latin-600-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
     @vite('resources/css/app.css')
     <style>
         :root { --planner-primary: {{ $primary }}; }
@@ -52,9 +52,9 @@
         .planner-logo { height: 2.5rem; width: auto; max-width: 10rem; object-fit: contain; }
         .planner-club-name { font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em; }
         .planner-main { flex: 1 0 auto; }
-        .planner-footer { border-top: 1px solid #d6dfe3; background: #fff; color: #7d909a; font-size: 0.8125rem; }
+        .planner-footer { border-top: 1px solid #d6dfe3; background: #fff; color: #526672; font-size: 0.8125rem; }
         .planner-footer-inner { justify-content: center; gap: 0.375rem; }
-        .planner-footer-inner a { display: inline-flex; align-items: center; gap: 0.375rem; color: #7d909a; text-decoration: none; }
+        .planner-footer-inner a { display: inline-flex; align-items: center; gap: 0.375rem; color: #526672; text-decoration: none; }
         .planner-footer-inner strong { font-weight: 600; }
         /* Club colour utilities used by the public views. */
         .planner-text-primary, .planner-public a.planner-text-primary { color: var(--planner-primary); }
@@ -94,7 +94,7 @@
             <div class="planner-footer-inner">
                 <a href="{{ url('/') }}">
                     <span>{{ __('Gepland met') }}</span>
-                    <svg viewBox="0 0 48 48" width="14" height="14" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" fill="#7D909A"></rect><g transform="translate(36 12)" fill="none" stroke="#7D909A" stroke-width="3.8" stroke-linecap="round"><circle r="8.1"></circle><path d="M0 0 Q3.98 -3.34 0 -8.1"></path><path d="M0 0 Q0.9 5.12 7.01 4.05"></path><path d="M0 0 Q-4.89 -1.78 -7.01 4.05"></path></g><rect x="2" y="26" width="20" height="20" rx="5" fill="#7D909A"></rect><rect x="26" y="26" width="20" height="20" rx="5" fill="#7D909A"></rect></svg>
+                    <svg viewBox="0 0 48 48" width="14" height="14" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" fill="#526672"></rect><g transform="translate(36 12)" fill="none" stroke="#526672" stroke-width="3.8" stroke-linecap="round"><circle r="8.1"></circle><path d="M0 0 Q3.98 -3.34 0 -8.1"></path><path d="M0 0 Q0.9 5.12 7.01 4.05"></path><path d="M0 0 Q-4.89 -1.78 -7.01 4.05"></path></g><rect x="2" y="26" width="20" height="20" rx="5" fill="#526672"></rect><rect x="26" y="26" width="20" height="20" rx="5" fill="#526672"></rect></svg>
                     <strong>{{ config('app.name') }}</strong>
                 </a>
             </div>

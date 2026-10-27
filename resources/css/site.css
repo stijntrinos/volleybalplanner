@@ -3,6 +3,8 @@
  * Prijzen, Contact). Plain CSS on the same tokens as the panel theme.
  */
 
+@import './fonts.css';
+
 :root {
     --surface: #f3f6f7;
     --raised: #ffffff;
@@ -993,7 +995,7 @@ p {
     gap: 6px;
     padding: 0 16px 12px;
     font-size: 11px;
-    color: var(--ink-faint);
+    color: var(--ink-muted);
 }
 
 .schedule-mock-credit strong {

@@ -201,7 +201,7 @@
                 </div>
                 <div class="schedule-mock-credit">
                     <span>Gepland met</span>
-                    <x-site.mark :size="12" ink="#7D909A" ball="none" />
+                    <x-site.mark :size="12" ink="#526672" ball="none" />
                     <strong>Volleybalplanner</strong>
                 </div>
             </div>

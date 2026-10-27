@@ -13,9 +13,10 @@
     <title>@yield('title') · Volleybalplanner</title>
     {{-- The site font when it loads; the system font otherwise. --}}
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=outfit:400,600,700&display=swap" rel="stylesheet">
     <style>
+        @foreach ([400, 600, 700] as $weight)
+            @font-face { font-family:'Outfit'; font-weight:{{ $weight }}; font-display:swap; src:url('{{ asset("fonts/outfit/outfit-latin-{$weight}-normal.woff2") }}') format('woff2'); }
+        @endforeach
         :root { --surface:#f3f6f7; --raised:#fff; --line:#d6dfe3; --ink:#15232c; --muted:#526672; --faint:#7d909a; --brand:#2f4858; --brand-strong:#213440; --brand-soft:#ddfbef; }
         *, *::before, *::after { box-sizing: border-box; }
         body { margin:0; min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; background:var(--surface); color:var(--ink); font-family:'Outfit','Segoe UI',system-ui,-apple-system,sans-serif; font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased; }
