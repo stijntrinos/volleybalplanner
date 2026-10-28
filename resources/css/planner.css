@@ -260,7 +260,7 @@
 .dark .planner-unplanned-trigger.is-active{background:#1d3a37;color:#b9f3db}
 .dark .planner-unplanned-badge{border-color:#1f2937}
 @media(min-width:901px){.planner-layout{min-height:0;align-items:stretch}
-.planner-scroll,.planner-unplanned{height:clamp(680px,calc(100vh - 14rem),1050px)}
+.planner-scroll,.planner-unplanned{height:clamp(420px,calc(100vh - 14rem),1050px)}
 .planner-unplanned{overflow:auto}
 .planner-toolbar-primary{min-width:0;flex:1}
 .planner-toolbar-secondary{flex:0 0 auto}
