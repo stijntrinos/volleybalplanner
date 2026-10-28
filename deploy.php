@@ -22,6 +22,13 @@ task('deploy:styling', function () {
 });
 after('deploy:vendors', 'deploy:styling');
 
+// .npmrc sets ignore-scripts, so puppeteer's postinstall never fetches the
+// headless shell that Browsershot needs; an upgrade then breaks the images.
+task('deploy:chrome', function () {
+    run('cd {{release_path}} && npx puppeteer browsers install chrome-headless-shell');
+});
+after('deploy:styling', 'deploy:chrome');
+
 task('deploy:reload-php', function () {
     run('sudo -S service php8.5-fpm reload');
 });

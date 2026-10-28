@@ -40,8 +40,10 @@ trait RendersWithChrome
      */
     protected function browser(string $html): Browsershot
     {
+        // No newHeadless(): that starts the full Chrome, which needs desktop
+        // libraries (cups, cairo, pango) the server lacks. The headless shell
+        // renders the same without them.
         $browsershot = Browsershot::html($html)
-            ->newHeadless()
             // Ubuntu 23.10 and later block unprivileged user namespaces via
             // AppArmor; Chrome then cannot set up its sandbox and stops with
             // "No usable sandbox". The alternative is switching that protection
