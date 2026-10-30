@@ -185,6 +185,7 @@ class ConflictEngineTest extends TestCase
         $this->assertContains(ConflictEngine::TYPE_COURT_OVERLAP, array_column($findings, 'type'));
         $this->assertContains(ConflictEngine::TYPE_TEAM, array_column($findings, 'type'));
         $this->assertContains($other->id, array_column($findings, 'match_id'));
+        $this->assertSame(ConflictEngine::LEVEL_WARNING, collect($findings)->firstWhere('type', ConflictEngine::TYPE_TEAM)['level']);
     }
 
     public function test_same_team_on_the_same_day_without_overlap_is_a_warning(): void

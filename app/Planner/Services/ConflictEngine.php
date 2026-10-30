@@ -270,9 +270,12 @@ class ConflictEngine
             $otherTeams = collect($this->detectTeams((string) $other->home_team_name, $teams))
                 ->merge($this->detectTeams((string) $other->away_team_name, $teams));
             foreach ($involved->intersect($otherTeams) as $code) {
+                // Even an overlapping match of the same team stays a warning:
+                // on a tournament or double match day that is intended, and it
+                // must not hold up publishing.
                 $overlap = $this->overlaps($time, $duration, $other->time, $other->duration_minutes);
                 $findings[] = [
-                    'level' => $overlap ? self::LEVEL_CONFLICT : self::LEVEL_WARNING,
+                    'level' => self::LEVEL_WARNING,
                     'type' => self::TYPE_TEAM,
                     'message' => $overlap
                         ? __('Team :code speelt dan ook :match.', ['code' => $code, 'match' => $this->describe($other)])

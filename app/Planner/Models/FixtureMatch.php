@@ -9,6 +9,7 @@ use App\Planner\Enums\MatchType;
 use App\Planner\Enums\NevoboChangeStatus;
 use App\Planner\Enums\NevoboStatus;
 use App\Planner\Services\Duties\DutyPoints;
+use App\Planner\Support\VenueName;
 use App\Support\Tenancy\BelongsToClub;
 use Database\Factories\Planner\FixtureMatchFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -240,8 +241,31 @@ class FixtureMatch extends Model
     {
         return $this->original_date?->toDateString() !== $this->date?->toDateString()
             || self::shortTime($this->original_time) !== self::shortTime($this->time)
-            || ($this->original_venue && $this->original_venue !== $this->venue?->name)
+            || !$this->isInNevoboVenue()
             || ($this->original_court && $this->original_court !== $this->court?->name);
+    }
+
+    /**
+     * Whether the match is in the venue Nevobo gave. Nevobo often writes the
+     * venue differently than we do, for example "Sporthal Middachtensingel,
+     * Middachtensingel 4, 6825HN Arnhem" versus "Middachtensingel". When the
+     * Nevobo name points to our venue by name, venue code or alias, it is the same.
+     */
+    public function isInNevoboVenue(): bool
+    {
+        $name = $this->original_venue;
+        if (!filled($name)) {
+            return true;
+        }
+
+        $venue = $this->venue;
+        if ($venue === null) {
+            return false;
+        }
+
+        return VenueName::equals($venue->name, $name)
+            || VenueName::equals($venue->venue_code, $name)
+            || $venue->aliases->contains(fn (VenueAlias $alias): bool => VenueName::equals($alias->name, $name));
     }
 
     /**

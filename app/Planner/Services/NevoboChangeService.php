@@ -23,12 +23,14 @@ class NevoboChangeService
             ->keyBy(fn (NevoboChange $change): string => $change->match_id.':'.$change->field->value);
 
         return $version->matches()->where('match_type', MatchType::Home)
-            ->with(['venue', 'court'])->orderBy('date')->orderBy('time')->get()
+            ->with(['venue.aliases', 'court'])->orderBy('date')->orderBy('time')->get()
             ->map(function (FixtureMatch $match) use ($processed, $version): ?array {
                 $values = [
                     NevoboChangeField::Date->value => [$match->original_date?->toDateString(), $match->date?->toDateString()],
                     NevoboChangeField::Time->value => [FixtureMatch::shortTime($match->original_time), FixtureMatch::shortTime($match->time)],
-                    NevoboChangeField::Venue->value => [$match->original_venue, $match->venue?->name],
+                    NevoboChangeField::Venue->value => $match->isInNevoboVenue()
+                        ? [null, null]
+                        : [$match->original_venue, $match->venue?->name],
                     NevoboChangeField::Court->value => [$match->original_court, $match->court?->name],
                 ];
                 $fields = collect($values)->filter(fn (array $pair): bool => ($pair[0] ?? null) !== ($pair[1] ?? null))

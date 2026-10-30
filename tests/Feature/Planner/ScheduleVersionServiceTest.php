@@ -5,10 +5,10 @@ namespace Tests\Feature\Planner;
 use App\Planner\Enums\NevoboChangeStatus;
 use App\Planner\Enums\ScheduleVersionStatus;
 use App\Planner\Exceptions\PublishBlocked;
+use App\Planner\Models\Court;
 use App\Planner\Models\FixtureMatch;
-use App\Planner\Models\PlannerSetting;
 use App\Planner\Models\ScheduleVersion;
-use App\Planner\Models\Team;
+use App\Planner\Models\Venue;
 use App\Planner\Services\ScheduleVersionService;
 use App\Support\Tenancy\CurrentClub;
 use Illuminate\Database\QueryException;
@@ -119,13 +119,13 @@ class ScheduleVersionServiceTest extends TestCase
 
     public function test_publishing_is_blocked_on_hard_conflicts(): void
     {
-        PlannerSetting::current()->update(['team_name_patterns' => ['AETOS']]);
         $version = ScheduleVersion::factory()->create();
-        Team::factory()->create(['code' => 'HS1']);
+        $venue = Venue::factory()->create();
+        $court = Court::factory()->create(['venue_id' => $venue->id]);
         FixtureMatch::factory()->count(2)->create([
             'version_id' => $version->id,
-            'date' => '2026-09-12', 'time' => '10:00',
-            'home_team_name' => 'AETOS HS1',
+            'date' => '2026-09-12', 'time' => '10:00', 'duration_minutes' => 105,
+            'venue_id' => $venue->id, 'court_id' => $court->id,
         ]);
 
         try {

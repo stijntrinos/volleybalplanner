@@ -10,6 +10,7 @@ use App\Planner\Models\FixtureMatch;
 use App\Planner\Models\NevoboChange;
 use App\Planner\Models\ScheduleVersion;
 use App\Planner\Models\Venue;
+use App\Planner\Models\VenueAlias;
 use App\Planner\Services\NevoboChangeService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithClubs;
@@ -65,5 +66,32 @@ class NevoboChangeServiceTest extends TestCase
             NevoboChange::query()->where('match_id', $match->id)->where('is_processed', true)->count(),
             'All changed fields should be processed in one go.',
         );
+    }
+
+    public function test_the_same_venue_under_another_nevobo_name_is_no_change(): void
+    {
+        $version = ScheduleVersion::factory()->create(['status' => ScheduleVersionStatus::Draft]);
+        $venue = Venue::factory()->create(['name' => 'Middachtensingel']);
+        VenueAlias::create(['venue_id' => $venue->id, 'name' => 'Sporthal Middachtensingel']);
+        $otherVenue = Venue::factory()->create(['name' => 'Valkenhuizen']);
+
+        $base = [
+            'version_id' => $version->id, 'date' => '2026-09-12', 'time' => '10:45',
+            'original_date' => '2026-09-12', 'original_time' => '10:45',
+            'court_id' => null, 'original_court' => null,
+            'original_venue' => 'Sporthal Middachtensingel, Middachtensingel 4, 6825HN Arnhem',
+        ];
+        $same = FixtureMatch::factory()->create([...$base, 'venue_id' => $venue->id]);
+        $moved = FixtureMatch::factory()->create([...$base, 'venue_id' => $otherVenue->id]);
+
+        $changes = collect(app(NevoboChangeService::class)->forVersion($version));
+
+        $this->assertNull($changes->firstWhere('match_id', $same->id), 'Only the spelling differs.');
+        $this->assertSame(['venue'], array_column($changes->firstWhere('match_id', $moved->id)['fields'], 'field'));
+
+        // The nightly sync uses the same rule: only a real move holds back a
+        // new Nevobo schedule.
+        $this->assertFalse($same->fresh()->deviatesFromNevobo());
+        $this->assertTrue($moved->fresh()->deviatesFromNevobo());
     }
 }

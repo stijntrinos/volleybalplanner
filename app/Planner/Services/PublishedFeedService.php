@@ -29,7 +29,7 @@ class PublishedFeedService
         return $version->matches()->where('match_type', MatchType::Home)
             ->whereNotNull('date')->whereNotNull('time')
             ->when($date, fn ($query) => $query->whereDate('date', $date))
-            ->with(['venue', 'court', 'homeTeam'])->orderBy('date')->orderBy('time')->get();
+            ->with(['venue.aliases', 'court', 'homeTeam'])->orderBy('date')->orderBy('time')->get();
     }
 
     /** @param Collection<int, FixtureMatch> $matches */
@@ -41,7 +41,7 @@ class PublishedFeedService
             // that was never moved has no original_* values at all.
             $changed = ($match->original_date && $match->original_date->toDateString() !== $match->date?->toDateString())
                 || ($match->original_time && substr($match->original_time, 0, 5) !== $time)
-                || ($match->original_venue && $match->original_venue !== $match->venue?->name)
+                || !$match->isInNevoboVenue()
                 || ($match->original_court && $match->original_court !== $match->court?->name);
             $itemTitle = "{$match->date->toDateString()} {$time} · {$match->home_team_name} vs {$match->away_team_name} — {$match->venue?->name} {$match->court?->name}"
                 .($changed ? ' ['.__('GEWIJZIGD').']' : '');

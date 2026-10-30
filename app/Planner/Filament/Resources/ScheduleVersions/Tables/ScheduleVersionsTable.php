@@ -100,6 +100,9 @@ class ScheduleVersionsTable
                                     'version' => $record->name,
                                     'conflicts' => $blocked->conflicts,
                                 ]);
+                                // Without a status Filament assumes success and reports
+                                // "now active" while nothing was published.
+                                $action->failure();
 
                                 return;
                             }

@@ -5,10 +5,12 @@ namespace Tests\Feature\Planner\Filament;
 use App\Planner\Enums\ScheduleVersionStatus;
 use App\Planner\Filament\Resources\ScheduleVersions\Pages\CreateScheduleVersion;
 use App\Planner\Filament\Resources\ScheduleVersions\Pages\ListScheduleVersions;
+use App\Planner\Models\Court;
 use App\Planner\Models\FixtureMatch;
 use App\Planner\Models\PlannerSetting;
 use App\Planner\Models\ScheduleVersion;
 use App\Planner\Models\Team;
+use App\Planner\Models\Venue;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -32,7 +34,8 @@ class ScheduleVersionResourceActionsTest extends TestCase
         $version = ScheduleVersion::factory()->create();
 
         Livewire::test(ListScheduleVersions::class)
-            ->callTableAction('publish', $version);
+            ->callTableAction('publish', $version)
+            ->assertNotified(__('Planningversie is nu actief'));
 
         $this->assertTrue($version->refresh()->isPublished());
     }
@@ -43,6 +46,35 @@ class ScheduleVersionResourceActionsTest extends TestCase
      */
     public function test_a_blocked_publication_opens_the_conflict_overview(): void
     {
+        $version = ScheduleVersion::factory()->create();
+        $venue = Venue::factory()->create();
+        $court = Court::factory()->create(['venue_id' => $venue->id]);
+        FixtureMatch::factory()->count(2)->create([
+            'version_id' => $version->id,
+            'date' => '2026-09-12', 'time' => '10:00', 'duration_minutes' => 105,
+            'venue_id' => $venue->id, 'court_id' => $court->id,
+        ]);
+
+        $test = Livewire::test(ListScheduleVersions::class)
+            ->callTableAction('publish', $version)
+            ->assertActionMounted('publishConflicts')
+            ->assertNotNotified(__('Planningversie is nu actief'));
+
+        $arguments = $test->instance()->mountedActions[0]['arguments'];
+        $this->assertSame($version->name, $arguments['version']);
+        $this->assertContains(
+            __('Het veld is al bezet.'),
+            collect($arguments['conflicts'])->pluck('message')->all(),
+        );
+        $this->assertFalse($version->refresh()->isPublished());
+    }
+
+    /**
+     * A team with two overlapping matches (like a double match day) is a
+     * warning, not a hard conflict: publishing goes ahead.
+     */
+    public function test_an_overlapping_match_of_one_team_does_not_block_publishing(): void
+    {
         PlannerSetting::current()->update(['team_name_patterns' => ['AETOS']]);
         $version = ScheduleVersion::factory()->create();
         Team::factory()->create(['code' => 'HS1']);
@@ -51,17 +83,11 @@ class ScheduleVersionResourceActionsTest extends TestCase
             'date' => '2026-09-12', 'time' => '10:00', 'home_team_name' => 'AETOS HS1',
         ]);
 
-        $test = Livewire::test(ListScheduleVersions::class)
+        Livewire::test(ListScheduleVersions::class)
             ->callTableAction('publish', $version)
-            ->assertActionMounted('publishConflicts');
+            ->assertActionNotMounted('publishConflicts');
 
-        $arguments = $test->instance()->mountedActions[0]['arguments'];
-        $this->assertSame($version->name, $arguments['version']);
-        $this->assertContains(
-            'Team HS1 speelt dan ook AETOS HS1 – '.FixtureMatch::query()->latest('id')->value('away_team_name').' om 10:00.',
-            collect($arguments['conflicts'])->pluck('message')->all(),
-        );
-        $this->assertFalse($version->refresh()->isPublished());
+        $this->assertTrue($version->refresh()->isPublished());
     }
 
     public function test_the_duplicate_action_makes_a_copy(): void
